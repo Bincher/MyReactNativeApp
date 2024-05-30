@@ -1,9 +1,24 @@
+// src/screens/Main/index.tsx
 import React from 'react';
-import { Image } from 'react-native';
-import { View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { Image, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 
-const Main = () => {
+type RootStackParamList = {
+    Main: undefined;
+    MyServer: undefined;
+};
+
+type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
+type MainScreenRouteProp = RouteProp<RootStackParamList, 'Main'>;
+
+type Props = {
+    navigation: MainScreenNavigationProp;
+    route: MainScreenRouteProp;
+};
+
+const Main: React.FC<Props> = ({ navigation }) => {
     const handleMenuPress = () => {
         console.log('Menu button pressed');
     };
@@ -13,7 +28,11 @@ const Main = () => {
     };
 
     const handleContentButtonPress = (buttonName: string) => {
-        console.log(`${buttonName} button pressed`);
+        if (buttonName === 'MyServer') {
+            navigation.navigate('MyServer');
+        } else {
+            console.log(`${buttonName} button pressed`);
+        }
     };
 
     return (
@@ -28,12 +47,12 @@ const Main = () => {
                 </TouchableOpacity>
             </View>
             <View style={styles.content}>
-                <TouchableOpacity onPress={() => handleContentButtonPress('Button 3')} style={styles.contentButton}>
-                    <Image source={require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/game_server.png')} style={styles.image} />
+                <TouchableOpacity onPress={() => handleContentButtonPress('MyServer')} style={styles.contentButton}>
+                    <Image source={require('../../assets/images/game_server.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>나의 서버</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleContentButtonPress('Button 4')} style={styles.contentButton}>
-                    <Image source={require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/game.png')} style={styles.image} />
+                    <Image source={require('../../assets/images/game.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>나의 게임</Text>
                 </TouchableOpacity>
                 <View style={styles.row}>
