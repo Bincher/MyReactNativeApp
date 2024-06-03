@@ -1,4 +1,26 @@
 import { Server } from '../types/Server'; 
+import { Game } from '../types/Game';
+
+export const gameData: Game[] = [
+    {
+        id: '1',
+        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/광부의전설.png'),
+        gameName: '광부의전설',
+        genre: '어드벤쳐',
+    },
+    {
+        id: '2',
+        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/엘든팰.png'),
+        gameName: '엘든팰',
+        genre: 'RPG',
+    },
+    {
+        id: '3',
+        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/사이비펑크.png'),
+        gameName: '사이비펑크',
+        genre: '액션',
+    },
+];
 
 export const serverData: Server[] = [
     {

@@ -8,6 +8,7 @@ import { RouteProp } from '@react-navigation/native';
 type RootStackParamList = {
     Main: undefined;
     MyServer: undefined;
+    GameList: undefined;
 };
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
@@ -30,6 +31,8 @@ const Main: React.FC<Props> = ({ navigation }) => {
     const handleContentButtonPress = (buttonName: string) => {
         if (buttonName === 'MyServer') {
             navigation.navigate('MyServer');
+        } else if(buttonName === 'MakingServer'){
+            navigation.navigate('GameList');
         } else {
             console.log(`${buttonName} button pressed`);
         }
@@ -51,7 +54,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
                     <Image source={require('../../assets/images/game_server.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>나의 서버</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleContentButtonPress('Button 4')} style={styles.contentButton}>
+                <TouchableOpacity onPress={() => handleContentButtonPress('MakingServer')} style={styles.contentButton}>
                     <Image source={require('../../assets/images/game.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>서버 생성</Text>
                 </TouchableOpacity>
