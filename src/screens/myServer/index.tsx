@@ -1,44 +1,24 @@
-// src/screens/myServer/index.tsx
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList, ListRenderItem, TouchableOpacity } from 'react-native';
+import { serverData } from '../../mocks';
+import { Server } from '../../types/Server';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 // Define the Server interface
-interface Server {
-    id: string;
-    gameImage: any; // Type for require statements
-    gameName: string;
-    serverName: string;
-    creationDate: string;
-}
 
-const serverData: Server[] = [
-    {
-        id: '1',
-        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/광부의전설.png'),
-        gameName: '광부의전설',
-        serverName: '동아리전용',
-        creationDate: '2023-06-01',
-    },
-    {
-        id: '2',
-        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/엘든팰.png'),
-        gameName: '엘든팰',
-        serverName: '친구랑 할거',
-        creationDate: '2023-06-02',
-    },
-    {
-        id: '3',
-        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/사이비펑크.png'),
-        gameName: '사이비펑크',
-        serverName: '커뮤니티 단체 서버',
-        creationDate: '2023-06-03',
-    },
-];
+type RootStackParamList = {
+    MyServer: undefined;
+    ServerDetails: { server: Server };
+};
+
+type MyServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyServer'>;
 
 const MyServer: React.FC = () => {
+    const navigation = useNavigation<MyServerScreenNavigationProp>();
+
     const handleCardPress = (server: Server) => {
-        // 카드 클릭 시 처리할 이벤트
-        console.log(`${server.serverName} card pressed`);
+        navigation.navigate('ServerDetails', { server });
     };
 
     const renderServerCard: ListRenderItem<Server> = ({ item }) => (

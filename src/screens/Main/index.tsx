@@ -53,7 +53,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleContentButtonPress('Button 4')} style={styles.contentButton}>
                     <Image source={require('../../assets/images/game.png')} style={styles.image} />
-                    <Text style={styles.contentButtonText}>나의 게임</Text>
+                    <Text style={styles.contentButtonText}>서버 생성</Text>
                 </TouchableOpacity>
                 <View style={styles.row}>
                     <TouchableOpacity onPress={() => handleContentButtonPress('Button 1')} style={styles.rowButton}>
