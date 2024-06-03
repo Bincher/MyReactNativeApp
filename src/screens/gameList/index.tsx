@@ -3,9 +3,11 @@ import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image } 
 import { Game } from '../../types/Game'; // 게임 타입을 가져옵니다.
 import { gameData } from '../../mocks'; // 게임 목록 데이터를 가져옵니다.
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 
 type RootStackParamList = {
     GameList: undefined;
+    ServerMaking: {game: Game};
 };
 
 type GameListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'GameList'>;
@@ -13,6 +15,7 @@ type GameListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Gam
 const GameList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>(''); // 검색어 상태를 초기화합니다.
     const [filteredGames, setFilteredGames] = useState<Game[]>(gameData); // 필터링된 게임 목록 상태를 초기화합니다.
+    const navigation = useNavigation<GameListScreenNavigationProp>();
 
     // 검색어가 변경될 때마다 호출되는 함수입니다.
     const handleSearch = (query: string) => {
@@ -23,8 +26,12 @@ const GameList: React.FC = () => {
         setSearchQuery(query); // 검색어를 업데이트합니다.
     };
 
+    const handleCardPress = (game: Game) => {
+        navigation.navigate('ServerMaking', {game});
+    };
+
     const renderGameCard = ({ item }: { item: Game }) => (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
             <Image source={item.gameImage} style={styles.gameImage} />
             <View style={styles.gameInfo}>
                 <Text style={styles.gameName}>{item.gameName}</Text>

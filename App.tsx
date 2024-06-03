@@ -8,6 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Text, TouchableOpacity } from 'react-native';
+import ServerMaking from './src/screens/serverMaking';
 
 
 
@@ -16,6 +17,7 @@ type RootStackParamList = {
     MyServer: undefined;
     ServerDetails: undefined;
     GameList: undefined;
+    ServerMaking: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -79,6 +81,27 @@ const App: React.FC = () => {
                         ),
                         headerTitle: () => (
                             <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>Game List</Text>
+                        ),
+                        headerStyle: {
+                            backgroundColor: '#6200ea',
+                        },
+                        headerTitleStyle: {
+                            color: '#ffffff',
+                        },
+                    })}
+                />
+                <Stack.Screen 
+                    name="ServerMaking"
+                    component={ServerMaking} 
+                    options={({ navigation }) => ({
+                        title: 'ServerMaking',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                <Icon name="arrow-back" size={25} color="#fff" />
+                            </TouchableOpacity>
+                        ),
+                        headerTitle: () => (
+                            <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>서버 설정</Text>
                         ),
                         headerStyle: {
                             backgroundColor: '#6200ea',
