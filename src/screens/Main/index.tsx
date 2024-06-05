@@ -9,6 +9,7 @@ type RootStackParamList = {
     Main: undefined;
     MyServer: undefined;
     GameList: undefined;
+    Login: undefined;
 };
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
@@ -25,7 +26,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
     };
 
     const handleMyPagePress = () => {
-        console.log('MyPage button pressed');
+        navigation.navigate('Login');
     };
 
     const handleContentButtonPress = (buttonName: string) => {

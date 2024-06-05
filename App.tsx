@@ -9,6 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Text, TouchableOpacity } from 'react-native';
 import ServerMaking from './src/screens/serverMaking';
+import Login from './src/screens/login';
 
 
 
@@ -18,6 +19,7 @@ type RootStackParamList = {
     ServerDetails: undefined;
     GameList: undefined;
     ServerMaking: undefined;
+    Login: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -111,6 +113,7 @@ const App: React.FC = () => {
                         },
                     })}
                 />
+                <Stack.Screen name="Login" component={Login} options={{ headerShown: false, title: 'Login' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );
