@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Text, TouchableOpacity } from 'react-native';
 import ServerMaking from './src/screens/serverMaking';
 import Login from './src/screens/login';
+import CustomerService from './src/screens/customerService';
 
 
 
@@ -20,6 +21,7 @@ type RootStackParamList = {
     GameList: undefined;
     ServerMaking: undefined;
     Login: undefined;
+    CustomerService: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -114,6 +116,27 @@ const App: React.FC = () => {
                     })}
                 />
                 <Stack.Screen name="Login" component={Login} options={{ headerShown: false, title: 'Login' }} />
+                <Stack.Screen 
+                    name="CustomerService"
+                    component={CustomerService} 
+                    options={({ navigation }) => ({
+                        title: 'CustomerService',
+                        headerLeft: () => (
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                <Icon name="arrow-back" size={25} color="#fff" />
+                            </TouchableOpacity>
+                        ),
+                        headerTitle: () => (
+                            <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>고객 문의</Text>
+                        ),
+                        headerStyle: {
+                            backgroundColor: '#6200ea',
+                        },
+                        headerTitleStyle: {
+                            color: '#ffffff',
+                        },
+                    })}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );

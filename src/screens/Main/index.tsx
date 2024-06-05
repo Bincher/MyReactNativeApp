@@ -10,6 +10,7 @@ type RootStackParamList = {
     MyServer: undefined;
     GameList: undefined;
     Login: undefined;
+    CustomerService: undefined;
 };
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
@@ -34,6 +35,8 @@ const Main: React.FC<Props> = ({ navigation }) => {
             navigation.navigate('MyServer');
         } else if(buttonName === 'MakingServer'){
             navigation.navigate('GameList');
+        } else if(buttonName === 'CustomerService'){
+            navigation.navigate('CustomerService');
         } else {
             console.log(`${buttonName} button pressed`);
         }
@@ -60,10 +63,10 @@ const Main: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.contentButtonText}>서버 생성</Text>
                 </TouchableOpacity>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleContentButtonPress('Button 1')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => handleContentButtonPress('dd')} style={styles.rowButton}>
                         <Icon name="settings" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleContentButtonPress('Button 2')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => handleContentButtonPress('CustomerService')} style={styles.rowButton}>
                         <Icon name="headset-mic" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
                 </View>
