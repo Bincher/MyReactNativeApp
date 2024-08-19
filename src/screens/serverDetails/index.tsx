@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     serverName: {
         fontSize: 20,
         fontWeight: 'bold',
+        color: '#000',
     },
     gameNameGenre: {
         fontSize: 16,
@@ -113,12 +114,14 @@ const styles = StyleSheet.create({
     },
     serverDescription: {
         fontSize: 20,
+        color: '#000',
     },
     serverInfoBottom: {
         marginBottom: 20,
     },
     serverCreationDate: {
         fontSize: 16,
+        color: '#000',
     },
     divider: {
         height: 1,
@@ -131,6 +134,7 @@ const styles = StyleSheet.create({
     serverDetail: {
         fontSize: 20,
         marginBottom: 5,
+        color: '#000',
     },
     buttonContainer: {
         flexDirection: 'row',
