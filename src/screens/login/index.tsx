@@ -23,6 +23,7 @@ const Login: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [view, setView] = useState<'sign-in' | 'sign-up'>('sign-in');
+    
 
     const login = () => {
         KakaoLogin.login().then((result) => {
@@ -37,33 +38,14 @@ const Login: React.FC = () => {
         });
     };
 
-    const handleLogin = () => {
-        if (username === 'admin' && password === 'password') {
-            Alert.alert('로그인 성공', '환영합니다!');
-            navigation.navigate('Main');
-        } else {
-            Alert.alert('로그인 실패', '아이디 또는 비밀번호가 잘못되었습니다.');
-        }
-    };
-
     const handleBack = () => {
         navigation.navigate('Main');
     };
 
-
-    const handleSignup = () => {
-        navigation.navigate('Signup');
-    };
-
     const SignInCard =()=>{
-        // state: 이메일 요소 참조 상태 //
-        const emailRef = useRef<HTMLInputElement | null>(null);
 
-        // state: 패스워드 요소 참조 상태 //
-        const passwordRef = useRef<HTMLInputElement | null>(null);
-
-        // state: 이메일 상태 //
-        const [email, setEmail] = useState<string>('');
+        // state: 아이디 상태 //
+        const [id, setId] = useState<string>('');
 
         // state: 패스워드 상태 //
         const [password, setPassword] = useState<string>('');
@@ -79,6 +61,7 @@ const Login: React.FC = () => {
 
         // function: sign in response 처리 함수 //
         const signInResponse = async (responseBody: SignInResponseDto | ResponseDto | null)=>{
+
             if(!responseBody){
                 Alert.alert('네트워크 이상입니다.');
                 return;
@@ -88,23 +71,26 @@ const Login: React.FC = () => {
             if(code === 'SF' || code === 'VF') setError(true);
             if(code !== 'SU') return;
     
-            const {token, expirationTime} = responseBody as SignInResponseDto;
-            const now = new Date().getTime();
-            const expires = new Date(now + expirationTime * 1000);
+            const {token} = responseBody as SignInResponseDto;
 
-    
             try {
                 await AsyncStorage.setItem('accessToken', token);
+
                 navigation.replace('Main');  // 로그인 후 Main 화면으로 이동
             } catch (e) {
                 console.log('Failed to save the token', e);
             }
         }
-    
+
         // event handler: 로그인 버튼 클릭 이벤트 처리 //
         const onSignInButtonClickHandler =()=>{
+            if(!id || !password){
+                Alert.alert("아이디와 비밀번호를 모두 입력하세요.");
+                return;
+            }
+
             const requestBody: SignInRequestDto = {
-            email, password
+                id, password
             }
             signInRequest(requestBody).then(signInResponse);
         }
@@ -127,38 +113,44 @@ const Login: React.FC = () => {
     
         return (
             <View style={styles.signInContainer}>
-                <Text style={styles.title}>로그인</Text>
+                <Text style={styles.signInTitle}>로그인</Text>
                 <View style={styles.socialLoginContainer}>
                     <TouchableOpacity
-                        style={styles.button}
+                        style={styles.kakaoLoginButton}
                         onPress={login}
                     >
-                        <Text style={styles.buttonText}>카카오 로그인</Text>
+                        <Text style={styles.kakaoLoginButtonText}>카카오 로그인</Text>
                     </TouchableOpacity>
                 </View>
-                <TextInput
-                    style={styles.input}
-                    placeholder="아이디"
-                    value={username}
-                    onChangeText={setUsername}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="비밀번호"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-                <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                    <Text style={styles.buttonText}>로그인</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={handleSignup}>
-                    <Text style={styles.buttonText}>회원가입</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={handleBack}>
-                    <Text style={styles.buttonText}>뒤로가기</Text>
-                </TouchableOpacity>
-            </View>
+                <View style={styles.signInInputContainer}>
+                    <TextInput
+                        style={[styles.input, error && styles.errorInput]}
+                        placeholder="아이디"
+                        value={id}
+                        onChangeText={(text) => setId(text)}
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        style={[styles.input, error && styles.errorInput]}
+                        placeholder="비밀번호"
+                        value={password}
+                        onChangeText={(text) => setPassword(text)}
+                        secureTextEntry={passwordType === 'password'}
+                    />
+                    {error && 
+                        <Text style={styles.errorText}>{'아이디 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요.'}</Text>
+                    }
+                </View>
+                    <TouchableOpacity style={styles.button} onPress={onSignInButtonClickHandler}>
+                        <Text style={styles.buttonText}>로그인</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={onSignUpButtonClickHandler}>
+                        <Text style={styles.buttonText}>회원가입</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={handleBack}>
+                        <Text style={styles.buttonText}>뒤로가기</Text>
+                    </TouchableOpacity>
+                </View>
         );
     }
 
@@ -374,7 +366,7 @@ const Login: React.FC = () => {
 
         return (
             <View style={styles.signUpContainer}>
-                <Text style={styles.title}>회원가입</Text>
+                <Text style={styles.signInTitle}>회원가입</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="아이디"
@@ -437,6 +429,7 @@ const Login: React.FC = () => {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
+        width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
@@ -444,34 +437,35 @@ const styles = StyleSheet.create({
     },
     signInContainer: {
         flex: 1,
+        width: '100%',
         justifyContent: 'center',
-        padding: 20,
+        alignItems: 'center',
+        paddingHorizontal: 20, // 좌우 여백 추가
         backgroundColor: '#6200ea',
     },
-    signUpContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 20,
-        backgroundColor: '#6200ea',
-    },
-    title: {
+    signInTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 30,
         textAlign: 'center',
         color: '#fff',
     },
+    signInInputContainer: {
+        width: '100%', // 가로폭을 부모 컨테이너에 맞게 조정
+        marginBottom: 20, // 요소 간의 여백 추가
+    },
     socialLoginContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
         marginBottom: 20,
+        width: '100%',
     },
     button: {
-        padding: 10,
+        width: '100%', // 버튼이 화면의 너비를 적절히 채우도록 설정
         backgroundColor: '#fff',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
         borderRadius: 8,
-        marginVertical: 5,
         alignItems: 'center',
+        marginVertical: 10,
     },
     buttonText: {
         fontSize: 15,
@@ -479,16 +473,23 @@ const styles = StyleSheet.create({
         color: '#6200ea',
     },
     input: {
-        height: 40,
+        width: '100%', // 입력창이 화면의 너비를 차지하도록 설정
+        paddingVertical: 15, // 상하 패딩을 설정하여 입력창의 높이 조정
+        paddingHorizontal: 15,
+        fontSize: 16, // 글자 크기 조정
+        color: '#6200ea',
         borderColor: '#ccc',
         borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
+        marginVertical: 10,
         backgroundColor: '#fff',
+        borderRadius: 8,
+        // 비밀번호 입력칸의 높이를 직접 설정
+        height: 50, // 필요에 따라 조정
     },
     errorText: {
-        color: 'red',
+        color: '#fff',
         marginBottom: 10,
+        textAlign: 'center',
     },
     checkboxContainer: {
         flexDirection: 'row',
@@ -498,6 +499,26 @@ const styles = StyleSheet.create({
     checkboxLabel: {
         marginLeft: 10,
         color: '#fff',
+    },
+    errorInput: {
+        borderColor: 'red',
+    },
+    kakaoLoginButton:{
+        width: '100%', // 버튼이 화면의 너비를 적절히 채우도록 설정
+        backgroundColor: '#ff0',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderRadius: 100,
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    kakaoLoginButtonText:{
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    signUpContainer:{
+
     },
 });
 
