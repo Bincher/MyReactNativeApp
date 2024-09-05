@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
-import { SignInRequestDto, SignUpRequestDto } from "./request/auth";
+import { IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
 import { ResponseDto } from "./response";
-import { SignUpResponseDto, SignInResponseDto } from "./response/auth";
+import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto } from "./response/auth";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -14,6 +14,7 @@ const authorization =(accessToken: string)=>{
 
 const SIGN_IN_URL =()=> `${API_DOMAIN}/auth/sign-in`;
 const SIGN_UP_URL =()=> `${API_DOMAIN}/auth/sign-up`;
+const ID_CHECK_URL =()=> `${API_DOMAIN}/auth/id-check`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -26,6 +27,14 @@ const errorHandler = (error: any)=>{
     const responseBody: ResponseDto = error.response.data;
     return responseBody;
 }
+
+export const idCheckRequest = async (requestBody: IdCheckRequestDto) => {
+    const result = await axios.post(ID_CHECK_URL(), requestBody)
+        .then(responseHandler<IdCheckResponseDto>)
+        .catch(errorHandler);
+    return result;
+}
+
 
 export const signInRequest = async (requestBody: SignInRequestDto)=>{
     console.log(requestBody);
