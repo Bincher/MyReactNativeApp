@@ -5,11 +5,11 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import  * as KakaoLogin from '@react-native-seoul/kakao-login';
 import SignInResponseDto from '../../apis/response/auth/sign-in-response.dto';
 import ResponseDto from '../../apis/response/response.dto';
-import { IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
-import { signUpRequest, signInRequest, idCheckRequest } from '../../apis';
-import { IdCheckResponseDto, SignUpResponseDto } from '../../apis/response/auth';
+import { EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
+import { signUpRequest, signInRequest, idCheckRequest, emailCertificationRequest } from '../../apis';
+import { EmailCertificationResponseDto, IdCheckResponseDto, SignUpResponseDto } from '../../apis/response/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ResponseCode } from '../../types/enum';
+import { ResponseBody, ResponseCode } from '../../types/enum';
 
 type RootStackParamList = {
     Login: undefined;
@@ -158,7 +158,7 @@ const Login: React.FC = () => {
         // state: 아이디 중복 상태 //
         const [isIdCheck, setIdCheck] = useState<boolean>(false);
 
-        // state: 아이디 상태 //
+        // state: 이메일 인증 상태 //
         const [emailCertification, setEmailSertification] = useState<string>('');
 
         // state: 이메일 상태 //
@@ -200,6 +200,9 @@ const Login: React.FC = () => {
         // state: 아이디 에러 메세지 상태 //
         const [idErrorMessage, setIdErrorMessage] = useState<string>('');
 
+        // state: 이메일 메세지 상태 //
+        const [emailMessage, setEmailMessage] = useState<string>('');
+
         // state: 이메일 에러 메세지 상태 //
         const [emailErrorMessage, setEmailErrorMessage] = useState<string>('');
 
@@ -212,7 +215,7 @@ const Login: React.FC = () => {
         const [showTerms, setShowTerms] = useState(false);
 
         // function: id check response 처리 함수 //
-        const idCheckResponse = (responseBody: IdCheckResponseDto | ResponseDto | null) => {
+        const idCheckResponse = (responseBody: ResponseBody<IdCheckResponseDto>) => {
             
             if(!responseBody) return;
             const {code} = responseBody;
@@ -233,6 +236,26 @@ const Login: React.FC = () => {
 
         }
 
+        // function email certification response 처리 함수 //
+        const emailCertificationResponse = (responseBody: ResponseBody<EmailCertificationResponseDto>) => {
+            if(!responseBody) return;
+            const {code} = responseBody;
+
+            if(code === ResponseCode.VALIDATION_FAIL) Alert.alert('아이디와 이메일을 다시 확인해주세요.');
+            if(code === ResponseCode.DUPLICATE_ID){
+                setIdError(true);
+                setIdCheckMessage('이미 사용중인 아이디 입니다.');
+                setIdCheck(false);
+            }
+
+            if(code === ResponseCode.MAIL_FAIL) Alert.alert('이메일 전송에 실패했습니다.');
+            if(code === ResponseCode.DATABASE_ERROR) Alert.alert('데이터베이스 오류입니다.');
+            if(code !== ResponseCode.SUCCESS) return;
+
+            setEmailError(false);
+            setEmailMessage('인증번호가 전송되었습니다.');
+        }
+
         // function: sign up response 처리 함수 //
         const signUpResponse = (responseBody: SignUpResponseDto | ResponseDto | null) => {
             if(!responseBody){
@@ -243,7 +266,7 @@ const Login: React.FC = () => {
     
             if(code === "DE"){
                 setEmailError(true);
-                setEmailErrorMessage("중복되는 이메일 주소입니다.");
+                setEmailMessage("중복되는 이메일 주소입니다.");
             }
             if(code === "VF"){
                 Alert.alert("모든 값을 입력하세요.");
@@ -257,20 +280,6 @@ const Login: React.FC = () => {
             setView('sign-in');
         }
 
-
-        // event handler: 이메일 변경 이벤트 처리 //
-        const onEmailChangeHandler = (value: string) => {
-            setEmail(value);
-            setEmailError(false);
-            setEmailErrorMessage('');
-        };
-    
-        // event handler: 패스워드 변경 이벤트 처리 //
-        const onPasswordChangeHandler = (value: string)=>{
-            setPassword(value);
-            setPasswordError(false);
-            setPasswordErrorMessage('');
-        }
     
         // event handler: 패스워드 변경 체크 이벤트 처리 //
         const onPasswordCheckChangeHandler = (value: string)=>{
@@ -293,7 +302,7 @@ const Login: React.FC = () => {
             const isEmailPattern = emailPattern.test(email);
             if(!isEmailPattern){
                 setEmailError(true);
-                setEmailErrorMessage('이메일 주소 포맷이 맞지 않습니다.');
+                setEmailMessage('이메일 주소 포맷이 맞지 않습니다.');
             }
     
             const isCheckedPassword = password.trim().length >= 8;
@@ -334,9 +343,19 @@ const Login: React.FC = () => {
             idCheckRequest(requestBody).then(idCheckResponse);
         };
     
-        const sendVerificationEmail = () => {
-            // 이메일 인증 로직 구현
-            console.log("이메일 인증 코드 전송");
+        const sendCertificationEmail = () => {
+            const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
+            console.log(email);
+
+            const checkedEmail = emailPattern.test(email);
+            if(!checkedEmail){
+                setEmailError(true);
+                Alert.alert('이메일 형식이 아닙니다');
+                return;
+            }
+
+            const requestBody: EmailCertificationRequestDto = {id, email};
+            emailCertificationRequest(requestBody).then(emailCertificationResponse);
         };
     
         const verifyEmailCode = () => {
@@ -371,13 +390,20 @@ const Login: React.FC = () => {
                                 style={[styles.input, styles.inputWithButtonStyle]}
                                 placeholder="이메일"
                                 value={email}
-                                onChangeText={setEmail}
+                                onChangeText={(text) => setEmail(text)}
+                                autoCapitalize="none"
+                                autoComplete="email"
+                                keyboardType="email-address"
                             />
-                            <TouchableOpacity style={styles.inputButton} onPress={sendVerificationEmail}>
+                            <TouchableOpacity style={styles.inputButton} onPress={sendCertificationEmail}>
                                 <Text style={styles.inputButtonText}>인증</Text>
                             </TouchableOpacity>
                         </View>
-                        {isEmailError ? <Text style={styles.errorText}>{emailErrorMessage}</Text> : null}
+                        {emailMessage !== '' && (
+                            <Text style={[styles.errorText, !isIdError && styles.successText]}>
+                                {emailMessage}
+                            </Text>
+                        )}
         
                         <View style={styles.inputWithButton}>
                             <TextInput
