@@ -1,12 +1,12 @@
 import React, { ChangeEvent, useRef, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image, Pressable, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image, Pressable, SafeAreaView, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import  * as KakaoLogin from '@react-native-seoul/kakao-login';
 import SignInResponseDto from '../../apis/response/auth/sign-in-response.dto';
 import ResponseDto from '../../apis/response/response.dto';
 import { SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
-import { SignUpRequest, signInRequest } from '../../apis';
+import { signUpRequest, signInRequest } from '../../apis';
 import { SignUpResponseDto } from '../../apis/response/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -52,9 +52,6 @@ const Login: React.FC = () => {
 
         // state: 패스워드 타입 상태 //
         const [passwordType, setPasswordType] = useState<'text' | 'password'>('password');
-
-        // state: 패스워드 버튼 아이콘 상태 //
-        const [passwordButtonIcon, setPasswordButtonIcon] = useState<'eye-light-off-icon' | 'eye-light-on-icon'>('eye-light-off-icon');
         
         // state: 에러 상태 //
         const [error, setError] = useState<boolean>(false);
@@ -98,17 +95,6 @@ const Login: React.FC = () => {
         // event handler: 회원가입 링크 클릭 이벤트 처리 //
         const onSignUpButtonClickHandler=()=>{
             setView('sign-up');
-        }
-    
-        // event handler: 패스워드 버튼 클릭 이벤트 처리 //
-        const onPasswordButtonClickHandler=()=>{
-            if(passwordType === 'text'){
-                setPasswordType('password');
-                setPasswordButtonIcon('eye-light-off-icon');
-            }else{
-                setPasswordType('text');
-                setPasswordButtonIcon('eye-light-on-icon');
-            }
         }
     
         return (
@@ -170,6 +156,9 @@ const Login: React.FC = () => {
         // state: 아이디 상태 //
         const [id, setId] = useState<string>('');
 
+        // state: 아이디 상태 //
+        const [emailCertification, setEmailSertification] = useState<string>('');
+
         // state: 이메일 상태 //
         const [email, setEmail] = useState<string>('');
 
@@ -215,11 +204,7 @@ const Login: React.FC = () => {
         // state: 패스워드 확인 에러 메세지 상태 //
         const [passwordCheckErrorMessage, setPasswordCheckErrorMessage] = useState<string>('');
 
-        // state: 패스워드 버튼 아이콘 상태 //
-        const [passwordButtonIcon, setPasswordButtonIcon] = useState<'eye-light-off-icon' | 'eye-light-on-icon'>('eye-light-off-icon');
-
-        // state: 패스워드 확인 버튼 아이콘 상태 //
-        const [passwordCheckButtonIcon, setPasswordCheckButtonIcon] = useState<'eye-light-off-icon' | 'eye-light-on-icon'>('eye-light-off-icon');
+        const [showTerms, setShowTerms] = useState(false);
 
         // function: sign up response 처리 함수 //
         const signUpResponse = (responseBody: SignUpResponseDto | ResponseDto | null) => {
@@ -244,6 +229,13 @@ const Login: React.FC = () => {
     
             setView('sign-in');
         }
+
+        // event handler: 이메일 변경 이벤트 처리 //
+        const onIdChangeHandler = (value: string) => {
+            setId(value);
+            setIdError(false);
+            setIdErrorMessage('');
+        };
 
         // event handler: 이메일 변경 이벤트 처리 //
         const onEmailChangeHandler = (value: string) => {
@@ -272,30 +264,8 @@ const Login: React.FC = () => {
             setAgreedPersonalError(false);
         }
 
-        // event handler: 패스워드 버튼 클릭 이벤트 처리 //
-        const onPasswordButtonClickHandler =()=>{
-            if(passwordButtonIcon === 'eye-light-off-icon'){
-                setPasswordButtonIcon('eye-light-on-icon');
-                setPasswordType('text');
-            }else{
-                setPasswordButtonIcon('eye-light-off-icon');
-                setPasswordType('password');
-            }
-        }
-
-        // event handler: 패스워드 확인 버튼 클릭 이벤트 처리 //
-        const onPasswordCheckButtonClickHandler =()=>{
-            if(passwordCheckButtonIcon === 'eye-light-off-icon'){
-                setPasswordCheckButtonIcon('eye-light-on-icon');
-                setPasswordCheckType('text');
-            }else{
-                setPasswordCheckButtonIcon('eye-light-off-icon');
-                setPasswordCheckType('password');
-            }
-        }
-
         // event handler: 다음 버튼 클릭 이벤트 처리 //
-        const onNextButtonClickHandler=()=>{
+        const onSignUpButtonClickHandler=()=>{
 
             const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
     
@@ -318,45 +288,18 @@ const Login: React.FC = () => {
             }
     
             if(!isEmailPattern || !isCheckedPassword || !isEqualPassword) return;
-        }
 
-        // event handler: 회원 가입 버튼 클릭 이벤트 처리 //
-        const onSignUpButtonClickHandler =()=>{
-            const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
-    
-            const isEmailPattern = emailPattern.test(email);
-            if(!isEmailPattern){
-                setEmailError(true);
-                setEmailErrorMessage('이메일 주소 포맷이 맞지 않습니다.');
-            }
-    
-            const isCheckedPassword = password.trim().length >= 8;
-            if(!isCheckedPassword){
-                setPasswordError(true);
-                setPasswordErrorMessage('비밀번호를 8자 이상으로 설정해야합니다.');
-            }
-    
-            const isEqualPassword = password === passwordCheck;
-            if(!isEqualPassword){
-                setPasswordCheckError(true);
-                setPasswordCheckErrorMessage('비밀번호가 일치하지 않습니다');
-            }
-    
-            if(!isEmailPattern || !isCheckedPassword || !isEqualPassword){
-                return;
-            };
-    
             if(!agreedPersonal){
                 setAgreedPersonalError(true);
             }
-    
+
             if(!agreedPersonal) return;
-    
+
             const requestBody: SignUpRequestDto = {
                 id, email, password, agreedPersonal
             }
     
-            SignUpRequest(requestBody).then(signUpResponse);
+            signUpRequest(requestBody).then(signUpResponse);
         }
 
         // event handler: 로그인 링크 클릭 이벤트 처리 //
@@ -364,59 +307,127 @@ const Login: React.FC = () => {
             setView('sign-in');
         }
 
+        const checkIdDuplicate = () => {
+            // ID 중복 체크 로직 구현
+            console.log("ID 중복 체크");
+        };
+    
+        const sendVerificationEmail = () => {
+            // 이메일 인증 로직 구현
+            console.log("이메일 인증 코드 전송");
+        };
+    
+        const verifyEmailCode = () => {
+            // 이메일 인증 코드 확인 로직 구현
+            console.log("이메일 인증 코드 확인");
+        };
+
         return (
-            <View style={styles.signUpContainer}>
+            <View style={styles.signInContainer}>
                 <Text style={styles.signInTitle}>회원가입</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="아이디"
-                    value={username}
-                    onChangeText={setUsername}
-                />
-                {isIdError ? <Text style={styles.errorText}>{idErrorMessage}</Text> : null}
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="비밀번호"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-                {isPasswordError ? <Text style={styles.errorText}>{passwordErrorMessage}</Text> : null}
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="이메일"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                {isEmailError ? <Text style={styles.errorText}>{emailErrorMessage}</Text> : null}
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="비밀번호 확인"
-                    value={passwordCheck}
-                    onChangeText={setPasswordCheck}
-                    secureTextEntry
-                />
-                {isPasswordCheckError ? <Text style={styles.errorText}>{passwordCheckErrorMessage}</Text> : null}
-
+                <View style={styles.signUpInputContainer}>
+                    <View style={styles.inputWithButton}>
+                        <TextInput
+                            style={[styles.input, styles.inputWithButtonStyle]}
+                            placeholder="아이디"
+                            value={username}
+                            onChangeText={setUsername}
+                        />
+                        <TouchableOpacity style={styles.inputButton} onPress={checkIdDuplicate}>
+                            <Text style={styles.inputButtonText}>중복체크</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {isIdError ? <Text style={styles.errorText}>{idErrorMessage}</Text> : null}
+    
+                    <View style={styles.inputWithButton}>
+                        <TextInput
+                            style={[styles.input, styles.inputWithButtonStyle]}
+                            placeholder="이메일"
+                            value={email}
+                            onChangeText={setEmail}
+                        />
+                        <TouchableOpacity style={styles.inputButton} onPress={sendVerificationEmail}>
+                            <Text style={styles.inputButtonText}>인증</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {isEmailError ? <Text style={styles.errorText}>{emailErrorMessage}</Text> : null}
+    
+                    <View style={styles.inputWithButton}>
+                        <TextInput
+                            style={[styles.input, styles.inputWithButtonStyle]}
+                            placeholder="이메일 인증 코드"
+                        />
+                        <TouchableOpacity style={styles.inputButton} onPress={verifyEmailCode}>
+                            <Text style={styles.inputButtonText}>확인</Text>
+                        </TouchableOpacity>
+                    </View>
+    
+                    <TextInput
+                        style={styles.input}
+                        placeholder="비밀번호"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                    />
+                    {isPasswordError ? <Text style={styles.errorText}>{passwordErrorMessage}</Text> : null}
+    
+                    <TextInput
+                        style={styles.input}
+                        placeholder="비밀번호 확인"
+                        value={passwordCheck}
+                        onChangeText={setPasswordCheck}
+                        secureTextEntry
+                    />
+                    {isPasswordCheckError ? <Text style={styles.errorText}>{passwordCheckErrorMessage}</Text> : null}
+                </View>
                 <View style={styles.checkboxContainer}>
-                    <TouchableOpacity onPress={() => setAgreedPersonal(!agreedPersonal)}>
+                    <TouchableOpacity onPress={() => setShowTerms(true)}>
                         <Text style={styles.checkboxLabel}>약관 동의</Text>
                     </TouchableOpacity>
                     {isAgreedPersonalError ? <Text style={styles.errorText}>약관에 동의해야 합니다.</Text> : null}
                 </View>
-
+    
                 <TouchableOpacity style={styles.button} onPress={onSignUpButtonClickHandler}>
                     <Text style={styles.buttonText}>회원가입</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={() => setView('sign-in')}>
                     <Text style={styles.buttonText}>로그인으로 돌아가기</Text>
                 </TouchableOpacity>
+    
+                <Modal visible={showTerms} animationType="slide" transparent={true}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>이용약관</Text>
+                            <Text style={styles.modalText}>
+                                여기에 약관 내용을 넣으세요...
+                            </Text>
+                            <View style={styles.modalButtonContainer}>
+                                <TouchableOpacity 
+                                    style={styles.modalButton} 
+                                    onPress={() => {
+                                        setAgreedPersonal(true);
+                                        setShowTerms(false);
+                                    }}
+                                >
+                                    <Text style={styles.modalButtonText}>동의</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                    style={styles.modalButton} 
+                                    onPress={() => {
+                                        setAgreedPersonal(false);
+                                        setShowTerms(false);
+                                    }}
+                                >
+                                    <Text style={styles.modalButtonText}>비동의</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </View>
         );
     }
+    
 
     return (
         <View style={styles.mainContainer}>
@@ -517,8 +528,62 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#000',
     },
-    signUpContainer:{
-
+    signUpInputContainer:{
+        width: '100%', // 가로폭을 부모 컨테이너에 맞게 조정
+        marginBottom: 20, // 요소 간의 여백 추가
+    },
+    inputWithButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    inputWithButtonStyle: {
+        flex: 1,
+        marginRight: 10,
+    },
+    inputButton: {
+        backgroundColor: '#fff',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 8,
+    },
+    inputButtonText: {
+        color: '#6200ea',
+        fontWeight: 'bold',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalText: {
+        marginBottom: 20,
+    },
+    modalButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+    },
+    modalButton: {
+        backgroundColor: '#6200ea',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
 });
 

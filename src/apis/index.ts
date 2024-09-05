@@ -35,7 +35,7 @@ export const signInRequest = async (requestBody: SignInRequestDto)=>{
     return result;
 }
 
-export const SignUpRequest = async (requestBody: SignUpRequestDto)=>{
+export const signUpRequest = async (requestBody: SignUpRequestDto)=>{
     const result = await axios.post(SIGN_UP_URL(), requestBody)
         .then(response =>{
             const responseBody:SignUpResponseDto = response.data;
