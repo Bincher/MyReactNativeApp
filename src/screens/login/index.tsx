@@ -5,9 +5,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import  * as KakaoLogin from '@react-native-seoul/kakao-login';
 import SignInResponseDto from '../../apis/response/auth/sign-in-response.dto';
 import ResponseDto from '../../apis/response/response.dto';
-import { EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
-import { signUpRequest, signInRequest, idCheckRequest, emailCertificationRequest } from '../../apis';
-import { EmailCertificationResponseDto, IdCheckResponseDto, SignUpResponseDto } from '../../apis/response/auth';
+import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
+import { signUpRequest, signInRequest, idCheckRequest, emailCertificationRequest, checkCertificationRequest } from '../../apis';
+import { CheckCertificationResponseDto, EmailCertificationResponseDto, IdCheckResponseDto, SignUpResponseDto } from '../../apis/response/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ResponseBody, ResponseCode } from '../../types/enum';
 
@@ -140,78 +140,75 @@ const Login: React.FC = () => {
     }
 
     const SignUpCard =()=>{
-        // state: 아이디 요소 참조 상태 //
-        const idRef = useRef<HTMLInputElement | null>(null);
-
-        // state: 이메일 요소 참조 상태 //
-        const emailRef = useRef<HTMLInputElement | null>(null);
-
-        // state: 패스워드 요소 참조 상태 //
-        const passwordRef = useRef<HTMLInputElement | null>(null);
-        
-        // state: 패스워드 확인 요소 참조 상태 //
-        const passwordCheckRef = useRef<HTMLInputElement | null>(null);
 
         // state: 아이디 상태 //
         const [id, setId] = useState<string>('');
 
-        // state: 아이디 중복 상태 //
+        // state: 아이디 에러 상태 //
+        const [isIdError, setIdError] = useState<boolean>(false);
+
+
+        // state: 아이디 중복 체크 상태 //
         const [isIdCheck, setIdCheck] = useState<boolean>(false);
 
-        // state: 이메일 인증 상태 //
-        const [emailCertification, setEmailSertification] = useState<string>('');
+        // state: 아이디 중복 체크 메세지 상태 //
+        const [idCheckMessage, setIdCheckMessage] = useState('');
+
 
         // state: 이메일 상태 //
         const [email, setEmail] = useState<string>('');
 
-        // state: 패스워드 상태 //
-        const [password, setPassword] = useState<string>('');
-
-        // state: 패스워드 확인 상태 //
-        const [passwordCheck, setPasswordCheck] = useState<string>('');
-
-        // state: 개인 정보 동의 상태 //
-        const [agreedPersonal, setAgreedPersonal] = useState<boolean>(false);
-
-        // state: 패스워드 타입 상태 //
-        const [passwordType, setPasswordType] = useState<'text' | 'password'>('password');
-
-        // state: 패스워드 체크 타입 상태 //
-        const [passwordCheckType, setPasswordCheckType] = useState<'text' | 'password'>('password');
-
-        // state: 아이디 에러 상태 //
-        const [isIdError, setIdError] = useState<boolean>(false);
-
-        // state: 아이디 체크 타입 상태 //
-        const [idCheckMessage, setIdCheckMessage] = useState('');
+        // state: 이메일 체크 상태 //
+        const [isEmailCheck, setEmailCheck] = useState<boolean>(false);
 
         // state: 이메일 에러 상태 //
         const [isEmailError, setEmailError] = useState<boolean>(false);
 
+        // state: 이메일 메세지 상태 //
+        const [emailMessage, setEmailMessage] = useState<string>('');
+
+
+        // state: 이메일 인증 번호 상태 //
+        const [certificationNumber, setCertificationNumber] = useState<string>('');
+
+        // state: 이메일 인증 번호 확인 상태 //
+        const [isCertificationNumberCheck, setIsCertificationNumberCheck] = useState<boolean>(false);
+
+        // state: 이메일 확인 넘버 에러 상태 //
+        const [isCertificationNumberError, setIsCertificationNumberError] = useState<boolean>(false);
+
+        // state: 이메일 확인 넘버 메세지 상태 //
+        const [certificationNumberMessage, setCertificationNumberMessage] = useState<string>('');
+
+
+        // state: 패스워드 상태 //
+        const [password, setPassword] = useState<string>('');
+
         // state: 패스워드 에러 상태 //
         const [isPasswordError, setPasswordError] = useState<boolean>(false);
+
+        // state: 패스워드 메세지 상태 //
+        const [passwordMessage, setPasswordMessage] = useState<string>('');
+
+
+        // state: 패스워드 확인 상태 //
+        const [passwordCheck, setPasswordCheck] = useState<string>('');
 
         // state: 패스워드 확인 에러 상태 //
         const [isPasswordCheckError, setPasswordCheckError] = useState<boolean>(false);
 
-        // state: 개인 정보 동의 에러 상태 //
-        const [isAgreedPersonalError, setAgreedPersonalError] = useState<boolean>(false);
-
-        // state: 아이디 에러 메세지 상태 //
-        const [idErrorMessage, setIdErrorMessage] = useState<string>('');
-
-        // state: 이메일 메세지 상태 //
-        const [emailMessage, setEmailMessage] = useState<string>('');
-
-        // state: 이메일 에러 메세지 상태 //
-        const [emailErrorMessage, setEmailErrorMessage] = useState<string>('');
-
-        // state: 패스워드 에러 메세지 상태 //
-        const [passwordErrorMessage, setPasswordErrorMessage] = useState<string>('');
-
         // state: 패스워드 확인 에러 메세지 상태 //
-        const [passwordCheckErrorMessage, setPasswordCheckErrorMessage] = useState<string>('');
+        const [passwordCheckMessage, setPasswordCheckMessage] = useState<string>('');
 
+
+        // state: 개인 정보 동의 에러 상태 //
+        const [isAgreedPersonalError, setIsAgreedPersonalError] = useState<boolean>(false);
+
+        // state: 개인 정보 동의 상태 //
+        const [isAgreedPersonal, setIsAgreedPersonal] = useState<boolean>(false);
+
+
+        // state: 이게 뭐였더라... //
         const [showTerms, setShowTerms] = useState(false);
 
         // function: id check response 처리 함수 //
@@ -222,7 +219,6 @@ const Login: React.FC = () => {
             if (code === ResponseCode.VALIDATION_FAIL) {
                 Alert.alert('아이디를 입력하세요.');}
             if (code === ResponseCode.DUPLICATE_ID){
-                
                 setIdError(true);
                 setIdCheckMessage('이미 사용중인 아이디 입니다.');
                 setIdCheck(false);
@@ -230,13 +226,14 @@ const Login: React.FC = () => {
             
             if(code === ResponseCode.DATABASE_ERROR) Alert.alert('데이터베이스 오류입니다.');
             if(code !== ResponseCode.SUCCESS) return;
+            
             setIdError(false);
             setIdCheckMessage('사용 가능한 아이디 입니다.');
             setIdCheck(true);
 
         }
 
-        // function email certification response 처리 함수 //
+        // function: email certification response 처리 함수 //
         const emailCertificationResponse = (responseBody: ResponseBody<EmailCertificationResponseDto>) => {
             if(!responseBody) return;
             const {code} = responseBody;
@@ -250,54 +247,117 @@ const Login: React.FC = () => {
 
             if(code === ResponseCode.MAIL_FAIL) Alert.alert('이메일 전송에 실패했습니다.');
             if(code === ResponseCode.DATABASE_ERROR) Alert.alert('데이터베이스 오류입니다.');
-            if(code !== ResponseCode.SUCCESS) return;
+            if(code !== ResponseCode.SUCCESS){
+                setEmailCheck(false);
+                return;
+            } 
 
             setEmailError(false);
+            setEmailCheck(true);
             setEmailMessage('인증번호가 전송되었습니다.');
+        }
+
+        // function: check certification response 처리 함수 //
+        const checkCertificationResponse = (responseBody: ResponseBody<CheckCertificationResponseDto>) => {
+            if(!responseBody) return;
+            const {code} = responseBody;
+
+            if(code === ResponseCode.VALIDATION_FAIL) Alert.alert('아이디와 이메일을 다시 확인해주세요.');
+            if(code === ResponseCode.CERTIFICATION_FAIL){
+                setIsCertificationNumberError(true);
+                setCertificationNumberMessage('인증번호가 일치하지 않습니다');
+                setIsCertificationNumberCheck(false);
+            }
+
+            if(code === ResponseCode.DATABASE_ERROR) Alert.alert('데이터베이스 오류입니다.');
+            if(code !== ResponseCode.SUCCESS) return;
+
+            setIsCertificationNumberError(false);
+            setCertificationNumberMessage('인증번호가 확인되었습니다.')
+            setIsCertificationNumberCheck(true);
         }
 
         // function: sign up response 처리 함수 //
         const signUpResponse = (responseBody: SignUpResponseDto | ResponseDto | null) => {
+
             if(!responseBody){
-            Alert.alert("네트워크 이상입니다.");
-            return;
+                Alert.alert("네트워크 이상입니다.");
+                return;
             } 
             const{code} = responseBody;
-    
-            if(code === "DE"){
-                setEmailError(true);
-                setEmailMessage("중복되는 이메일 주소입니다.");
+
+            if(code === ResponseCode.VALIDATION_FAIL) Alert.alert('아이디, 이메일, 인증번호를 모두 입력하세요.');
+            if(code === ResponseCode.CERTIFICATION_FAIL) {
+                setIsCertificationNumberError(true);
+                setCertificationNumberMessage('인증번호가 일치하지 않습니다.');
+                setIsCertificationNumberCheck(false);
             }
-            if(code === "VF"){
-                Alert.alert("모든 값을 입력하세요.");
+            if(code === ResponseCode.DUPLICATE_ID){
+                setIdError(true);
+                setIdCheckMessage("중복되는 아이디 입니다.");
+                setIdCheck(false);
             }
-            if(code === "DBE"){
-                Alert.alert("데이터베이스 오류입니다.");
-            }
-    
+            if(code === ResponseCode.DATABASE_ERROR) Alert.alert("데이터베이스 오류입니다.");
+            
             if(code !== "SU")return;
     
             setView('sign-in');
+            Alert.alert('회원가입이 완료되었습니다.\n로그인하여 주십시오.');
         }
 
+
+        // event handler: 로그인 링크 클릭 이벤트 처리 //
+        const onSignInLinkClickHandler =()=>{
+            setView('sign-in');
+        }
+
+        // event handler: 아이디 중복 확인 버튼 클릭 이벤트 처리 //
+        const onIdDuplicateButtonHandler = () => {
+            
+            const requestBody: IdCheckRequestDto = {id};
+            idCheckRequest(requestBody).then(idCheckResponse);
+        };
     
-        // event handler: 패스워드 변경 체크 이벤트 처리 //
-        const onPasswordCheckChangeHandler = (value: string)=>{
-            setPasswordCheck(value);
-            setPasswordCheckError(false);
-            setPasswordCheckErrorMessage('');
-        }
+        // event handler: 이메일 인증 번호 전송 버튼 클릭 이벤트 처리 //
+        const onCertificationEmailButtonClickHandler = () => {
+            const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
+            console.log(email);
 
-        // event handler: 개인 정보 동의 체크 박스 클릭 이벤트 처리 //
-        const onAgreedPersonalClickHandler =()=>{
-            setAgreedPersonal(!agreedPersonal);
-            setAgreedPersonalError(false);
-        }
+            const checkedEmail = emailPattern.test(email);
+            if(!checkedEmail){
+                setEmailError(true);
+                setEmailMessage('이메일 형식이 아닙니다.');
+                return;
+            }
 
-        // event handler: 다음 버튼 클릭 이벤트 처리 //
+            const requestBody: EmailCertificationRequestDto = {id, email};
+            emailCertificationRequest(requestBody).then(emailCertificationResponse);
+        };
+    
+        // event handler: 이메일 인증 번호 확인 버튼 클릭 이벤트 처리 //
+        const onCertificationNumberButtonClickHandler = () => {
+            
+            const requestBody: CheckCertificationRequestDto = {id, email, certificationNumber};
+            checkCertificationRequest(requestBody).then(checkCertificationResponse);
+        };
+
+        // event handler: 로그인 버튼 클릭 이벤트 처리 //
         const onSignUpButtonClickHandler=()=>{
 
             const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
+
+            if(!isIdCheck){
+                Alert.alert('아이디 중복체크를 다시 눌려주세요.');
+                return;
+            }
+            if(!isEmailCheck){
+                Alert.alert('인증 코드를 다시 받아주세요.');
+                return;
+            }
+            if(!isCertificationNumberCheck){
+                Alert.alert('이메일 인증 코드를 다시 확인하세요.')
+                return;
+            }
     
             const isEmailPattern = emailPattern.test(email);
             if(!isEmailPattern){
@@ -308,61 +368,31 @@ const Login: React.FC = () => {
             const isCheckedPassword = password.trim().length >= 8;
             if(!isCheckedPassword){
                 setPasswordError(true);
-                setPasswordErrorMessage('비밀번호를 8자 이상으로 설정해야합니다.');
+                setPasswordMessage('비밀번호를 8자 이상으로 설정해야합니다.');
             }
     
             const isEqualPassword = password === passwordCheck;
             if(!isEqualPassword){
                 setPasswordCheckError(true);
-                setPasswordCheckErrorMessage('비밀번호가 일치하지 않습니다');
+                setPasswordCheckMessage('비밀번호가 일치하지 않습니다');
             }
     
             if(!isEmailPattern || !isCheckedPassword || !isEqualPassword) return;
 
-            if(!agreedPersonal){
-                setAgreedPersonalError(true);
+            if(!isAgreedPersonal){
+                setIsAgreedPersonalError(true);
+                Alert.alert('약관 동의를 하셔야합니다.');
+                return;
             }
 
-            if(!agreedPersonal) return;
-
             const requestBody: SignUpRequestDto = {
-                id, email, password, agreedPersonal
+                id, email, password, certificationNumber, agreedPersonal: isAgreedPersonal
             }
     
             signUpRequest(requestBody).then(signUpResponse);
         }
 
-        // event handler: 로그인 링크 클릭 이벤트 처리 //
-        const onSignInLinkClickHandler =()=>{
-            setView('sign-in');
-        }
-
-        const checkIdDuplicate = () => {
-            
-            const requestBody: IdCheckRequestDto = {id};
-            idCheckRequest(requestBody).then(idCheckResponse);
-        };
-    
-        const sendCertificationEmail = () => {
-            const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
-            console.log(email);
-
-            const checkedEmail = emailPattern.test(email);
-            if(!checkedEmail){
-                setEmailError(true);
-                Alert.alert('이메일 형식이 아닙니다');
-                return;
-            }
-
-            const requestBody: EmailCertificationRequestDto = {id, email};
-            emailCertificationRequest(requestBody).then(emailCertificationResponse);
-        };
-    
-        const verifyEmailCode = () => {
-            // 이메일 인증 코드 확인 로직 구현
-            console.log("이메일 인증 코드 확인");
-        };
-
+        
         return (
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <View style={styles.signInContainer}>
@@ -376,7 +406,7 @@ const Login: React.FC = () => {
                                 onChangeText={(text) => setId(text)}
                                 autoCapitalize="none"
                             />
-                            <TouchableOpacity style={styles.inputButton} onPress={checkIdDuplicate}>
+                            <TouchableOpacity style={styles.inputButton} onPress={onIdDuplicateButtonHandler}>
                                 <Text style={styles.inputButtonText}>중복체크</Text>
                             </TouchableOpacity>
                         </View>
@@ -395,7 +425,7 @@ const Login: React.FC = () => {
                                 autoComplete="email"
                                 keyboardType="email-address"
                             />
-                            <TouchableOpacity style={styles.inputButton} onPress={sendCertificationEmail}>
+                            <TouchableOpacity style={styles.inputButton} onPress={onCertificationEmailButtonClickHandler}>
                                 <Text style={styles.inputButtonText}>인증</Text>
                             </TouchableOpacity>
                         </View>
@@ -408,36 +438,43 @@ const Login: React.FC = () => {
                         <View style={styles.inputWithButton}>
                             <TextInput
                                 style={[styles.input, styles.inputWithButtonStyle]}
+                                value={certificationNumber}
                                 placeholder="이메일 인증 코드"
+                                onChangeText={(text) => setCertificationNumber(text)}
+                                autoCapitalize="none"
+                                keyboardType="numeric"
                             />
-                            <TouchableOpacity style={styles.inputButton} onPress={verifyEmailCode}>
+                            <TouchableOpacity style={styles.inputButton} onPress={onCertificationNumberButtonClickHandler}>
                                 <Text style={styles.inputButtonText}>확인</Text>
                             </TouchableOpacity>
                         </View>
-        
+                        {certificationNumberMessage !== '' && (
+                            <Text style={[styles.errorText, !isIdError && styles.successText]}>
+                                {certificationNumberMessage}
+                            </Text>
+                        )}
                         <TextInput
                             style={styles.input}
                             placeholder="비밀번호"
                             value={password}
-                            onChangeText={setPassword}
+                            onChangeText={(text) => setPassword(text)}
                             secureTextEntry
                         />
-                        {isPasswordError ? <Text style={styles.errorText}>{passwordErrorMessage}</Text> : null}
+                        {isPasswordError ? <Text style={styles.errorText}>{passwordMessage}</Text> : null}
         
                         <TextInput
                             style={styles.input}
                             placeholder="비밀번호 확인"
                             value={passwordCheck}
-                            onChangeText={setPasswordCheck}
+                            onChangeText={(text) => setPasswordCheck(text)}
                             secureTextEntry
                         />
-                        {isPasswordCheckError ? <Text style={styles.errorText}>{passwordCheckErrorMessage}</Text> : null}
+                        {isPasswordCheckError ? <Text style={styles.errorText}>{passwordCheckMessage}</Text> : null}
                     </View>
                     <View style={styles.checkboxContainer}>
                         <TouchableOpacity onPress={() => setShowTerms(true)}>
                             <Text style={styles.checkboxLabel}>약관 동의</Text>
                         </TouchableOpacity>
-                        {isAgreedPersonalError ? <Text style={styles.errorText}>약관에 동의해야 합니다.</Text> : null}
                     </View>
         
                     <TouchableOpacity style={styles.button} onPress={onSignUpButtonClickHandler}>
@@ -458,7 +495,7 @@ const Login: React.FC = () => {
                                     <TouchableOpacity 
                                         style={styles.modalButton} 
                                         onPress={() => {
-                                            setAgreedPersonal(true);
+                                            setIsAgreedPersonal(true);
                                             setShowTerms(false);
                                         }}
                                     >
@@ -467,7 +504,7 @@ const Login: React.FC = () => {
                                     <TouchableOpacity 
                                         style={styles.modalButton} 
                                         onPress={() => {
-                                            setAgreedPersonal(false);
+                                            setIsAgreedPersonal(false);
                                             setShowTerms(false);
                                         }}
                                     >

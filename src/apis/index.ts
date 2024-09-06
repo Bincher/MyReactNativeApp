@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
-import { EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
+import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
 import { ResponseDto } from "./response";
-import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto } from "./response/auth";
+import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -16,6 +16,7 @@ const SIGN_IN_URL =()=> `${API_DOMAIN}/auth/sign-in`;
 const SIGN_UP_URL =()=> `${API_DOMAIN}/auth/sign-up`;
 const ID_CHECK_URL =()=> `${API_DOMAIN}/auth/id-check`;
 const EMAIL_CERTIFICATION_URL =()=> `${API_DOMAIN}/auth/email-certification`;
+const CHECK_CERTIFICATION_URL =()=> `${API_DOMAIN}/auth/check-certification`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -39,6 +40,13 @@ export const idCheckRequest = async (requestBody: IdCheckRequestDto) => {
 export const emailCertificationRequest = async (requestBody: EmailCertificationRequestDto) =>{
     const result = await axios.post(EMAIL_CERTIFICATION_URL(), requestBody)
         .then(responseHandler<EmailCertificationResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const checkCertificationRequest = async (requestBody: CheckCertificationRequestDto) =>{
+    const result = await axios.post(CHECK_CERTIFICATION_URL(), requestBody)
+        .then(responseHandler<CheckCertificationResponseDto>)
         .catch(errorHandler)
     return result;
 }
