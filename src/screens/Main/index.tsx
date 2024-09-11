@@ -1,13 +1,17 @@
 // src/screens/Main/index.tsx
-import React from 'react';
-import { Image, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage/lib/typescript/EncryptedStorage';
+import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
     Main: undefined;
     MyServer: undefined;
+    MyProfile: undefined;
     GameList: undefined;
     Login: undefined;
     CustomerService: undefined;
@@ -22,12 +26,20 @@ type Props = {
 };
 
 const Main: React.FC<Props> = ({ navigation }) => {
+
+
+    const { isLoggedIn } = useAuth();
+
     const handleMenuPress = () => {
         console.log('Menu button pressed');
     };
 
-    const handleMyPagePress = () => {
-        navigation.navigate('Login');
+    const handleMyPagePress = async () => {
+        if(!isLoggedIn) navigation.navigate('Login');
+        else {
+            console.log(isLoggedIn);
+            navigation.navigate('MyProfile');
+        }
     };
 
     const handleContentButtonPress = (buttonName: string) => {
@@ -41,6 +53,10 @@ const Main: React.FC<Props> = ({ navigation }) => {
             console.log(`${buttonName} button pressed`);
         }
     };
+
+    useEffect(() => {
+        console.log("useEffect!");
+    });
 
     return (
         <View style={styles.container}>

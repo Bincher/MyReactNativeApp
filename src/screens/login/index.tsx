@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, { createContext, ChangeEvent, useRef, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image, Pressable, SafeAreaView, Modal, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -8,8 +8,8 @@ import ResponseDto from '../../apis/response/response.dto';
 import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
 import { signUpRequest, signInRequest, idCheckRequest, emailCertificationRequest, checkCertificationRequest } from '../../apis';
 import { CheckCertificationResponseDto, EmailCertificationResponseDto, IdCheckResponseDto, SignUpResponseDto } from '../../apis/response/auth';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ResponseBody, ResponseCode } from '../../types/enum';
+import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
     Login: undefined;
@@ -22,18 +22,26 @@ type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'
 const Login: React.FC = () => {
     const navigation = useNavigation<LoginScreenNavigationProp>();
     const [view, setView] = useState<'sign-in' | 'sign-up'>('sign-in');
-    
+    const { login } = useAuth();
 
-    const login = () => {
+    const kakaoLogin = () => {
         KakaoLogin.login().then((result) => {
             console.log("Login Success", JSON.stringify(result));
-            navigation.replace('Main');
+            getProfile();
         }).catch((error) => {
             if (error.code === 'E_CANCELLED_OPERATION') {
                 console.log("Login Cancel", error.message);
             } else {
                 console.log(`Login Fail(code:${error.code})`, error.message);
             }
+        });
+    };
+
+    const getProfile = () => {
+        KakaoLogin.getProfile().then((result) => {
+            console.log("GetProfile Success", JSON.stringify(result));
+        }).catch((error) => {
+            console.log(`GetProfile Fail(code:${error.code})`, error.message);
         });
     };
 
@@ -70,8 +78,9 @@ const Login: React.FC = () => {
             const {token} = responseBody as SignInResponseDto;
 
             try {
-                await AsyncStorage.setItem('accessToken', token);
-
+                //await AsyncStorage.setItem('accessToken', token);
+                await login(token);
+            
                 navigation.replace('Main');  // 로그인 후 Main 화면으로 이동
             } catch (e) {
                 console.log('Failed to save the token', e);
@@ -102,7 +111,7 @@ const Login: React.FC = () => {
                 <View style={styles.socialLoginContainer}>
                     <TouchableOpacity
                         style={styles.kakaoLoginButton}
-                        onPress={login}
+                        onPress={kakaoLogin}
                     >
                         <Text style={styles.kakaoLoginButtonText}>카카오 로그인</Text>
                     </TouchableOpacity>
@@ -199,10 +208,6 @@ const Login: React.FC = () => {
 
         // state: 패스워드 확인 에러 메세지 상태 //
         const [passwordCheckMessage, setPasswordCheckMessage] = useState<string>('');
-
-
-        // state: 개인 정보 동의 에러 상태 //
-        const [isAgreedPersonalError, setIsAgreedPersonalError] = useState<boolean>(false);
 
         // state: 개인 정보 동의 상태 //
         const [isAgreedPersonal, setIsAgreedPersonal] = useState<boolean>(false);
@@ -380,7 +385,6 @@ const Login: React.FC = () => {
             if(!isEmailPattern || !isCheckedPassword || !isEqualPassword) return;
 
             if(!isAgreedPersonal){
-                setIsAgreedPersonalError(true);
                 Alert.alert('약관 동의를 하셔야합니다.');
                 return;
             }

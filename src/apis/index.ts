@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
 import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
+import { GetSignInUserResponseDto, GetUserResponseDto } from "./response/user";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -17,6 +18,8 @@ const SIGN_UP_URL =()=> `${API_DOMAIN}/auth/sign-up`;
 const ID_CHECK_URL =()=> `${API_DOMAIN}/auth/id-check`;
 const EMAIL_CERTIFICATION_URL =()=> `${API_DOMAIN}/auth/email-certification`;
 const CHECK_CERTIFICATION_URL =()=> `${API_DOMAIN}/auth/check-certification`;
+const GET_SIGN_IN_USER_URL =()=>`${API_DOMAIN}/user`;
+const GET_USER_URL =(id: string)=> `${API_DOMAIN}/user/${id}`
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -67,6 +70,34 @@ export const signUpRequest = async (requestBody: SignUpRequestDto)=>{
         })
         .catch(error=>{
             if(!error.response.data) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+}
+
+export const GetSignInUserRequest = async (accessToken: string) =>{
+    const result = await axios.get(GET_SIGN_IN_USER_URL(), authorization(accessToken))
+        .then(response =>{
+            const responseBody: GetSignInUserResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+} 
+
+export const getUserRequest = async (id: string) =>{
+    const result = await axios.get(GET_USER_URL(id))
+        .then(response =>{
+            const responseBody: GetUserResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         });
