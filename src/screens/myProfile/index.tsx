@@ -19,20 +19,17 @@ type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyPr
 const MyProfile: React.FC = () =>  {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
 
-  // state: 프로필 이미지 상태 //
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-
-  const [userEmail, setUserEmail] = useState<string>("");
-
-  const [userId, setUserId] = useState<string>("");
-
   const { logout } = useAuth();
 
   const { loginUser } = useLoginUserStore();
 
   const handleLogout = async () => {
-    await logout();
-    navigation.goBack();
+    try {
+      await logout();
+      navigation.navigate('Main');
+    } catch (error) {
+      Alert.alert('로그아웃 실패', '로그아웃 중 오류가 발생했습니다.');
+    }
   };
 
   const handleGoBack = () => {
@@ -49,23 +46,28 @@ const MyProfile: React.FC = () =>  {
       return;
     }
 
-    const {email, id, profileImage} = responseBody as GetUserResponseDto;
-    setUserEmail(email);
-    setUserId(id);
-    setProfileImage(profileImage);
+    //const {email, id, profileImage} = responseBody as GetUserResponseDto;
   }
 
-  // effect: email path variable 변경시 실행 할 함수 //
-  useEffect(()=>{
-    getUserRequest(userEmail).then(getUserResponse);
+  // // effect: email path variable 변경시 실행 할 함수 //
+  // useEffect(()=>{
+  //   getUserRequest(userEmail).then(getUserResponse);
 
-  },[userEmail])
+  // },[userEmail])
+
+
 
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
+          <Image
+            source={{ uri: loginUser?.profileImage || 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250' }}
+            style={styles.profileImage}
+            resizeMode='cover'
+          />
         <Text style={styles.infoText}>ID: {loginUser?.id}</Text>
         <Text style={styles.infoText}>Email: {loginUser?.email}</Text>
+        <Text style={styles.infoText}>Role: {loginUser?.role}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleLogout}>
@@ -91,13 +93,16 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    marginTop: 50,
+    marginTop: 10,
+    borderColor: '#6200ea',
+    borderWidth: 5,
   },
   infoContainer: {
     alignItems: 'center',
     marginTop: 20,
   },
   infoText: {
+    marginTop: 20,
     fontSize: 18,
     marginBottom: 10,
   },

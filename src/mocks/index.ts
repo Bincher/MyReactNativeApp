@@ -3,22 +3,19 @@ import { Game } from '../types/Game';
 
 export const gameData: Game[] = [
     {
-        id: '1',
-        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/광부의전설.png'),
-        gameName: '광부의전설',
-        genre: '어드벤쳐',
+        gameImage: 'http://localhost:4000/file/42a8e91e-d4d2-4997-b860-0e58ce584998.png',
+        title: '광부의전설',
+        description: '어드벤쳐',
     },
     {
-        id: '2',
-        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/엘든팰.png'),
-        gameName: '엘든팰',
-        genre: 'RPG',
+        gameImage: 'http://localhost:4000/file/42a8e91e-d4d2-4997-b860-0e58ce584998.png',
+        title: '엘든팰',
+        description: 'RPG',
     },
     {
-        id: '3',
-        gameImage: require('C:/dev/ReactNativeApp/MyReactNativeApp/src/assets/images/사이비펑크.png'),
-        gameName: '사이비펑크',
-        genre: '액션',
+        gameImage: 'http://localhost:4000/file/42a8e91e-d4d2-4997-b860-0e58ce584998.png',
+        title: '사이비펑크',
+        description: '액션',
     },
 ];
 

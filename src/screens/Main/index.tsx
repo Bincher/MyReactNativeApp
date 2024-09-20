@@ -4,8 +4,6 @@ import { Image, View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-na
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import EncryptedStorage from 'react-native-encrypted-storage/lib/typescript/EncryptedStorage';
 import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
@@ -46,7 +44,8 @@ const Main: React.FC<Props> = ({ navigation }) => {
         if (buttonName === 'MyServer') {
             navigation.navigate('MyServer');
         } else if(buttonName === 'MakingServer'){
-            navigation.navigate('GameList');
+            if(!isLoggedIn) navigation.navigate('Login');
+            else navigation.navigate('GameList');
         } else if(buttonName === 'CustomerService'){
             navigation.navigate('CustomerService');
         } else {

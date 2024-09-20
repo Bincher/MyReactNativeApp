@@ -3,6 +3,8 @@ import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequ
 import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
 import { GetSignInUserResponseDto, GetUserResponseDto } from "./response/user";
+import { PostGameRequestDto } from "./request/game";
+import { PostGameResponseDto } from "./response/game";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -20,6 +22,7 @@ const EMAIL_CERTIFICATION_URL =()=> `${API_DOMAIN}/auth/email-certification`;
 const CHECK_CERTIFICATION_URL =()=> `${API_DOMAIN}/auth/check-certification`;
 const GET_SIGN_IN_USER_URL =()=>`${API_DOMAIN}/user`;
 const GET_USER_URL =(id: string)=> `${API_DOMAIN}/user/${id}`
+const POST_GAME_URL =()=> `${API_DOMAIN}/game`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -101,5 +104,19 @@ export const getUserRequest = async (id: string) =>{
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         });
+    return result;
+}
+
+export const postGameRequest = async (requestBody: PostGameRequestDto, accessToken: string) =>{
+    const result = await axios.post(POST_GAME_URL(), requestBody, authorization(accessToken))
+        .then(response => {
+            const responseBody: PostGameResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
     return result;
 }
