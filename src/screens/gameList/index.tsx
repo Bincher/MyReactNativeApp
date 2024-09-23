@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import { Game } from '../../types/Game';
 import { gameData } from '../../mocks';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import useLoginUserStore from '../../stores/login-user.store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { launchImageLibrary, MediaType } from 'react-native-image-picker'; 
+import { fileUploadRequest, postGameRequest} from '../../apis';
+import { PostGameResponseDto } from '../../apis/response/game';
+import { ResponseDto } from '../../apis/response';
+import { PostGameRequestDto } from '../../apis/request/game';
 
 type RootStackParamList = {
     GameList: undefined;
@@ -22,8 +27,27 @@ const GameList: React.FC = () => {
 
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const [newGameImage, setNewGameImage] = useState<string | null>(null);
+    const [newGameImageFile, setNewGameImageFile] = useState<any>(null);
     const [newGameTitle, setNewGameTitle] = useState('');
     const [newGameDescription, setNewGameDescription] = useState('');
+
+    // function: post board response 처리 함수 //
+    const postGameResponse =(responseBody : PostGameResponseDto | ResponseDto | null) => {
+        if(!responseBody) return;
+        const {code} = responseBody;
+        if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if(code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
+        if(code !== 'SU') return;
+  
+        // Reset form
+        setNewGameImage(null);
+        setNewGameImageFile(null);
+        setNewGameTitle('');
+        setNewGameDescription('');
+        setIsDialogVisible(false);
+
+        Alert.alert('성공', '게임이 성공적으로 저장되었습니다.');
+      }
 
     const handleSearch = (query: string) => {
         const filtered = gameData.filter(game =>
@@ -51,21 +75,64 @@ const GameList: React.FC = () => {
         setIsDialogVisible(true);
     };
 
-    const handleSaveGame = () => {
-        // 여기에 백엔드 연동 로직을 추가할 수 있습니다.
-        console.log('New game:', { image: newGameImage, title: newGameTitle, description: newGameDescription });
-        setIsDialogVisible(false);
-        // 상태 초기화
-        setNewGameImage(null);
-        setNewGameTitle('');
-        setNewGameDescription('');
-    };
 
     const handleImageUpload = () => {
-        // 이미지 업로드 로직을 여기에 구현합니다.
-        // 예를 들어, 이미지 피커를 열고 선택된 이미지의 URI를 setNewGameImage로 설정합니다.
-        console.log('Image upload');
+        const options = {
+            mediaType : "photo" as MediaType,
+            includeBase64: false,
+            maxHeight: 2000,
+            maxWidth: 2000,
+        };
+
+        launchImageLibrary(options, (response) => {
+            if (response.didCancel) {
+                console.log('이미지 선택을 취소하였습니다.');
+            } else if (response.errorCode) {
+                console.log('ImagePicker Error: ', response.errorMessage);
+            } else if (response.assets && response.assets.length > 0) {
+                const source = { uri: response.assets[0].uri };
+                setNewGameImage(source.uri as string);
+                setNewGameImageFile(response.assets[0]);
+            }
+        });
     };
+
+    const handleSaveGame = async () => {
+        if (!newGameImageFile || !newGameTitle || !newGameDescription) {
+            Alert.alert('Error', '타이틀, 설명, 이미지를 모두 작성해주세요');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', {
+            uri: newGameImageFile.uri,
+            type: newGameImageFile.type,
+            name: newGameImageFile.fileName,
+        });
+
+        try {
+            const imageUrl = await fileUploadRequest(formData);
+            if (!imageUrl) {
+                throw new Error('Failed to upload image');
+            }
+
+            const gameImage = imageUrl;
+            const title = newGameTitle;
+            const description = newGameDescription;
+            const requestBody: PostGameRequestDto = {
+                title, description, gameImage
+            }
+
+            console.log('New game:', { image: imageUrl, title: newGameTitle, description: newGameDescription });
+            postGameRequest(requestBody).then(postGameResponse);
+
+            
+        } catch (error) {
+            console.error('Error saving game:', error);
+            Alert.alert('Error', 'Failed to save game');
+        }
+    };
+
 
     return (
         <View style={styles.container}>

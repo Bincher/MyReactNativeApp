@@ -107,8 +107,8 @@ export const getUserRequest = async (id: string) =>{
     return result;
 }
 
-export const postGameRequest = async (requestBody: PostGameRequestDto, accessToken: string) =>{
-    const result = await axios.post(POST_GAME_URL(), requestBody, authorization(accessToken))
+export const postGameRequest = async (requestBody: PostGameRequestDto) =>{
+    const result = await axios.post(POST_GAME_URL(), requestBody)
         .then(response => {
             const responseBody: PostGameResponseDto = response.data;
             return responseBody;
@@ -120,3 +120,21 @@ export const postGameRequest = async (requestBody: PostGameRequestDto, accessTok
         })
     return result;
 }
+
+
+const FILE_DOMAIN = `${DOMAIN}/file`;
+const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`;
+
+export const fileUploadRequest = async (data: FormData) => {
+    try {
+        const response = await axios.post(FILE_UPLOAD_URL(), data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        return null;
+    }
+};
