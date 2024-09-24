@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import { Game } from '../../types/Game';
-import { gameData } from '../../mocks';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import useLoginUserStore from '../../stores/login-user.store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { launchImageLibrary, MediaType } from 'react-native-image-picker'; 
-import { fileUploadRequest, postGameRequest} from '../../apis';
+import { fileUploadRequest, getGameListRequest, postGameRequest} from '../../apis';
 import { PostGameResponseDto } from '../../apis/response/game';
 import { ResponseDto } from '../../apis/response';
 import { PostGameRequestDto } from '../../apis/request/game';
+import GetGameListResponseDto from '../../apis/response/game/get-game-list.response.dto';
 
 type RootStackParamList = {
     GameList: undefined;
@@ -20,25 +20,45 @@ type RootStackParamList = {
 type GameListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'GameList'>;
 
 const GameList: React.FC = () => {
-    const [searchQuery, setSearchQuery] = useState<string>('');
-    const [filteredGames, setFilteredGames] = useState<Game[]>(gameData);
+
+    // state: 검색 쿼리 상태 //
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // state: 검색된 게임 상태 //
+    const [filteredGames, setFilteredGames] = useState<Game[]>([]);
+
+    // state: 게임 리스트 상태 //
+    const [gameData, setGameData] = useState<Game[]>([]);
+
+    // state: 유저 정보 //
     const { loginUser } = useLoginUserStore();
+
+    // state: 네비게이션 상태 //
     const navigation = useNavigation<GameListScreenNavigationProp>();
 
+    // state: 다이얼로그 상태 //
     const [isDialogVisible, setIsDialogVisible] = useState(false);
+
+    // state: 추가할 게임 이미지 상태 //
     const [newGameImage, setNewGameImage] = useState<string | null>(null);
+
+    // state: 추가할 게임 이미지 저장 상태 //
     const [newGameImageFile, setNewGameImageFile] = useState<any>(null);
+
+    // state: 추가할 게임 타이틀 상태 //
     const [newGameTitle, setNewGameTitle] = useState('');
+
+    // state: 추가할 게임 설명 상태 //
     const [newGameDescription, setNewGameDescription] = useState('');
 
-    // function: post board response 처리 함수 //
+    // function: post game response 처리 함수 //
     const postGameResponse =(responseBody : PostGameResponseDto | ResponseDto | null) => {
         if(!responseBody) return;
         const {code} = responseBody;
         if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
         if(code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
         if(code !== 'SU') return;
-  
+
         // Reset form
         setNewGameImage(null);
         setNewGameImageFile(null);
@@ -47,35 +67,66 @@ const GameList: React.FC = () => {
         setIsDialogVisible(false);
 
         Alert.alert('성공', '게임이 성공적으로 저장되었습니다.');
-      }
+    }
 
+    // function: get game list response 처리 함수 //
+    const getGameListResponse =(responseBody: GetGameListResponseDto | ResponseDto | null)=>{
+        if (!responseBody) return;
+        const {code} = responseBody;
+        if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if (code !== 'SU') return;
+        
+        const { gameList } = responseBody as GetGameListResponseDto;
+        setGameData(gameList);
+        setFilteredGames(gameList)
+    }
+
+    // event handler: 검색 이벤트 처리 //
     const handleSearch = (query: string) => {
-        const filtered = gameData.filter(game =>
-            game.title.toLowerCase().includes(query.toLowerCase())
-        );
-        setFilteredGames(filtered);
         setSearchQuery(query);
+        if (query.trim() === '') {
+            setFilteredGames(gameData);
+        } else {
+            const filtered = gameData.filter(game =>
+            game.title.toLowerCase().includes(query.toLowerCase()) ||
+            game.description.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredGames(filtered);
+        }
     };
 
+    // event handler: 게임 리스트 클릭 이벤트 처리 //
     const handleCardPress = (game: Game) => {
         navigation.navigate('ServerMaking', {game});
     };
 
-    const renderGameCard = ({ item }: { item: Game }) => (
-        <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
-            <Image source={{uri : item?.gameImage}} style={styles.gameImage} />
-            <View style={styles.gameInfo}>
-                <Text style={styles.gameName}>{item.title}</Text>
-                <Text style={styles.genre}>{item.description}</Text>
-            </View>
-        </TouchableOpacity>
-    );
+    // event handler: 게임 리스트 카드 출력 이벤트 처리 //
+    const renderGameCard = ({ item }: { item: Game }) => {
+        const imageUrl = item.gameImage.replace('localhost', '10.0.2.2'); // Android 에뮬레이터용
+        // const imageUrl = item.gameImage.replace('localhost', '127.0.0.1'); // iOS 시뮬레이터용
+        console.log('Game Image URL: ', imageUrl);
+        
+        return (
+            <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
+                <Image 
+                    source={{uri: imageUrl}} 
+                    style={styles.gameImage} 
+                    onError={(error) => console.log('Image load error:', error.nativeEvent.error)}
+                />
+                <View style={styles.gameInfo}>
+                    <Text style={styles.gameName}>{item.title}</Text>
+                    <Text style={styles.genre}>{item.description}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
+    // event handler: 게임 추가 버튼 클릭 이벤트 처리 //
     const handleAddGame = () => {
         setIsDialogVisible(true);
     };
 
-
+    // event handler: 이미지 업로드 버튼 클릭 이벤트 처리 //
     const handleImageUpload = () => {
         const options = {
             mediaType : "photo" as MediaType,
@@ -97,6 +148,7 @@ const GameList: React.FC = () => {
         });
     };
 
+    // event handler: 게임 저장 버튼 클릭 이벤트 처리 //
     const handleSaveGame = async () => {
         if (!newGameImageFile || !newGameTitle || !newGameDescription) {
             Alert.alert('Error', '타이틀, 설명, 이미지를 모두 작성해주세요');
@@ -123,16 +175,19 @@ const GameList: React.FC = () => {
                 title, description, gameImage
             }
 
-            console.log('New game:', { image: imageUrl, title: newGameTitle, description: newGameDescription });
+            // console.log('New game:', { image: imageUrl, title: newGameTitle, description: newGameDescription });
             postGameRequest(requestBody).then(postGameResponse);
 
-            
         } catch (error) {
             console.error('Error saving game:', error);
             Alert.alert('Error', 'Failed to save game');
         }
     };
 
+    // effect: 첫 마운트 시 실행될 함수 //
+    useEffect(()=>{
+        getGameListRequest().then(getGameListResponse);
+    },[])
 
     return (
         <View style={styles.container}>

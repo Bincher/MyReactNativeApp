@@ -21,9 +21,12 @@ type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'
 
 const Login: React.FC = () => {
     const navigation = useNavigation<LoginScreenNavigationProp>();
-    const [view, setView] = useState<'sign-in' | 'sign-up'>('sign-in');
     const { login } = useAuth();
 
+    // state: 페이지 상태 //
+    const [view, setView] = useState<'sign-in' | 'sign-up'>('sign-in');
+
+    // event handler: 카카오 로그인 버튼 클릭 이벤트 처리 - 작동 X //
     const kakaoLogin = () => {
         KakaoLogin.login().then((result) => {
             console.log("Login Success", JSON.stringify(result));
@@ -37,6 +40,7 @@ const Login: React.FC = () => {
         });
     };
 
+    // event handler: 카카오 프로필 가져오기 이벤트 처리 - 작동 X //
     const getProfile = () => {
         KakaoLogin.getProfile().then((result) => {
             console.log("GetProfile Success", JSON.stringify(result));
@@ -45,10 +49,12 @@ const Login: React.FC = () => {
         });
     };
 
+    // event handler: 뒤로가기 버튼 클릭 이벤트 처리 //
     const handleBack = () => {
         navigation.navigate('Main');
     };
 
+    // component : SignInCard 컴포넌트 //
     const SignInCard =()=>{
 
         // state: 아이디 상태 //
@@ -148,6 +154,7 @@ const Login: React.FC = () => {
         );
     }
 
+    // component: sign up card 컴포넌트 //
     const SignUpCard =()=>{
 
         // state: 아이디 상태 //
@@ -211,7 +218,6 @@ const Login: React.FC = () => {
 
         // state: 개인 정보 동의 상태 //
         const [isAgreedPersonal, setIsAgreedPersonal] = useState<boolean>(false);
-
 
         // state: 이게 뭐였더라... //
         const [showTerms, setShowTerms] = useState(false);

@@ -17,12 +17,12 @@ type RootStackParamList = {
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyProfile'>;
 
 const MyProfile: React.FC = () =>  {
+
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-
   const { logout } = useAuth();
-
   const { loginUser } = useLoginUserStore();
 
+  // event handler: 로그아웃 버튼 클릭 이벤트 처리 //
   const handleLogout = async () => {
     try {
       await logout();
@@ -32,22 +32,23 @@ const MyProfile: React.FC = () =>  {
     }
   };
 
+  // event handler: 뒤로가기 버튼 클릭 이벤트 처리 //
   const handleGoBack = () => {
     navigation.goBack();
   };
 
-  // function: get user response 처리 함수 //
-  const getUserResponse =(responseBody: GetUserResponseDto | ResponseDto | null)=>{
-    if(!responseBody) return;
-    const { code } = responseBody;
-    if (code === 'NU') Alert.alert('존재하지 않는 유저입니다.');
-    if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
-    if (code !== 'SU'){
-      return;
-    }
+  // // function: get user response 처리 함수 //
+  // const getUserResponse =(responseBody: GetUserResponseDto | ResponseDto | null)=>{
+  //   if(!responseBody) return;
+  //   const { code } = responseBody;
+  //   if (code === 'NU') Alert.alert('존재하지 않는 유저입니다.');
+  //   if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+  //   if (code !== 'SU'){
+  //     return;
+  //   }
 
-    //const {email, id, profileImage} = responseBody as GetUserResponseDto;
-  }
+  //   //const {email, id, profileImage} = responseBody as GetUserResponseDto;
+  // }
 
   // // effect: email path variable 변경시 실행 할 함수 //
   // useEffect(()=>{
@@ -55,13 +56,11 @@ const MyProfile: React.FC = () =>  {
 
   // },[userEmail])
 
-
-
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
           <Image
-            source={{ uri: loginUser?.profileImage || 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250' }}
+            source={{ uri: loginUser?.profileImage || 'http://10.0.2.2:4000/file/7b671d47-8d39-45cd-9bb5-0e5762f1ce29.jpg' }}
             style={styles.profileImage}
             resizeMode='cover'
           />
