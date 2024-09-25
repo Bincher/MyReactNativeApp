@@ -11,6 +11,7 @@ import { PostGameResponseDto } from '../../apis/response/game';
 import { ResponseDto } from '../../apis/response';
 import { PostGameRequestDto } from '../../apis/request/game';
 import GetGameListResponseDto from '../../apis/response/game/get-game-list.response.dto';
+import { Picker } from '@react-native-picker/picker';
 
 type RootStackParamList = {
     GameList: undefined;
@@ -50,6 +51,9 @@ const GameList: React.FC = () => {
 
     // state: 추가할 게임 설명 상태 //
     const [newGameDescription, setNewGameDescription] = useState('');
+
+    // state: 추가할 게임 요금 등급 상태 //
+    const [newAmountLevel, setNewAmountLevel] = useState('');
 
     // function: post game response 처리 함수 //
     const postGameResponse =(responseBody : PostGameResponseDto | ResponseDto | null) => {
@@ -104,7 +108,7 @@ const GameList: React.FC = () => {
     const renderGameCard = ({ item }: { item: Game }) => {
         const imageUrl = item.gameImage.replace('localhost', '10.0.2.2'); // Android 에뮬레이터용
         // const imageUrl = item.gameImage.replace('localhost', '127.0.0.1'); // iOS 시뮬레이터용
-        console.log('Game Image URL: ', imageUrl);
+        // console.log('Game Image URL: ', imageUrl);
         
         return (
             <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
@@ -171,8 +175,9 @@ const GameList: React.FC = () => {
             const gameImage = imageUrl;
             const title = newGameTitle;
             const description = newGameDescription;
+            const amountLevel = newAmountLevel;
             const requestBody: PostGameRequestDto = {
-                title, description, gameImage
+                title, description, gameImage, amountLevel
             }
 
             // console.log('New game:', { image: imageUrl, title: newGameTitle, description: newGameDescription });
@@ -237,6 +242,18 @@ const GameList: React.FC = () => {
                             onChangeText={setNewGameDescription}
                             multiline
                         />
+                        <Text style={styles.label}>Price Grade</Text>
+                        <Picker
+                            selectedValue={newAmountLevel}
+                            style={styles.picker}
+                            onValueChange={(itemValue) => setNewAmountLevel(itemValue)}
+                            >
+                            <Picker.Item label="N" value="N" />
+                            <Picker.Item label="A" value="A" />
+                            <Picker.Item label="B" value="B" />
+                            <Picker.Item label="C" value="C" />
+                            <Picker.Item label="D" value="D" />
+                        </Picker>
                         <View style={styles.buttonContainer}>
                             <TouchableOpacity style={styles.button} onPress={handleSaveGame}>
                                 <Text style={styles.buttonText}>Save</Text>
@@ -359,6 +376,16 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         textAlign: 'center',
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 5,
+        alignSelf: 'flex-start',
+    },
+    picker: {
+        width: '100%',
+        height: 50,
+        marginBottom: 10,
     },
 });
 
