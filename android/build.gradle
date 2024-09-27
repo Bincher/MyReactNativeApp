@@ -17,6 +17,19 @@ buildscript {
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
     }
+    subprojects {
+        afterEvaluate {project ->
+            if (project.hasProperty("android")) {
+                android {
+                    sourceSets {
+                        main {
+                            assets.srcDirs += ['../../node_modules/react-native-vector-icons/Fonts']
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 apply plugin: "com.facebook.react.rootproject"

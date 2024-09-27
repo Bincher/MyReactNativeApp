@@ -4,6 +4,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 
 interface AuthContextType {
     isLoggedIn: boolean;
+    getAccessToken: () => Promise<string | null>;
     login: (token: string) => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -30,6 +31,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const getAccessToken = async (): Promise<string | null> => {
+        try {
+            const token = await EncryptedStorage.getItem('user_token');
+            return token;
+        } catch (error) {
+            console.error('Error getting access token:', error);
+            return null;
+        }
+    };
+
     const login = async (token: string): Promise<void> => {
         try {
             await EncryptedStorage.setItem('user_token', token);
@@ -49,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, login, logout }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ isLoggedIn, getAccessToken, login, logout}}>{children}</AuthContext.Provider>
     );
 };
 

@@ -8,5 +8,5 @@ export default interface PostGameServerRequestDto{
     billingAmount: string;
     requestDetails: string;
     modeCount: number;
-    gameText: string;
+    gameTitle: string;
 }
