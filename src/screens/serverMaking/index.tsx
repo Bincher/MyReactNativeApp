@@ -30,15 +30,8 @@ const ServerMaking: React.FC = () => {
     const [serverPerformance, setServerPerformance] = useState('BASIC');
     const [serverDisk, setServerDisk] = useState('BASIC');
     const [serverBackup, setServerBackup] = useState(false);
-    const [serverModeCount, setServerModeCount] = useState<number | null>(null);
-    const [serverBillingAmount, setServerBillingAmount] = useState("0");
+    const [serverMode, setServerMode] = useState(0);
     const [inputValue, setInputValue] = useState('');
-    const [serverRequestDetails, setServerRequestDetails] = useState('');
-
-    const [serverNameError, setServerNameError] = useState('');
-    const [serverModeCountError, setServerModeCountError] = useState('');
-    const [infoModalVisible, setInfoModalVisible] = useState(false);
-    const [infoContent, setInfoContent] = useState('');
 
     const calculateEstimatedCost = () => {
         // Logic to calculate estimated cost based on server settings
@@ -66,201 +59,91 @@ const ServerMaking: React.FC = () => {
         setInputValue(text);
         const parsedNumber = parseInt(text, 10);
         if (!isNaN(parsedNumber) && parsedNumber > 0) {
-            setServerModeCount(parsedNumber);
-            setServerModeCountError('');
-        } else {
-            setServerModeCount(null);
-            setServerModeCountError('숫자만 입력 가능합니다');
-        }
-    };
-
-    const handleCreateServer = async () => {
-        let hasError = false;
-    
-        if (!serverName) {
-            setServerNameError('서버 이름은 필수로 작성하셔야 합니다.');
-            hasError = true;
-        } else {
-            setServerNameError('');
-        }
-    
-        if (serverModeCount === null) {
-            setServerModeCountError('모드 개수는 필수로 작성하셔야 합니다.');
-            hasError = true;
-        } else {
-            setServerModeCountError('');
-        }
-    
-        if (hasError) return;
-    
-        try {
-            const gameTitle = game.title;
-            const requestBody: PostGameServerRequestDto = {
-                name: serverName,
-                content: serverContent,
-                location: serverLocation,
-                performance: serverPerformance,
-                disk: serverDisk,
-                backup: serverBackup,
-                billingAmount: serverBillingAmount,
-                requestDetails: serverRequestDetails,
-                modeCount: serverModeCount!,
-                gameTitle
-            };
-        
-            const accessToken = await getAccessToken();
-            if (accessToken) {
-                postGameServerRequest(requestBody, accessToken).then(postGameServerResponse);
+            setServerMode(parsedNumber);
             } else {
-                Alert.alert('Error', 'Failed to save game by accessToken');
+            setServerMode(0);
             }
-        } catch (error) {
-            console.error('Error saving game:', error);
-            Alert.alert('Error', 'Failed to save game');
-        }
-    };
-
-    const showInfo = (content: string) => {
-        setInfoContent(content);
-        setInfoModalVisible(true);
-    };
+        };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.container}>
-                <Text style={styles.title}>게임: {game.title}</Text>      
-                <View style={styles.inputContainer}>
+                <Text style={styles.label}>게임: {game.title}</Text>
+                <View style={styles.divider} />
                     <Text style={styles.label}>서버 이름</Text>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
-                            style={styles.input}
-                            value={serverName}
-                            onChangeText={setServerName}
-                            placeholder="서버 이름을 입력하세요"
-                            />
-                            <TouchableOpacity onPress={() => showInfo('서버의 고유한 이름을 입력하세요.')}>
-                                <Icon name="help-outline" size={24} color="#6200ea" />
-                            </TouchableOpacity>
-                        </View>
-                    {serverNameError ? <Text style={styles.errorText}>{serverNameError}</Text> : null}
-                </View>
-        
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>서버 설명</Text>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
+                    <TextInput
                         style={styles.input}
-                        value={serverContent}
-                        onChangeText={setServerContent}
-                        placeholder="서버 설명을 입력하세요"
-                        multiline
-                        />
-                        <TouchableOpacity onPress={() => showInfo('서버에 대한 간단한 설명을 입력하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-        
-                <View style={styles.inputContainer}>
+                        value={serverName}
+                        onChangeText={setServerName}
+                    />
+                    <Text style={styles.label}>서버 설명</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={serverDescription}
+                        onChangeText={setServerDescription}
+                    />
+                <View style={styles.divider} />
                     <Text style={styles.label}>서버 위치</Text>
-                    <View style={styles.pickerWrapper}>
-                        <Picker
+                    <Picker
                         selectedValue={serverLocation}
                         onValueChange={(itemValue) => setServerLocation(itemValue)}
                         style={styles.picker}
-                        >
-                            <Picker.Item label="서울" value="서울" />
-                            <Picker.Item label="부산" value="부산" />
-                            <Picker.Item label="대전" value="대전" />
-                        </Picker>
-                        <TouchableOpacity onPress={() => showInfo('서버가 위치할 지역을 선택하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-        
-                <View style={styles.inputContainer}>
+                    >
+                        <Picker.Item label="서울" value="서울" />
+                        <Picker.Item label="도쿄" value="도쿄" />
+                        <Picker.Item label="유럽" value="유럽" />
+                        <Picker.Item label="북미" value="북미" />
+                    </Picker>
                     <Text style={styles.label}>서버 성능</Text>
-                    <View style={styles.pickerWrapper}>
-                        <Picker
+                    <Picker
                         selectedValue={serverPerformance}
                         onValueChange={(itemValue) => setServerPerformance(itemValue)}
                         style={styles.picker}
-                        >
-                            <Picker.Item label="기본" value="BASIC" />
-                            <Picker.Item label="고성능" value="HIGH" />
-                        </Picker>
-                        <TouchableOpacity onPress={() => showInfo('서버의 성능 수준을 선택하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-        
-                <View style={styles.inputContainer}>
+                    >
+                        <Picker.Item label="BASIC" value="BASIC" />
+                        <Picker.Item label="STANDARD" value="STANDARD" />
+                        <Picker.Item label="PLUS" value="PLUS" />
+                        <Picker.Item label="PRO" value="PRO" />
+                    </Picker>
                     <Text style={styles.label}>서버 저장소</Text>
-                    <View style={styles.pickerWrapper}>
-                        <Picker
-                        selectedValue={serverDisk}
-                        onValueChange={(itemValue) => setServerDisk(itemValue)}
+                    <Picker
+                        selectedValue={serverStorage}
+                        onValueChange={(itemValue) => setServerStorage(itemValue)}
                         style={styles.picker}
-                        >
-                            <Picker.Item label="기본" value="BASIC" />
-                            <Picker.Item label="대용량" value="LARGE" />
-                        </Picker>
-                        <TouchableOpacity onPress={() => showInfo('서버의 저장소 크기를 선택하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-        
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>서버 백업 여부</Text>
+                    >
+                        <Picker.Item label="BASIC" value="BASIC" />
+                        <Picker.Item label="STANDARD" value="STANDARD" />
+                        <Picker.Item label="PRO" value="PRO" />
+                    </Picker>
+                <View style={styles.divider} />
                     <View style={styles.switchContainer}>
+                        <Text style={styles.label}>서버 백업 여부</Text>
                         <Switch
-                        value={serverBackup}
-                        onValueChange={setServerBackup}
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor={serverBackup ? "#f5dd4b" : "#f4f3f4"}
+                            value={serverBackup}
+                            onValueChange={setServerBackup}
                         />
-                        <TouchableOpacity onPress={() => showInfo('서버 데이터의 백업 여부를 선택하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
                     </View>
-                </View>
-        
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>게임 모드 개수</Text>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
+                <View style={styles.divider} />
+                    <Text style={styles.label}>게임 모드 개수(정확히 작성해주세요)</Text>
+                    <TextInput
                         style={styles.input}
+                        placeholder="모드 개수"
                         value={inputValue}
                         onChangeText={handleInputChange}
-                        placeholder="모드 개수를 입력하세요"
+                        autoCapitalize="none"
                         keyboardType="numeric"
-                        />
-                        <TouchableOpacity onPress={() => showInfo('게임 모드의 개수를 숫자로 입력하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
-                    </View>
-                    {serverModeCountError ? <Text style={styles.errorText}>{serverModeCountError}</Text> : null}
-                </View>
-        
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>요청 사항(모드 명)</Text>
-                    <View style={styles.inputWrapper}>
-                        <TextInput
-                        style={styles.input}
-                        value={serverRequestDetails}
-                        onChangeText={setServerRequestDetails}
-                        placeholder="요청 사항을 입력하세요"
-                        multiline
-                        />
-                        <TouchableOpacity onPress={() => showInfo('추가적인 요청 사항이나 모드 이름을 입력하세요.')}>
-                            <Icon name="help-outline" size={24} color="#6200ea" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-        
+                    />
+                    {serverMode === null && inputValue !== '' && (
+                        <Text style={styles.errorText}>유효한 숫자를 입력해주세요.</Text>
+                    )}
+                <Text style={styles.label}>요청 사항(모드 명)</Text>
+                <TextInput
+                    style={styles.input}
+                    value={serverDescription}
+                    onChangeText={setServerDescription}
+                />
+                <View style={styles.divider} />
+                <View style={styles.divider} />
                 <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost()}</Text>
         
                 <View style={styles.buttonContainer}>
@@ -373,55 +256,6 @@ const styles = StyleSheet.create({
         color: 'red',
         fontSize: 12,
         marginTop: 5,
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        width: '80%',
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    imagePreview: {
-        width: 200,
-        height: 200,
-        marginBottom: 10,
-    },
-    imagePlaceholder: {
-        width: 200,
-        height: 200,
-        backgroundColor: '#f0f0f0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    uploadButton: {
-        backgroundColor: '#6200ea',
-        padding: 10,
-        borderRadius: 5,
-        marginBottom: 10,
-    },
-    modalText: {
-        fontSize: 16,
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    modalButton: {
-        backgroundColor: '#6200ea',
-        padding: 10,
-        borderRadius: 5,
-        width: '100%',
-        alignItems: 'center',
-    },
-    modalButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 });
 
