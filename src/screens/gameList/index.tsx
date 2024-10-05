@@ -109,7 +109,6 @@ const GameList: React.FC = () => {
         const imageUrl = item.gameImage.replace('localhost', '10.0.2.2'); // Android 에뮬레이터용
         // const imageUrl = item.gameImage.replace('localhost', '127.0.0.1'); // iOS 시뮬레이터용
         // console.log('Game Image URL: ', imageUrl);
-        
         return (
             <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
                 <Image 

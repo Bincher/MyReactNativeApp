@@ -27,15 +27,66 @@ const ServerMaking: React.FC = () => {
     const [serverName, setServerName] = useState('');
     const [serverContent, setServerContent] = useState('');
     const [serverLocation, setServerLocation] = useState('서울');
-    const [serverPerformance, setServerPerformance] = useState('BASIC');
-    const [serverDisk, setServerDisk] = useState('BASIC');
+    const [serverPerformance, setServerPerformance] = useState<'BASIC' | 'STANDARD' | 'PLUS' | 'PRO'>('BASIC');
+    const [serverDisk, setServerDisk] = useState<'BASIC' | 'STANDARD' | 'PRO'>('BASIC');
     const [serverBackup, setServerBackup] = useState(false);
-    const [serverMode, setServerMode] = useState(0);
+    const [serverModeCount, setServerModeCount] = useState<number>(0);
     const [inputValue, setInputValue] = useState('');
+    const [serverRequestDetails, setServerRequestDetails] = useState('');
 
-    const calculateEstimatedCost = () => {
-        // Logic to calculate estimated cost based on server settings
-        return '100,000원'; // Example estimated cost
+    const [serverNameError, setServerNameError] = useState('');
+    const [serverModeCountError, setServerModeCountError] = useState('');
+    const [infoModalVisible, setInfoModalVisible] = useState(false);
+    const [infoContent, setInfoContent] = useState('');
+
+    const calculateEstimatedCost = (
+        gameGrade: string,
+        serverPerformance: 'BASIC' | 'STANDARD' | 'PLUS' | 'PRO',
+        serverDisk: 'BASIC' | 'STANDARD' | 'PRO',
+        serverBackup: boolean,
+        modeCount: number
+    ): string => {
+
+        if (gameGrade === 'N') {
+            return '논의 후 결정';
+        }
+        
+        let baseCost = 0;
+        
+        // 게임 등급에 따른 기본 비용
+        switch (gameGrade) {
+            case 'A': baseCost = 50000; break;
+            case 'B': baseCost = 70000; break;
+            case 'C': baseCost = 90000; break;
+            case 'D': baseCost = 120000; break;
+        }   
+        
+        // 서버 성능에 따른 추가 비용
+        switch (serverPerformance) {
+            case 'BASIC': break; // 기본 비용 추가 없음
+            case 'STANDARD': baseCost *= 1.3; break;
+            case 'PLUS': baseCost *= 1.6; break;
+            case 'PRO': baseCost *= 2; break;
+        }
+        
+        // 서버 저장소에 따른 추가 비용
+        switch (serverDisk) {
+            case 'BASIC': break; // 기본 비용 추가 없음
+            case 'STANDARD': baseCost += 20000; break;
+            case 'PRO': baseCost += 50000; break;
+        }
+        
+        // 서버 백업 유무에 따른 추가 비용
+        if (serverBackup) {
+            baseCost += 20000;
+        }
+
+        // 모드 개수에 따른 추가 비용 (모드 하나당 5000원 추가, 최대 10개까지)
+        const additionalModeCost = Math.min(modeCount, 10) * 5000;
+        baseCost += additionalModeCost;
+
+        // 최종 비용을 원화 형식으로 변환
+        return `${baseCost.toLocaleString()}원`;
     };
 
     // function: post game server response 처리 함수 //
@@ -59,92 +110,206 @@ const ServerMaking: React.FC = () => {
         setInputValue(text);
         const parsedNumber = parseInt(text, 10);
         if (!isNaN(parsedNumber) && parsedNumber > 0) {
-            setServerMode(parsedNumber);
+            setServerModeCount(parsedNumber);
+            setServerModeCountError('');
+        } else {
+            setServerModeCount(0);
+            setServerModeCountError('숫자만 입력 가능합니다');
+        }
+    };
+
+    const handleCreateServer = async () => {
+        let hasError = false;
+    
+        if (!serverName) {
+            setServerNameError('서버 이름은 필수로 작성하셔야 합니다.');
+            hasError = true;
+        } else {
+            setServerNameError('');
+        }
+    
+        if (serverModeCount === null) {
+            setServerModeCountError('모드 개수는 필수로 작성하셔야 합니다.');
+            hasError = true;
+        } else {
+            setServerModeCountError('');
+        }
+    
+        if (hasError) return;
+    
+        try {
+            const gameTitle = game.title;
+            const requestBody: PostGameServerRequestDto = {
+                name: serverName,
+                content: serverContent,
+                location: serverLocation,
+                performance: serverPerformance,
+                disk: serverDisk,
+                backup: serverBackup,
+                billingAmount: calculateEstimatedCost(game.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount),
+                requestDetails: serverRequestDetails,
+                modeCount: serverModeCount!,
+                gameTitle
+            };
+        
+            const accessToken = await getAccessToken();
+            if (accessToken) {
+                postGameServerRequest(requestBody, accessToken).then(postGameServerResponse);
             } else {
-            setServerMode(0);
+                Alert.alert('Error', 'Failed to save game by accessToken');
             }
-        };
+        } catch (error) {
+            console.error('Error saving game:', error);
+            Alert.alert('Error', 'Failed to save game');
+        }
+    };
+
+    const showInfo = (content: string) => {
+        setInfoContent(content);
+        setInfoModalVisible(true);
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.container}>
-                <Text style={styles.label}>게임: {game.title}</Text>
-                <View style={styles.divider} />
+                <Text style={styles.title}>게임: {game.title}</Text>      
+                <View style={styles.inputContainer}>
                     <Text style={styles.label}>서버 이름</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={serverName}
-                        onChangeText={setServerName}
-                    />
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                            style={styles.input}
+                            value={serverName}
+                            onChangeText={setServerName}
+                            placeholder="서버 이름을 입력하세요"
+                            />
+                            <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('서버의 이름을 작성하시면 됩니다. \n서버 이름은 중복이 가능합니다.\n생성 후 수정이 가능합니다.')}>
+                                <Icon name="help-outline" size={24} color="#6200ea" />
+                            </TouchableOpacity>
+                        </View>
+                    {serverNameError ? <Text style={styles.errorText}>{serverNameError}</Text> : null}
+                </View>
+        
+                <View style={styles.inputContainer}>
                     <Text style={styles.label}>서버 설명</Text>
-                    <TextInput
+                    <View style={styles.inputWrapper}>
+                        <TextInput
                         style={styles.input}
-                        value={serverDescription}
-                        onChangeText={setServerDescription}
-                    />
-                <View style={styles.divider} />
+                        value={serverContent}
+                        onChangeText={setServerContent}
+                        placeholder="서버 설명을 입력하세요"
+                        multiline
+                        />
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('서버의 설명을 작성하시면 됩니다.\n생성 후 수정이 가능합니다.')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+        
+                <View style={styles.inputContainer}>
                     <Text style={styles.label}>서버 위치</Text>
-                    <Picker
+                    <View style={styles.pickerWrapper}>
+                        <Picker
                         selectedValue={serverLocation}
                         onValueChange={(itemValue) => setServerLocation(itemValue)}
                         style={styles.picker}
-                    >
-                        <Picker.Item label="서울" value="서울" />
-                        <Picker.Item label="도쿄" value="도쿄" />
-                        <Picker.Item label="유럽" value="유럽" />
-                        <Picker.Item label="북미" value="북미" />
-                    </Picker>
+                        >
+                            <Picker.Item label="서울" value="서울" />
+                            <Picker.Item label="유럽" value="유럽" />
+                            <Picker.Item label="미국" value="미국" />
+                            <Picker.Item label="기타" value="기타" />
+                        </Picker>
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('서버가 위치할 지역을 선택하세요.\n서버 사용자들의 위치를 우선하여 선정하시면 됩니다.\n 기타 위치를 원하실경우 기타 선택 후 요청사항에 작성해주시길 바랍니다.')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+        
+                <View style={styles.inputContainer}>
                     <Text style={styles.label}>서버 성능</Text>
-                    <Picker
+                    <View style={styles.pickerWrapper}>
+                        <Picker
                         selectedValue={serverPerformance}
                         onValueChange={(itemValue) => setServerPerformance(itemValue)}
                         style={styles.picker}
-                    >
-                        <Picker.Item label="BASIC" value="BASIC" />
-                        <Picker.Item label="STANDARD" value="STANDARD" />
-                        <Picker.Item label="PLUS" value="PLUS" />
-                        <Picker.Item label="PRO" value="PRO" />
-                    </Picker>
-                    <Text style={styles.label}>서버 저장소</Text>
-                    <Picker
-                        selectedValue={serverStorage}
-                        onValueChange={(itemValue) => setServerStorage(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="BASIC" value="BASIC" />
-                        <Picker.Item label="STANDARD" value="STANDARD" />
-                        <Picker.Item label="PRO" value="PRO" />
-                    </Picker>
-                <View style={styles.divider} />
-                    <View style={styles.switchContainer}>
-                        <Text style={styles.label}>서버 백업 여부</Text>
-                        <Switch
-                            value={serverBackup}
-                            onValueChange={setServerBackup}
-                        />
+                        >
+                            <Picker.Item label="BASIC PLAN" value="BASIC" />
+                            <Picker.Item label="STANDARD PLAN" value="STANDARD" />
+                            <Picker.Item label="PLUS PLAN" value="PLUS" />
+                            <Picker.Item label="PRO PLAN" value="PRO" />
+                        </Picker>
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('서버의 성능을 선택하세요.\n\nBASIC: 1-2명의 사용자를 지원하는 서버로, 소규모 개인 게임이나 테스트용으로 적합합니다.\n\nSTANDARD: 3-10명의 사용자를 지원하는 서버로, 친구들과 함께 하는 소규모 멀티플레이어 게임에 적합합니다.\n\n PLUS: 10-50명의 사용자를 지원하는 서버로, 중형 규모의 게임 커뮤니티에 적합합니다.\n\nPRO: 50명 이상의 사용자를 지원하는 서버로, 대형 게임 커뮤니티나 클랜 활동에 적합합니다')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
                     </View>
-                <View style={styles.divider} />
-                    <Text style={styles.label}>게임 모드 개수(정확히 작성해주세요)</Text>
-                    <TextInput
+                </View>
+        
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>서버 저장소</Text>
+                    <View style={styles.pickerWrapper}>
+                        <Picker
+                        selectedValue={serverDisk}
+                        onValueChange={(itemValue) => setServerDisk(itemValue)}
+                        style={styles.picker}
+                        >
+                            <Picker.Item label="BASIC" value="BASIC" />
+                            <Picker.Item label="STANDARD" value="STANDARD" />
+                            <Picker.Item label="PRO" value="PRO" />
+                        </Picker>
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('서버의 저장소 성능을 선택하세요.\n\nBASIC: 하드디스크를 사용합니다. PVE 위주의 게임에게 추천드립니다.\n\nSTANDARD: SSD를 사용합니다. PVP 위주의 게임에게 추천드립니다.\n\nPRO: 고품질 SSD를 사용합니다. 대규모 서버에게 추천드립니다.')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+        
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>서버 백업 여부</Text>
+                    <View style={styles.switchContainer}>
+                        <Switch
+                        value={serverBackup}
+                        onValueChange={setServerBackup}
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        thumbColor={serverBackup ? "#f5dd4b" : "#f4f3f4"}
+                        />
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('서버 백업 여부를 선택해주세요.\n\n서버 백업 서비스를 신청할시 하루마다 이메일로 서버 백업본을 제공합니다.\n\n서버 오류로 인한 백업은 이 선택과 관련없이 제공됩니다.')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+        
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>게임 모드 개수</Text>
+                    <View style={styles.inputWrapper}>
+                        <TextInput
                         style={styles.input}
-                        placeholder="모드 개수"
                         value={inputValue}
                         onChangeText={handleInputChange}
-                        autoCapitalize="none"
+                        placeholder="모드 개수를 입력하세요"
                         keyboardType="numeric"
-                    />
-                    {serverMode === null && inputValue !== '' && (
-                        <Text style={styles.errorText}>유효한 숫자를 입력해주세요.</Text>
-                    )}
-                <Text style={styles.label}>요청 사항(모드 명)</Text>
-                <TextInput
-                    style={styles.input}
-                    value={serverDescription}
-                    onChangeText={setServerDescription}
-                />
-                <View style={styles.divider} />
-                <View style={styles.divider} />
-                <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost()}</Text>
+                        />
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('게임 모드의 개수를 입력해주세요. \n\n요금 결정과 관련된 문제이므로 신중히 작성하여주십시오.\n\n작성을 완료하면 요청 사항에 모드 명을 모두 기입해주시기 바랍니다.\n\n모드에 대한 혼동을 방지하기 위해 모드의 제작자나 링크를 첨부하시면 감사하겠습니다.\n\n일부 게임이나 모드는 지원이 안될 수 있습니다.')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
+                    </View>
+                    {serverModeCountError ? <Text style={styles.errorText}>{serverModeCountError}</Text> : null}
+                </View>
+        
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>요청 사항(모드 명)</Text>
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                        style={styles.input}
+                        value={serverRequestDetails}
+                        onChangeText={setServerRequestDetails}
+                        placeholder="요청 사항을 입력하세요"
+                        multiline
+                        />
+                        <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('위의 개시된 내용을 제외한 나머지 요청 사항들을 작성해주세요. \n\n일부 요청사항은 추가 요금이 발생할 수 있으며, 거부될 수도 있습니다.\n\n위의 작성한 모드 개수에 맞춰 모드 명을 모두 기입해주시기 바랍니다.\n\n모드에 대한 혼동을 방지하기 위해 모드의 제작자나 링크를 첨부하시면 감사하겠습니다.\n\n일부 게임이나 모드는 지원이 안될 수 있습니다.')}>
+                            <Icon name="help-outline" size={24} color="#6200ea" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost(game.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount)}</Text>
         
                 <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={handleCreateServer}>
@@ -257,7 +422,59 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 5,
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: '80%',
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    imagePreview: {
+        width: 200,
+        height: 200,
+        marginBottom: 10,
+    },
+    imagePlaceholder: {
+        width: 200,
+        height: 200,
+        backgroundColor: '#f0f0f0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    uploadButton: {
+        backgroundColor: '#6200ea',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalButton: {
+        backgroundColor: '#6200ea',
+        padding: 10,
+        borderRadius: 5,
+        width: '100%',
+        alignItems: 'center',
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    infoButton: {
+        marginLeft: 10,
+        padding: 5,
+    },
 });
 
 export default ServerMaking;
-

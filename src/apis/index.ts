@@ -8,6 +8,7 @@ import { PostGameResponseDto } from "./response/game";
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
 import PostGameServerRequestDto from "./request/game/post-game-server.request.dto";
 import PostGameServerResponseDto from "./response/game/post-game-server.response.dto";
+import GetUserServerListResponseDto from "./response/game/get-user-server-list.response.dto";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -28,6 +29,7 @@ const GET_USER_URL =(id: string)=> `${API_DOMAIN}/user/${id}`
 const POST_GAME_URL =()=> `${API_DOMAIN}/game`;
 const GET_GAME_LIST_URL =()=> `${API_DOMAIN}/game/game-list`;
 const POST_GAME_SERVER_URL =()=> `${API_DOMAIN}/game/server`;
+const GET_USER_SERVER_LIST_URL =(id: string)=> `${API_DOMAIN}/game/user-server-list/${id}`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -151,6 +153,21 @@ export const postGameServerRequest = async (requestBody: PostGameServerRequestDt
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         })
+    return result;
+}
+
+export const getUserServerListRequest = async(id: string)=>{
+    const result = await axios.get(GET_USER_SERVER_LIST_URL(id))
+        .then(response => {
+            const responseBody: GetUserServerListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+
     return result;
 }
 

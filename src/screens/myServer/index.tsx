@@ -1,46 +1,97 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { View, Text, Image, StyleSheet, FlatList, ListRenderItem, TouchableOpacity } from 'react-native';
-import { serverData } from '../../mocks';
-import { Server } from '../../types/Server';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput, SafeAreaView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-
-// Define the Server interface
+import ServerListItem from '../../types/interface/server-list-item.interface';
+import { getUserServerListRequest } from '../../apis';
+import useLoginUserStore from '../../stores/login-user.store';
+import { ResponseDto } from '../../apis/response';
+import GetUserServerListResponseDto from '../../apis/response/game/get-user-server-list.response.dto';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 type RootStackParamList = {
     MyServer: undefined;
-    ServerDetails: { server: Server };
+    ServerDetails: { server: ServerListItem };
 };
 
 type MyServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyServer'>;
 
 const MyServer: React.FC = () => {
     const navigation = useNavigation<MyServerScreenNavigationProp>();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredServers, setFilteredServers] = useState<ServerListItem[]>([]);
+    const [serverData, setServerData] = useState<ServerListItem[]>([]);
+    const { loginUser } = useLoginUserStore();
 
-    const handleCardPress = (server: Server) => {
+    const getUserServerListResponse = (responseBody: GetUserServerListResponseDto | ResponseDto | null) => {
+        if (!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if (code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
+        if (code !== 'SU') return;
+
+        const { userServerList } = responseBody as GetUserServerListResponseDto;
+        setServerData(userServerList);
+        setFilteredServers(userServerList);
+    }
+
+    const handleCardPress = (server: ServerListItem) => {
         navigation.navigate('ServerDetails', { server });
     };
 
-    const renderServerCard: ListRenderItem<Server> = ({ item }) => (
-        <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
-            <Image source={item.gameImage} style={styles.gameImage} />
-            <View style={styles.textContainer}>
-                <Text style={styles.gameName}>{item.gameName}</Text>
-                <Text style={styles.serverName}>{item.serverName}</Text>
-                <Text style={styles.creationDate}>{item.creationDate}</Text>
-            </View>
-        </TouchableOpacity>
-    );
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+        if (query.trim() === '') {
+            setFilteredServers(serverData);
+        } else {
+            const filtered = serverData.filter(server =>
+                server.name.toLowerCase().includes(query.toLowerCase()) ||
+                server.billingAmount.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredServers(filtered);
+        }
+    };
+
+    const renderServerCard = ({ item }: { item: ServerListItem }) => {
+        const imageUrl = item.gameImage.replace('localhost', '10.0.2.2');
+        return (
+            <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
+                <Image 
+                    source={{uri: imageUrl}} 
+                    style={styles.gameImage} 
+                    onError={(error) => console.log('Image load error:', error.nativeEvent.error)}
+                />
+                <View style={styles.textContainer}>
+                    <Text style={styles.serverName}>{item.name}</Text>
+                    <Text style={styles.gameTitle}>{item.gameTitle}</Text>
+                    <Text style={styles.billingAmount}>{item.billingAmount}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
+
+    useEffect(() => {
+        if (loginUser?.id) getUserServerListRequest(loginUser.id).then(getUserServerListResponse);
+    }, [loginUser]);
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.searchContainer}>
+                <Icon name="search" size={24} color="#6200ea" style={styles.searchIcon} />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="서버 검색"
+                    onChangeText={handleSearch}
+                    value={searchQuery}
+                />
+            </View>
             <FlatList
-                data={serverData}
+                data={filteredServers}
                 renderItem={renderServerCard}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.serverUserId?.toString() || item.serverUserId?.toString() || Math.random().toString()}
                 contentContainerStyle={styles.cardContainer}
             />
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -48,49 +99,59 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f0f0f0',
-        paddingTop: 20,
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ffffff',
+        borderRadius: 25,
+        margin: 20,
+        paddingHorizontal: 15,
+        elevation: 3,
+    },
+    searchIcon: {
+        marginRight: 10,
+    },
+    searchInput: {
+        flex: 1,
+        height: 50,
+        fontSize: 16,
     },
     cardContainer: {
         padding: 10
     },
     card: {
-        flexDirection: 'row', // Horizontal alignment
-        alignItems: 'center', // Vertically center the content
-        width: '100%',
-        padding: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#ffffff',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
-        marginVertical: 10,
+        borderRadius: 15,
+        marginBottom: 15,
+        padding: 15,
+        elevation: 3,
     },
     gameImage: {
-        width: 100, // Set a fixed width for the image
-        height: 100, // Set a fixed height for the image
-        resizeMode: 'contain',
-        marginRight: 15, // Add some spacing between image and text
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        marginRight: 15,
     },
     textContainer: {
         flex: 1,
     },
-    gameName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginVertical: 5,
-        color: '#6200ea'
-    },
     serverName: {
         fontSize: 18,
+        fontWeight: 'bold',
         color: '#6200ea',
-        marginVertical: 5,
+        marginBottom: 5,
     },
-    creationDate: {
+    gameTitle: {
         fontSize: 16,
+        color: '#333',
+        marginBottom: 5,
+    },
+    billingAmount: {
+        fontSize: 14,
         color: '#666',
-        marginVertical: 5,
     },
 });
 
