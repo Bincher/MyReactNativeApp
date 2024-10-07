@@ -1,27 +1,19 @@
 // src/screens/serverDetail/index.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Button, Alert, Image, ImageSourcePropType } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import ServerListItem from '../../types/interface/server-list-item.interface';
 
-interface ServerDetailsRouteParams {
-    server: {
-        gameName: string;
-        gameImage: ImageSourcePropType;
-        genre: string;
-        serverName: string;
-        description: string;
-        creationDate: string;
-        ipAddress: string;
-        serverStatus: string;
-        serverOptions: string;
-        estimatedCost: string;
-    };
-}
+type RootStackParamList = {
+    ServerDetails: { server: ServerListItem };
+};
+
+type ServerDetailsRouteProp = RouteProp<RootStackParamList, 'ServerDetails'>;
 
 const ServerDetails: React.FC = () => {
-    const route = useRoute();
+    const route = useRoute<ServerDetailsRouteProp>();
     const navigation = useNavigation();
-    const { server } = route.params as ServerDetailsRouteParams;
+    const { server } = route.params;
 
     const handleEdit = () => {
         // Logic for editing server details
@@ -53,24 +45,32 @@ const ServerDetails: React.FC = () => {
     return (
         <View style={styles.serverInfoContainer}>
             <View style={styles.serverInfoTop}>
-                <Image source={server.gameImage} style={styles.serverImage} />
+                <Image 
+                        source={{uri: server.gameImage.replace('localhost', '10.0.2.2')}} 
+                        style={styles.gameImage} 
+                        onError={(error) => console.log('Image load error:', error.nativeEvent.error)}
+                    />
                 <View style={styles.serverNameGenreContainer}>
-                    <Text style={styles.serverName}>{server.serverName}</Text>
-                    <Text style={styles.gameNameGenre}>{server.gameName} ({server.genre})</Text>
+                    <Text style={styles.serverName}>{server.name}</Text>
+                    <Text style={styles.gameNameGenre}>{server.gameTitle}</Text>
                 </View>
             </View>
             <View style={styles.serverInfoMiddle}>
-                <Text style={styles.serverDescription}>{server.description}</Text>
+                <Text style={styles.serverDescription}>{server.content}</Text>
             </View>
             <View style={styles.serverInfoBottom}>
-                <Text style={styles.serverCreationDate}>생성 날짜: {server.creationDate}</Text>
+                <Text style={styles.serverCreationDate}>서버 상태: {server.status}</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.serverDetails}>
-                <Text style={styles.serverDetail}>IP 주소: {server.ipAddress}</Text>
-                <Text style={styles.serverDetail}>서버 상태: {server.serverStatus}</Text>
-                <Text style={styles.serverDetail}>서버 옵션: {server.serverOptions}</Text>
-                <Text style={styles.serverDetail}>예상 금액: {server.estimatedCost}</Text>
+                <Text style={styles.serverDetail}>IP 주소: {server.serverAddress}</Text>
+                <Text style={styles.serverDetail}>서버 위치: {server.location}</Text>
+                <Text style={styles.serverDetail}>서버 퍼포먼스: {server.performance}</Text>
+                <Text style={styles.serverDetail}>디스크 퍼포먼스: {server.performance}</Text>
+                <Text style={styles.serverDetail}>백업 여부: {server.backup}</Text>
+                <Text style={styles.serverDetail}>모드 개수: {server.modeCount}</Text>
+                <Text style={styles.serverDetail}>서버 요청사항: {server.requestDetails}</Text>
+                <Text style={styles.serverDetail}>예상 금액: {server.billingAmount}</Text>
             </View>
             <View style={styles.buttonContainer}>
                 <Button title="Edit" onPress={handleEdit} color="#6200ea"/>
@@ -139,6 +139,12 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+    },
+    gameImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 10,
+        marginRight: 15,
     },
 });
 

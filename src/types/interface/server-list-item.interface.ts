@@ -13,5 +13,6 @@ export default interface ServerListItem{
     gameImage: string;
     serverUserId: string;
     status: string;
+    serverAddress: string;
     userId: string;
 }
