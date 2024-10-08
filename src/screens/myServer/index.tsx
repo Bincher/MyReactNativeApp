@@ -64,7 +64,9 @@ const MyServer: React.FC = () => {
                 <View style={styles.textContainer}>
                     <Text style={styles.serverName}>{item.name}</Text>
                     <Text style={styles.gameTitle}>{item.gameTitle}</Text>
-                    <Text style={styles.billingAmount}>{item.billingAmount}</Text>
+                    <Text style={styles.billingAmount}>월 {item.billingAmount}</Text>
+                    <Text style={styles.billingAmount}>상태 : {item.status}</Text>
+                    <Text style={styles.billingAmount}>IP주소 : {item.serverAddress}</Text>
                 </View>
             </TouchableOpacity>
         );

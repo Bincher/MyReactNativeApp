@@ -1,6 +1,6 @@
 // src/screens/serverDetail/index.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Button, Alert, Image, ImageSourcePropType } from 'react-native';
+import { View, Text, StyleSheet, Button, Alert, Image, ImageSourcePropType, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import ServerListItem from '../../types/interface/server-list-item.interface';
 
@@ -43,8 +43,8 @@ const ServerDetails: React.FC = () => {
     };
 
     return (
-        <View style={styles.serverInfoContainer}>
-            <View style={styles.serverInfoTop}>
+        <ScrollView style={styles.container}>
+            <View style={styles.serverInfoContainer}>
                 <Image 
                         source={{uri: server.gameImage.replace('localhost', '10.0.2.2')}} 
                         style={styles.gameImage} 
@@ -55,96 +55,159 @@ const ServerDetails: React.FC = () => {
                     <Text style={styles.gameNameGenre}>{server.gameTitle}</Text>
                 </View>
             </View>
-            <View style={styles.serverInfoMiddle}>
+            <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>서버 설명</Text>
                 <Text style={styles.serverDescription}>{server.content}</Text>
             </View>
-            <View style={styles.serverInfoBottom}>
-                <Text style={styles.serverCreationDate}>서버 상태: {server.status}</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.serverDetails}>
+            <View style={styles.infoSection}>
+                {server.status === '확인중' && (
+                    <Text style={styles.sectionTitleChecking}>서버 상태 : {server.status}</Text>
+                )}
+                {server.status === '중지' && (
+                    <Text style={styles.sectionTitleTerminate}>서버 상태 : {server.status}</Text>
+                )}
+                {server.status === '작동중' && (
+                    <Text style={styles.sectionTitleRun}>서버 상태 : {server.status}</Text>
+                )}
                 <Text style={styles.serverDetail}>IP 주소: {server.serverAddress}</Text>
+            </View>
+            <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>서버 상세 정보</Text>
                 <Text style={styles.serverDetail}>서버 위치: {server.location}</Text>
                 <Text style={styles.serverDetail}>서버 퍼포먼스: {server.performance}</Text>
                 <Text style={styles.serverDetail}>디스크 퍼포먼스: {server.performance}</Text>
-                <Text style={styles.serverDetail}>백업 여부: {server.backup}</Text>
+                <Text style={styles.serverDetail}>백업 여부: {server.backup ? '예' : '아니오'}</Text>
                 <Text style={styles.serverDetail}>모드 개수: {server.modeCount}</Text>
                 <Text style={styles.serverDetail}>서버 요청사항: {server.requestDetails}</Text>
                 <Text style={styles.serverDetail}>예상 금액: {server.billingAmount}</Text>
             </View>
+
             <View style={styles.buttonContainer}>
-                <Button title="Edit" onPress={handleEdit} color="#6200ea"/>
-                <Button title="Delete" onPress={handleDelete} color="red" />
+                <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+                    <Text style={styles.buttonText}>수정</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+                    <Text style={styles.buttonText}>삭제</Text>
+                </TouchableOpacity>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-    serverInfoContainer: {
-        marginTop: 20,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
     },
-    serverInfoTop: {
+    header: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
-    },
-    serverImage: {
-        width: 70,
-        height: 70,
-        resizeMode: 'contain',
-        marginRight: 20,
-    },
-    serverNameGenreContainer: {
-        flex: 1,
-    },
-    serverName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#000',
-    },
-    gameNameGenre: {
-        fontSize: 16,
-        color: '#666',
-    },
-    serverInfoMiddle: {
-        marginBottom: 20,
-    },
-    serverDescription: {
-        fontSize: 20,
-        color: '#000',
-    },
-    serverInfoBottom: {
-        marginBottom: 20,
-    },
-    serverCreationDate: {
-        fontSize: 16,
-        color: '#000',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#6200ea',
-        marginBottom: 10,
-    },
-    serverDetails: {
-        marginBottom: 20,
-    },
-    serverDetail: {
-        fontSize: 20,
-        marginBottom: 5,
-        color: '#000',
-    },
-    buttonContainer: {
-        flexDirection: 'row',
         justifyContent: 'space-between',
+        padding: 16,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#6200ea',
+    },
+    serverInfoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: '#fff',
+        marginBottom: 8,
     },
     gameImage: {
         width: 80,
         height: 80,
         borderRadius: 10,
-        marginRight: 15,
+        marginRight: 16,
+    },
+    serverNameGenreContainer: {
+        flex: 1,
+    },
+    serverName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000',
+        marginBottom: 4,
+    },
+    gameNameGenre: {
+        fontSize: 14,
+        color: '#666',
+    },
+    infoSection: {
+        backgroundColor: '#fff',
+        padding: 16,
+        marginBottom: 8,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#6200ea',
+        marginBottom: 8,
+    },
+    sectionTitleChecking: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#ff7f00',
+        marginBottom: 8,
+    },
+    sectionTitleTerminate: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#ff0000',
+        marginBottom: 8,
+    },
+    sectionTitleRun: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#00FF00',
+        marginBottom: 8,
+    },
+    serverDescription: {
+        fontSize: 14,
+        color: '#333',
+    },
+    serverStatus: {
+        fontSize: 14,
+        color: '#4CAF50',
+        fontWeight: 'bold',
+    },
+    serverDetail: {
+        fontSize: 14,
+        color: '#333',
+        marginBottom: 4,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 16,
+    },
+    editButton: {
+        backgroundColor: '#6200ea',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 5,
+        flex: 1,
+        marginRight: 8,
+    },
+    deleteButton: {
+        backgroundColor: '#f44336',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 5,
+        flex: 1,
+        marginLeft: 8,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });
 
