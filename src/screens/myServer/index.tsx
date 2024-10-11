@@ -37,6 +37,7 @@ const MyServer: React.FC = () => {
 
     const handleCardPress = (server: ServerListItem) => {
         navigation.navigate('ServerDetails', { server });
+        
     };
 
     const handleSearch = (query: string) => {

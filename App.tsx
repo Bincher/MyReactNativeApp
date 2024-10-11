@@ -9,6 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Text, TouchableOpacity } from 'react-native';
 import ServerMaking from './src/screens/serverMaking';
+import ServerUpdating from './src/screens/serverUpdating';
 import Login from './src/screens/login';
 import CustomerService from './src/screens/customerService';
 import useLoginUserStore from './src/stores/login-user.store';
@@ -16,7 +17,6 @@ import { ResponseDto } from './src/apis/response';
 import { GetSignInUserResponseDto } from './src/apis/response/user';
 import User from './src/types/interface/user.interface';
 import { GetSignInUserRequest } from './src/apis';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import MyProfile from './src/screens/myProfile';
 import { AuthProvider } from './src/context/Auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -29,6 +29,7 @@ type RootStackParamList = {
     ServerDetails: undefined;
     GameList: undefined;
     ServerMaking: undefined;
+    ServerUpdating: undefined;
     Login: undefined;
     CustomerService: undefined;
     MyProfile: undefined;
@@ -154,6 +155,27 @@ const App: React.FC = () => {
                             ),
                             headerTitle: () => (
                                 <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>서버 설정</Text>
+                            ),
+                            headerStyle: {
+                                backgroundColor: '#6200ea',
+                            },
+                            headerTitleStyle: {
+                                color: '#ffffff',
+                            },
+                        })}
+                    />
+                    <Stack.Screen 
+                        name="ServerUpdating"
+                        component={ServerUpdating} 
+                        options={({ navigation }) => ({
+                            title: 'ServerUpdating',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                    <Icon name="arrow-back" size={25} color="#fff" />
+                                </TouchableOpacity>
+                            ),
+                            headerTitle: () => (
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>서버 수정</Text>
                             ),
                             headerStyle: {
                                 backgroundColor: '#6200ea',

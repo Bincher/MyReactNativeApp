@@ -1,5 +1,4 @@
-export default interface ServerListItem{
-    id: number;
+export default interface PatchGameServerRequestDto{
     name: string;
     content: string;
     location: string;
@@ -10,10 +9,4 @@ export default interface ServerListItem{
     requestDetails: string;
     modeCount: number;
     gameTitle: string;
-    gameImage: string;
-    amountLevel: string;
-    serverUserId: string;
-    status: string;
-    serverAddress: string;
-    userId: string;
 }

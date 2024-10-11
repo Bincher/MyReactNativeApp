@@ -4,11 +4,12 @@ import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
 import { GetSignInUserResponseDto, GetUserResponseDto } from "./response/user";
 import { PostGameRequestDto } from "./request/game";
-import { PostGameResponseDto } from "./response/game";
+import { DeleteGameServerResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
 import PostGameServerRequestDto from "./request/game/post-game-server.request.dto";
 import PostGameServerResponseDto from "./response/game/post-game-server.response.dto";
 import GetUserServerListResponseDto from "./response/game/get-user-server-list.response.dto";
+import PatchGameServerRequestDto from "./request/game/patch-game-server.request.dto";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -30,6 +31,8 @@ const POST_GAME_URL =()=> `${API_DOMAIN}/game`;
 const GET_GAME_LIST_URL =()=> `${API_DOMAIN}/game/game-list`;
 const POST_GAME_SERVER_URL =()=> `${API_DOMAIN}/game/server`;
 const GET_USER_SERVER_LIST_URL =(id: string)=> `${API_DOMAIN}/game/user-server-list/${id}`;
+const PATCH_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
+const DELETE_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -168,6 +171,34 @@ export const getUserServerListRequest = async(id: string)=>{
             return responseBody;
         })
 
+    return result;
+}
+
+export const patchBoardRequest = async (serverId: number, requestBody: PatchGameServerRequestDto, accessToken: string)=>{
+    const result = await axios.patch(PATCH_GAME_SERVER_URL(serverId), requestBody, authorization(accessToken))
+        .then(response => { 
+            const responseBody: PatchGameServerResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+}
+
+export const deleteGameServerRequest =async (serverId: number, accessToken: string)=>{
+    const result = await axios.delete(DELETE_GAME_SERVER_URL(serverId), authorization(accessToken))
+        .then(response =>{
+            const responseBody: DeleteGameServerResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
     return result;
 }
 

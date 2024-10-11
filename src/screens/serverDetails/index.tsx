@@ -3,24 +3,60 @@ import React from 'react';
 import { View, Text, StyleSheet, Button, Alert, Image, ImageSourcePropType, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import ServerListItem from '../../types/interface/server-list-item.interface';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { DeleteGameServerResponseDto } from '../../apis/response/game';
+import { ResponseDto } from '../../apis/response';
+import { deleteGameServerRequest, patchBoardRequest } from '../../apis';
+import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
     ServerDetails: { server: ServerListItem };
+    ServerUpdating: { server: ServerListItem };
 };
 
 type ServerDetailsRouteProp = RouteProp<RootStackParamList, 'ServerDetails'>;
+type ServerDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'ServerDetails'>;
 
 const ServerDetails: React.FC = () => {
     const route = useRoute<ServerDetailsRouteProp>();
-    const navigation = useNavigation();
+    const navigation = useNavigation<ServerDetailsNavigationProp>();
     const { server } = route.params;
+    const { getAccessToken } = useAuth();
+
+    // function: post game server response 처리 함수 //
+    const deleteGameServerResponse = (responseBody: DeleteGameServerResponseDto | ResponseDto | null) => {
+        if (!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if (code === 'NP') Alert.alert('인증 과정에서 문제가 발생하였습니다.');
+        if (code !== 'SU') return;
+
+        Alert.alert('성공', '서버가 성공적으로 삭제되었습니다.');
+        navigation.goBack();
+    }
 
     const handleEdit = () => {
-        // Logic for editing server details
-        console.log('Edit button pressed');
+        navigation.navigate('ServerUpdating', { server });
     };
 
-    const handleDelete = () => {
+    const handleDeleteServer = async () => {
+        
+        try {
+            
+            const accessToken = await getAccessToken();
+        
+            if (accessToken) {
+                deleteGameServerRequest(server.id, accessToken).then(deleteGameServerResponse);
+            } else {
+                Alert.alert('Error', 'Failed to update server: No access token');
+            }
+        } catch (error) {
+            console.error('Error updating server:', error);
+            Alert.alert('Error', 'Failed to update server');
+        }
+    };
+
+    const handleClickDeleteButton = () => {
         Alert.alert(
             '서버 삭제',
             '서버를 삭제합니다. \n요금은 현재까지 사용한 내역만큼만 결제됩니다.',
@@ -31,15 +67,11 @@ const ServerDetails: React.FC = () => {
                 },
                 {
                     text: '삭제',
-                    onPress: () => console.log('Server deleted'),
+                    onPress: () => handleDeleteServer(),
                 },
             ],
             { cancelable: false }
         );
-    };
-
-    const handleNavigateBack = () => {
-        navigation.goBack();
     };
 
     return (
@@ -86,7 +118,7 @@ const ServerDetails: React.FC = () => {
                 <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
                     <Text style={styles.buttonText}>수정</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+                <TouchableOpacity style={styles.deleteButton} onPress={handleClickDeleteButton}>
                     <Text style={styles.buttonText}>삭제</Text>
                 </TouchableOpacity>
             </View>
