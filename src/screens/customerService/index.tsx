@@ -5,6 +5,8 @@ import { serverData } from '../../mocks';
 import { Server } from '../../types/Server';
 import { StackNavigationProp } from '@react-navigation/stack';
 
+// 미완성
+
 type RootStackParamList = {
     CustomerService: undefined;
     Main: undefined;
@@ -42,7 +44,7 @@ const CustomerService: React.FC = () => {
 
     const renderServerItem = ({ item }: { item: Server }) => (
         <TouchableOpacity onPress={() => setSelectedServer(item)} style={styles.serverItem}>
-            <Text style={styles.serverItemText}>{item.serverName}</Text>
+            <Text style={styles.serverItemText}>{item.name}</Text>
         </TouchableOpacity>
     );
 
@@ -69,7 +71,7 @@ const CustomerService: React.FC = () => {
                         contentContainerStyle={styles.serverList}
                     />
                     {selectedServer && (
-                        <Text style={styles.selectedServerText}>선택된 서버: {selectedServer.serverName}</Text>
+                        <Text style={styles.selectedServerText}>선택된 서버: {selectedServer.name}</Text>
                     )}
                 </>
             )}

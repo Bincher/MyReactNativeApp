@@ -17,42 +17,23 @@ type RootStackParamList = {
 type MyServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyServer'>;
 
 const MyServer: React.FC = () => {
+
+    /// 네비게이션
     const navigation = useNavigation<MyServerScreenNavigationProp>();
+
+    // state: 검색 쿼리 상태 //
     const [searchQuery, setSearchQuery] = useState('');
+
+    // state: 검색 결과 서버 리스트 아이템 상태 //
     const [filteredServers, setFilteredServers] = useState<ServerListItem[]>([]);
+
+    // state: 서버 데이터 리스트 아이템 상태 //
     const [serverData, setServerData] = useState<ServerListItem[]>([]);
+
+    /// 로그인 정보 저장소 접근
     const { loginUser } = useLoginUserStore();
 
-    const getUserServerListResponse = (responseBody: GetUserServerListResponseDto | ResponseDto | null) => {
-        if (!responseBody) return;
-        const { code } = responseBody;
-        if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
-        if (code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
-        if (code !== 'SU') return;
-
-        const { userServerList } = responseBody as GetUserServerListResponseDto;
-        setServerData(userServerList);
-        setFilteredServers(userServerList);
-    }
-
-    const handleCardPress = (server: ServerListItem) => {
-        navigation.navigate('ServerDetails', { server });
-        
-    };
-
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-        if (query.trim() === '') {
-            setFilteredServers(serverData);
-        } else {
-            const filtered = serverData.filter(server =>
-                server.name.toLowerCase().includes(query.toLowerCase()) ||
-                server.billingAmount.toLowerCase().includes(query.toLowerCase())
-            );
-            setFilteredServers(filtered);
-        }
-    };
-
+    // function : renderServerCard 함수 //
     const renderServerCard = ({ item }: { item: ServerListItem }) => {
         const imageUrl = item.gameImage.replace('localhost', '10.0.2.2');
         return (
@@ -73,10 +54,45 @@ const MyServer: React.FC = () => {
         );
     };
 
+    // function : getUserServerListResponse 함수 //
+    const getUserServerListResponse = (responseBody: GetUserServerListResponseDto | ResponseDto | null) => {
+        if (!responseBody) return;
+        const { code } = responseBody;
+        if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if (code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
+        if (code !== 'SU') return;
+
+        const { userServerList } = responseBody as GetUserServerListResponseDto;
+        setServerData(userServerList);
+        setFilteredServers(userServerList);
+    }
+
+    // event handler: 리스트 카드 클릭 이벤트 처리 //
+    const handleCardPress = (server: ServerListItem) => {
+        navigation.navigate('ServerDetails', { server });
+        
+    };
+
+    // event handler: 검색 버튼 클릭 이벤트 처리 //
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+        if (query.trim() === '') {
+            setFilteredServers(serverData);
+        } else {
+            const filtered = serverData.filter(server =>
+                server.name.toLowerCase().includes(query.toLowerCase()) ||
+                server.billingAmount.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredServers(filtered);
+        }
+    };
+
+    // effect : 첫 마운트 시 실행될 함수 //
     useEffect(() => {
         if (loginUser?.id) getUserServerListRequest(loginUser.id).then(getUserServerListResponse);
     }, [loginUser]);
 
+    // render : myServer Screen 렌더링 //
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.searchContainer}>

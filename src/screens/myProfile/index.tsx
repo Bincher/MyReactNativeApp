@@ -8,6 +8,7 @@ import { getUserRequest } from '../../apis';
 import { useAuth } from '../../context/Auth';
 import useLoginUserStore from '../../stores/login-user.store';
 
+// 미완성 //
 
 type RootStackParamList = {
   Main: undefined;

@@ -25,13 +25,16 @@ type Props = {
 
 const Main: React.FC<Props> = ({ navigation }) => {
 
-
+    /// 로그인 여부 
     const { isLoggedIn } = useAuth();
 
+    // event handler: 메뉴 버튼 클릭 이벤트 //
     const handleMenuPress = () => {
+        // 미구현
         console.log('Menu button pressed');
     };
 
+    // event handler: 마이페이지(마이 프로필) 클릭 이벤트 처리 //
     const handleMyPagePress = async () => {
         if(!isLoggedIn) navigation.navigate('Login');
         else {
@@ -40,6 +43,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
         }
     };
 
+    // event handler: 메인 화면 버튼 클릭 이벤트 처리 //
     const handleContentButtonPress = (buttonName: string) => {
         if (buttonName === 'MyServer') {
             navigation.navigate('MyServer');
@@ -53,10 +57,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
         }
     };
 
-    useEffect(() => {
-        console.log("useEffect!");
-    });
-
+    // render: main 스크린 렌더링 //
     return (
         <View style={styles.container}>
             <View style={styles.header}>

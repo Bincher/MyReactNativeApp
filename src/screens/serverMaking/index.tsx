@@ -19,26 +19,59 @@ type RootStackParamList = {
 type ServerMakingRouteProp = RouteProp<RootStackParamList, 'ServerMaking'>;
 
 const ServerMaking: React.FC = () => {
+
+    /// 네비게이션 등록
     const navigation = useNavigation();
+
+    /// 루트
     const route = useRoute<ServerMakingRouteProp>();
+
+    /// params
     const { game } = route.params;
+
+    /// AccessToken 접근
     const { getAccessToken } = useAuth();
 
+    // state: 서버 이름 상태 //
     const [serverName, setServerName] = useState('');
+
+    // state: 서버 설명 상태 //
     const [serverContent, setServerContent] = useState('');
+
+    // state: 서버 위치 상태 //
     const [serverLocation, setServerLocation] = useState('서울');
+
+    // state: 서버 성능 상태 //
     const [serverPerformance, setServerPerformance] = useState<'BASIC' | 'STANDARD' | 'PLUS' | 'PRO'>('BASIC');
+
+    // state: 서버 저장소 상태 //
     const [serverDisk, setServerDisk] = useState<'BASIC' | 'STANDARD' | 'PRO'>('BASIC');
+
+    // state: 서버 백업 여부 상태 //
     const [serverBackup, setServerBackup] = useState(false);
+
+    // state: 서버 모드 개수 상태 //
     const [serverModeCount, setServerModeCount] = useState<number>(0);
+
+    // state: 서버 요청 사항 input box 데이터 상태 //
     const [inputValue, setInputValue] = useState('');
+
+    // state: 서버 요청 사항 상태 //
     const [serverRequestDetails, setServerRequestDetails] = useState('');
 
+    // state: 서버 생성 에러 상태 //
     const [serverNameError, setServerNameError] = useState('');
+
+    // state: 서버 모드 개수 입력 에러 상태 //
     const [serverModeCountError, setServerModeCountError] = useState('');
+
+    // state: 자세한 정보 모달 상태 //
     const [infoModalVisible, setInfoModalVisible] = useState(false);
+
+    // state: 자세한 정보 내용 상태 //
     const [infoContent, setInfoContent] = useState('');
 
+    // function: calcuateEstimatedCost 함수
     const calculateEstimatedCost = (
         gameGrade: string,
         serverPerformance: 'BASIC' | 'STANDARD' | 'PLUS' | 'PRO',
@@ -89,6 +122,12 @@ const ServerMaking: React.FC = () => {
         return `${baseCost.toLocaleString()}원`;
     };
 
+    // function : showInfo 함수 //
+    const showInfo = (content: string) => {
+        setInfoContent(content);
+        setInfoModalVisible(true);
+    };
+
     // function: post game server response 처리 함수 //
     const postGameServerResponse =(responseBody : PostGameServerResponseDto | ResponseDto | null) => {
         if(!responseBody) return;
@@ -102,10 +141,12 @@ const ServerMaking: React.FC = () => {
         navigation.goBack();
     }
 
+    // event handler: 취소 버튼 클릭 이벤트 처리 //
     const handleCancel = () => {
         navigation.goBack();
     };
 
+    // event handler: mode count input box 데이터 입력 이벤트 처리 //
     const handleInputChange = (text: string) => {
         setInputValue(text);
         const parsedNumber = parseInt(text, 10);
@@ -118,6 +159,7 @@ const ServerMaking: React.FC = () => {
         }
     };
 
+    // event handler: 생성 버튼 클릭 이벤트 처리 //
     const handleCreateServer = async () => {
         let hasError = false;
     
@@ -127,7 +169,7 @@ const ServerMaking: React.FC = () => {
         } else {
             setServerNameError('');
         }
-    
+
         if (serverModeCount === null) {
             setServerModeCountError('모드 개수는 필수로 작성하셔야 합니다.');
             hasError = true;
@@ -164,11 +206,7 @@ const ServerMaking: React.FC = () => {
         }
     };
 
-    const showInfo = (content: string) => {
-        setInfoContent(content);
-        setInfoModalVisible(true);
-    };
-
+    // render: ServerMaking 스크린 렌더링 //
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.container}>

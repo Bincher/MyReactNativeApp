@@ -193,6 +193,7 @@ const GameList: React.FC = () => {
         getGameListRequest().then(getGameListResponse);
     },[])
 
+    // render: gameList 렌더링 //
     return (
         <View style={styles.container}>
             <TextInput

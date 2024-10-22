@@ -110,7 +110,8 @@ const Login: React.FC = () => {
         const onSignUpButtonClickHandler=()=>{
             setView('sign-up');
         }
-    
+        
+        // render: SignInCard 컴포넌트 렌더링 //
         return (
             <View style={styles.signInContainer}>
                 <Text style={styles.signInTitle}>로그인</Text>
@@ -402,7 +403,7 @@ const Login: React.FC = () => {
             signUpRequest(requestBody).then(signUpResponse);
         }
 
-        
+        // render: SignUpCard 컴포넌트 렌더링 //
         return (
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <View style={styles.signInContainer}>
@@ -529,7 +530,7 @@ const Login: React.FC = () => {
         );
     }
     
-
+    // render: login 스크린 렌더링 //
     return (
         <View style={styles.mainContainer}>
             {view === 'sign-in' && <SignInCard />}

@@ -18,10 +18,33 @@ type ServerDetailsRouteProp = RouteProp<RootStackParamList, 'ServerDetails'>;
 type ServerDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'ServerDetails'>;
 
 const ServerDetails: React.FC = () => {
+
+    /// 라우트
     const route = useRoute<ServerDetailsRouteProp>();
+
+    /// 네비게이션
     const navigation = useNavigation<ServerDetailsNavigationProp>();
+
+    /// 파라미터
     const { server } = route.params;
+
+    /// 토큰 가져오기
     const { getAccessToken } = useAuth();
+
+    // function: delete Server 함수 //
+    const deleteServer = async () => {
+        try {
+            const accessToken = await getAccessToken();
+            if (accessToken) {
+                deleteGameServerRequest(server.id, accessToken).then(deleteGameServerResponse);
+            } else {
+                Alert.alert('Error', 'Failed to update server: No access token');
+            }
+        } catch (error) {
+            console.error('Error updating server:', error);
+            Alert.alert('Error', 'Failed to update server');
+        }
+    };
 
     // function: post game server response 처리 함수 //
     const deleteGameServerResponse = (responseBody: DeleteGameServerResponseDto | ResponseDto | null) => {
@@ -35,27 +58,12 @@ const ServerDetails: React.FC = () => {
         navigation.goBack();
     }
 
+    // event handler: 수정 버튼 클릭 이벤트
     const handleEdit = () => {
         navigation.navigate('ServerUpdating', { server });
     };
 
-    const handleDeleteServer = async () => {
-        
-        try {
-            
-            const accessToken = await getAccessToken();
-        
-            if (accessToken) {
-                deleteGameServerRequest(server.id, accessToken).then(deleteGameServerResponse);
-            } else {
-                Alert.alert('Error', 'Failed to update server: No access token');
-            }
-        } catch (error) {
-            console.error('Error updating server:', error);
-            Alert.alert('Error', 'Failed to update server');
-        }
-    };
-
+    // event handler : 삭제 버튼 클릭 이벤트
     const handleClickDeleteButton = () => {
         Alert.alert(
             '서버 삭제',
@@ -67,13 +75,14 @@ const ServerDetails: React.FC = () => {
                 },
                 {
                     text: '삭제',
-                    onPress: () => handleDeleteServer(),
+                    onPress: () => deleteServer(),
                 },
             ],
             { cancelable: false }
         );
     };
 
+    // render: server Details 스크린 렌더링 //
     return (
         <ScrollView style={styles.container}>
             <View style={styles.serverInfoContainer}>
