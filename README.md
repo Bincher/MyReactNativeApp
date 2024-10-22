@@ -1,82 +1,191 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 게임 호스팅 서비스
 
-# Getting Started
+- 사용자는 게임 서버에 대한 제작을 운영자에게 맡기는 시스템
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+    - 사용자는 게임 목록에서 게임을 선택해 서버를 생성할 수 있다
 
-## Step 1: Start the Metro Server
+    - 운영자는 사용자로부터 받은 서버를 제작하고 관리한다
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+    - 사용자는 원하는 때에 서버에 대한 수정과 삭제가 가능하다
 
-To start Metro, run the following command from the _root_ of your React Native project:
+    - 사용자는 각 서버에 대한 자세한 문의를 신청할 수 있다
 
-```bash
-# using npm
-npm start
+    - 위 기능들은 로그인이 필수이다
 
-# OR using Yarn
-yarn start
-```
+- 해당 프로젝트는 스프링, 리액트네이티브, 배포 공부를 위한 프로젝트로 실제로 서비스할 계획은 없다
 
-## Step 2: Start your Application
+    - 실제로 서비스하려면 aws나 gcp로 서버를 만드는 과정을 게임마다 공부할 필요가 존재
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+    - 구글 플레이 스토어에 제출해볼 의향은 있음
 
-### For Android
+- 진행 사항
 
-```bash
-# using npm
-npm run android
+    - admin의 서버 관리 시스템 구축 예정
 
-# OR using Yarn
-yarn android
-```
+## 설명
 
-### For iOS
+- 기능
 
-```bash
-# using npm
-npm run ios
+    - 사용자
 
-# OR using Yarn
-yarn ios
-```
+        - 회원 가입 기능
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+        - 로그인 기능
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+        - 서버 생성 기능
 
-## Step 3: Modifying your App
+        - 서버 관리 기능
 
-Now that you have successfully run the app, let's modify it.
+        - 서버 삭제 기능
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+        - 문의 기능
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+        - 프로필 설정 기능
 
-## Congratulations! :tada:
+    - 운영자(admin)
 
-You've successfully run and modified your React Native App. :partying_face:
+        - 게임 목록 추가 기능
 
-### Now what?
+        - 서버 생성 요청 확인 기능
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+        - 서버 생성 결과 수정 기능
 
-# Troubleshooting
+        - 문의 답변 기능
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+- 사용 방법
 
-# Learn More
+    - spring : BoardBackApplication.java 실행
 
-To learn more about React Native, take a look at the following resources:
+        - 차후 클라우드 서버에 올릴 예정(gcp 또는 aws)
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+    - react-native : react-native run-android
 
-<a href="https://www.flaticon.com/kr/free-icons/-" title="게임 서버 아이콘">게임 서버 아이콘 제작자: Vectorslab - Flaticon</a>
-<a href="https://www.flaticon.com/kr/free-icons/-" title="게임 패드 아이콘">게임 패드 아이콘 제작자: Freepik - Flaticon</a>
+        - 차후 APK 형식의 파일 생성 예정
+
+        - 또한 구글 플레이 스토어에 등록도 고려
+
+## 스크린 설명
+
+- Main
+
+    - 최초 실행 화면
+
+    - 네비게이션 기준 root에 해당
+
+    - 메뉴 버튼
+
+        - 메뉴 버튼은 현재 삭제 고려중
+
+    - 프로필 버튼
+
+        - 로그인이 안되어있다면 로그인창으로 이동
+        
+        - 로그인이 되었다면 myProfile 스크린으로 이동
+
+    - 서버 관리 버튼
+
+        - 로그인이 안되어있다면 login 스크린으로 이동
+
+        - 로그인이 되어있다면 myServer 스크린으로 이동
+
+    - 서버 생성 버튼
+
+        - 로그인이 안되어있다면 login 스크린으로 이동
+
+        - 로그인이 되어있다면 gameList 스크린으로 이동
+
+    - 설정 버튼
+
+        - 후순위 구현
+
+        - 알림 설정, 다크 모드, 약관 사항들을 명시할 예정
+
+    - 문의 버튼
+
+        - 로그인이 안되어있다면 login 스크린으로 이동
+
+        - 로그인이 되어있다면 customerService 스크린으로 이동
+
+- login
+
+    - 첫 시작시 sign in 컴포넌트가 렌더링
+        
+        - ID, PASSWORD를 입력
+
+        - 소셜 로그인(kakao)은 구현 예정
+
+    - 회원 가입 버튼
+
+        - login 스크린의 sign in 컴포넌트 대신 sign up 컴포넌트가 실행
+
+        - 회원 가입시 메일 인증은 필수
+
+        - 현재 고민중인 사항으로 메일 중복 여부도 추가할 예정
+
+- myServer
+
+    - 현재 사용자의 서버 목록을 출력
+
+    - 검색창에 서버 이름과 게임 이름으로 검색 가능
+
+    - 임의의 서버 클릭시 해당 게임의 파라미터를 던져주고 serverDetails로 이동
+
+- serverDetails
+
+    - 클릭한 서버의 자세한 정보를 출력
+
+    - 서버 삭제 버튼 클릭시 안내문과 함께 다시 한번 되묻고 삭제
+
+    - 서버 수정 버튼 클릭시 serverUpdating으로 이동
+
+- serverUpdating
+
+    - serverMaking을 기반으로 활용
+
+    - 서버 수정 가능
+
+    - 서버 수정 후 바로 이용이 안되고 status가 확인중으로 변경됨
+
+- gameList
+
+    - 현재 생성할 수 있는 게임 종류가 등장
+
+    - 검색 기능 구현
+
+    - 게임 클릭시 해당 게임의 서버를 생성하는 serverMaking으로 이동
+
+- serverMaking
+    
+    - 서버 생성 가능
+
+    - 서버에 대한 상세 정보를 기술
+
+    - 서버 생성 버튼 클릭하면status가 확인중이 되면서 운영자에게 전달
+
+    - 결제 기능 구현 계획중
+
+- customerService
+
+    - 현재 본인의 서버 정보 중 하나를 클릭하고 해당 서버에 관련된 문의를 1대1로 진행 가능
+
+    - 구현 예정
+
+- myProfile
+
+    - 로그인 유저의 정보를 표시
+
+    - 프로필 사진 변경 및 회원 탈퇴 기능 등 추가 예정
+
+- settings(가칭)
+
+    - 설정 스크린
+
+    - 예정
+
+## 시작하기
+
+### 필수 조건
+
+### 설치 방법
+
+### 프로그램 실행
