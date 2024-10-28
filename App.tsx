@@ -20,6 +20,7 @@ import { GetSignInUserRequest } from './src/apis';
 import MyProfile from './src/screens/myProfile';
 import { AuthProvider } from './src/context/Auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import ServerManaging from './src/screens/serverManaging';
 
 
 
@@ -30,6 +31,7 @@ type RootStackParamList = {
     GameList: undefined;
     ServerMaking: undefined;
     ServerUpdating: undefined;
+    ServerManaging: undefined;
     Login: undefined;
     CustomerService: undefined;
     MyProfile: undefined;
@@ -176,6 +178,27 @@ const App: React.FC = () => {
                             ),
                             headerTitle: () => (
                                 <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>서버 수정</Text>
+                            ),
+                            headerStyle: {
+                                backgroundColor: '#6200ea',
+                            },
+                            headerTitleStyle: {
+                                color: '#ffffff',
+                            },
+                        })}
+                    />
+                    <Stack.Screen 
+                        name="ServerManaging"
+                        component={ServerManaging} 
+                        options={({ navigation }) => ({
+                            title: 'ServerManaging',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                    <Icon name="arrow-back" size={25} color="#fff" />
+                                </TouchableOpacity>
+                            ),
+                            headerTitle: () => (
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>서버 관리-admin</Text>
                             ),
                             headerStyle: {
                                 backgroundColor: '#6200ea',

@@ -4,12 +4,14 @@ import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
 import { GetSignInUserResponseDto, GetUserResponseDto } from "./response/user";
 import { PostGameRequestDto } from "./request/game";
-import { DeleteGameServerResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
+import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
 import PostGameServerRequestDto from "./request/game/post-game-server.request.dto";
 import PostGameServerResponseDto from "./response/game/post-game-server.response.dto";
 import GetUserServerListResponseDto from "./response/game/get-user-server-list.response.dto";
 import PatchGameServerRequestDto from "./request/game/patch-game-server.request.dto";
+import PatchServerRequestDto from "./request/game/patch-server.request.dto";
+import PatchServerResponseDto from "./response/game/patch-server.response.dto";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -31,7 +33,9 @@ const POST_GAME_URL =()=> `${API_DOMAIN}/game`;
 const GET_GAME_LIST_URL =()=> `${API_DOMAIN}/game/game-list`;
 const POST_GAME_SERVER_URL =()=> `${API_DOMAIN}/game/server`;
 const GET_USER_SERVER_LIST_URL =(id: string)=> `${API_DOMAIN}/game/user-server-list/${id}`;
+const GET_ADMIN_SERVER_LIST_URL =()=> `${API_DOMAIN}/game/admin/server-list`;
 const PATCH_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
+const PATCH_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/admin/server/${serverId}`;
 const DELETE_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
@@ -162,7 +166,7 @@ export const postGameServerRequest = async (requestBody: PostGameServerRequestDt
 export const getUserServerListRequest = async(id: string)=>{
     const result = await axios.get(GET_USER_SERVER_LIST_URL(id))
         .then(response => {
-            const responseBody: GetUserServerListResponseDto = response.data;
+            const responseBody: GetServerListResponseDto = response.data;
             return responseBody;
         })
         .catch(error => {
@@ -174,10 +178,39 @@ export const getUserServerListRequest = async(id: string)=>{
     return result;
 }
 
-export const patchBoardRequest = async (serverId: number, requestBody: PatchGameServerRequestDto, accessToken: string)=>{
+export const getAdminServerListRequest = async(accessToken: string)=>{
+    const result = await axios.get(GET_ADMIN_SERVER_LIST_URL(), authorization(accessToken))
+        .then(response => {
+            const responseBody: GetServerListResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+
+    return result;
+}
+
+export const patchServerRequest = async (serverId: number, requestBody: PatchGameServerRequestDto, accessToken: string)=>{
     const result = await axios.patch(PATCH_GAME_SERVER_URL(serverId), requestBody, authorization(accessToken))
         .then(response => { 
             const responseBody: PatchGameServerResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        });
+    return result;
+}
+
+export const patchAdminServerRequest = async (serverId: number, requestBody: PatchServerRequestDto, accessToken: string)=>{
+    const result = await axios.patch(PATCH_SERVER_URL(serverId), requestBody, authorization(accessToken))
+        .then(response => { 
+            const responseBody: PatchServerResponseDto = response.data;
             return responseBody;
         })
         .catch(error => {

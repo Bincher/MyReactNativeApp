@@ -1,6 +1,5 @@
-// types/Server.ts
-export interface Server {
-    id: string;
+export default interface ServerListItem{
+    id: number;
     name: string;
     content: string;
     location: string;
