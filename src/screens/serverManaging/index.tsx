@@ -114,15 +114,15 @@ const ServerManaging: React.FC = () => {
                 >
                     <Text style={styles.title}>Server Details</Text>
 
-                    <View style={styles.section}>
+                    <View style={styles.section}>    
                         <Text style={styles.sectionTitle}>Basic Information</Text>
                         <Text style={styles.field}>ID: {server.id}</Text>
                         {renderEditableField('Name', 'name')}
                         <Text style={styles.field}>Content: {server.content}</Text>
                         <Text style={styles.field}>Location: {server.location}</Text>
                         <Text style={styles.field}>Performance: {server.performance}</Text>
-                        <Text style={styles.field}>Disk: {server.disk ? 'Yes' : 'No'}</Text>
-                        <Text style={styles.field}>Backup: {server.backup}</Text>
+                        <Text style={styles.field}>Disk: {server.disk}</Text>
+                        <Text style={styles.field}>Backup: {server.backup ? 'Yes' : 'No'}</Text>
                         <Text style={styles.field}>Game Title: {server.gameTitle}</Text>
                         <Text style={styles.field}>User ID: {server.userId}</Text>
                     </View>
