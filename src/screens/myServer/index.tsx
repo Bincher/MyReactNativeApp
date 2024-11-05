@@ -222,7 +222,7 @@ const MyServer: React.FC = () => {
                 <FlatList
                     data={filteredServers}
                     renderItem={renderAdminServerCard}
-                    keyExtractor={(item) => item.userId?.toString() || item.userId?.toString() || Math.random().toString()}
+                    keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.cardContainer}
                 />
             </SafeAreaView>
