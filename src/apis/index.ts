@@ -12,6 +12,8 @@ import GetUserServerListResponseDto from "./response/game/get-user-server-list.r
 import PatchGameServerRequestDto from "./request/game/patch-game-server.request.dto";
 import PatchServerRequestDto from "./request/game/patch-server.request.dto";
 import PatchServerResponseDto from "./response/game/patch-server.response.dto";
+import { SendEmailRequestDto } from "./request/support";
+import { SendEmailResponseDto } from "./response/support";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -37,6 +39,7 @@ const GET_ADMIN_SERVER_LIST_URL =()=> `${API_DOMAIN}/game/admin/server-list`;
 const PATCH_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
 const PATCH_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/admin/server/${serverId}`;
 const DELETE_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
+const SEND_EMAIL_URL =()=> `${API_DOMAIN}/support/email`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -232,6 +235,13 @@ export const deleteGameServerRequest =async (serverId: number, accessToken: stri
             const responseBody: ResponseDto = error.response.data;
             return responseBody;
         })
+    return result;
+}
+
+export const SendEmailRequest = async (requestBody: SendEmailRequestDto) =>{
+    const result = await axios.post(SEND_EMAIL_URL(), requestBody)
+        .then(responseHandler<SendEmailResponseDto>)
+        .catch(errorHandler)
     return result;
 }
 
