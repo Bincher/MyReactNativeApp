@@ -68,7 +68,9 @@ const CustomerService: React.FC = () => {
     }
 
     const fetchServerList = async () => {
-        if (loginUser?.id) getUserServerListRequest(loginUser.id).then(getUserServerListResponse);
+        if (loginUser?.id) {
+            getUserServerListRequest(loginUser.id).then(getUserServerListResponse);
+        }
     };
 
     const handleServerChange = (serverId: number) => {

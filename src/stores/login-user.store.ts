@@ -10,8 +10,8 @@ interface LoginUserStore {
 
 const useLoginUserStore = create<LoginUserStore>((set) => ({
     loginUser: null,
-    setLoginUser: (loginUser) => set((state) => ({ ...state, loginUser })),
-    resetLoginUser: () => set((state) => ({ ...state, loginUser: null })),
+    setLoginUser: (loginUser: User) => set(() => ({ loginUser })),  // loginUser의 타입 명시
+    resetLoginUser: () => set(() => ({ loginUser: null })),
 }));
 
 export default useLoginUserStore;

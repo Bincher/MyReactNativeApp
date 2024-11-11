@@ -1,6 +1,10 @@
 // AuthContext.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import useLoginUserStore from '../../stores/login-user.store';
+import { GetSignInUserRequest } from '../../apis';
+import { GetSignInUserResponseDto } from '../../apis/response/user';
+import { User } from '../../types/interface';
 
 interface AuthContextType {
     isLoggedIn: boolean;
@@ -14,6 +18,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 interface AuthProviderProps {
     children: ReactNode;
 }
+
+const mapToUser = (responseDto: GetSignInUserResponseDto): User => {
+    return {
+        id: responseDto.id,
+        email: responseDto.email,
+        role: responseDto.role,
+        profileImage: responseDto.profileImage
+        // 필요한 다른 필드를 매핑
+    };
+};
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -44,7 +58,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (token: string): Promise<void> => {
         try {
             await EncryptedStorage.setItem('user_token', token);
-            setIsLoggedIn(true);
+            const userInfo = await GetSignInUserRequest(token);
+
+            if (userInfo && 'id' in userInfo) {  // GetSignInUserResponseDto인지 확인
+                const user = mapToUser(userInfo);  // User로 매핑
+                useLoginUserStore.getState().setLoginUser(user);  // 상태 저장
+                setIsLoggedIn(true);
+            } else {
+                console.error('Invalid user info:', userInfo);
+            }
         } catch (error) {
             console.error('Error during login:', error);
         }
@@ -53,6 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = async (): Promise<void> => {
         try {
             await EncryptedStorage.removeItem('user_token');
+            useLoginUserStore.getState().resetLoginUser();
             setIsLoggedIn(false);
         } catch (error) {
             console.error('Error during logout:', error);

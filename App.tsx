@@ -21,6 +21,7 @@ import MyProfile from './src/screens/myProfile';
 import { AuthProvider } from './src/context/Auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import ServerManaging from './src/screens/serverManaging';
+import MyNotification from './src/screens/myNotification';
 
 
 
@@ -35,6 +36,7 @@ type RootStackParamList = {
     Login: undefined;
     CustomerService: undefined;
     MyProfile: undefined;
+    MyNotification: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -242,6 +244,27 @@ const App: React.FC = () => {
                             ),
                             headerTitle: () => (
                                 <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>내 프로필</Text>
+                            ),
+                            headerStyle: {
+                                backgroundColor: '#6200ea',
+                            },
+                            headerTitleStyle: {
+                                color: '#ffffff',
+                            },
+                        })}
+                    />
+                    <Stack.Screen 
+                        name="MyNotification"
+                        component={MyNotification} 
+                        options={({ navigation }) => ({
+                            title: 'MyNotification',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                    <Icon name="arrow-back" size={25} color="#fff" />
+                                </TouchableOpacity>
+                            ),
+                            headerTitle: () => (
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>알람(임시)</Text>
                             ),
                             headerStyle: {
                                 backgroundColor: '#6200ea',

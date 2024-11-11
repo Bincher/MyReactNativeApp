@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import ResponseDto from '../../apis/response/Response.dto';
-import { GetUserResponseDto } from '../../apis/response/user';
-import { getUserRequest } from '../../apis';
 import { useAuth } from '../../context/Auth';
 import useLoginUserStore from '../../stores/login-user.store';
 
@@ -37,25 +34,6 @@ const MyProfile: React.FC = () =>  {
   const handleGoBack = () => {
     navigation.goBack();
   };
-
-  // // function: get user response 처리 함수 //
-  // const getUserResponse =(responseBody: GetUserResponseDto | ResponseDto | null)=>{
-  //   if(!responseBody) return;
-  //   const { code } = responseBody;
-  //   if (code === 'NU') Alert.alert('존재하지 않는 유저입니다.');
-  //   if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
-  //   if (code !== 'SU'){
-  //     return;
-  //   }
-
-  //   //const {email, id, profileImage} = responseBody as GetUserResponseDto;
-  // }
-
-  // // effect: email path variable 변경시 실행 할 함수 //
-  // useEffect(()=>{
-  //   getUserRequest(userEmail).then(getUserResponse);
-
-  // },[userEmail])
 
   return (
     <View style={styles.container}>

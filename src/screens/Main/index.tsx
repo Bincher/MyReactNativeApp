@@ -1,6 +1,6 @@
 // src/screens/Main/index.tsx
 import React, { useEffect, useState } from 'react';
-import { Image, View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Image, View, Text, TouchableOpacity, StyleSheet, } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -13,6 +13,7 @@ type RootStackParamList = {
     GameList: undefined;
     Login: undefined;
     CustomerService: undefined;
+    MyNotification: undefined;
 };
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
@@ -26,7 +27,9 @@ type Props = {
 const Main: React.FC<Props> = ({ navigation }) => {
 
     /// 로그인 여부 
-    const { isLoggedIn } = useAuth();
+    const { isLoggedIn, logout } = useAuth();
+
+    
 
     // event handler: 메뉴 버튼 클릭 이벤트 //
     const handleMenuPress = () => {
@@ -45,15 +48,18 @@ const Main: React.FC<Props> = ({ navigation }) => {
 
     // event handler: 메인 화면 버튼 클릭 이벤트 처리 //
     const handleContentButtonPress = (buttonName: string) => {
-        if (buttonName === 'MyServer') {
-            navigation.navigate('MyServer');
-        } else if(buttonName === 'MakingServer'){
-            if(!isLoggedIn) navigation.navigate('Login');
-            else navigation.navigate('GameList');
-        } else if(buttonName === 'CustomerService'){
-            navigation.navigate('CustomerService');
-        } else {
-            console.log(`${buttonName} button pressed`);
+        if(!isLoggedIn) navigation.navigate('Login');
+        else{
+            if (buttonName === 'MyServer') {
+                navigation.navigate('MyServer');
+            } else if(buttonName === 'MakingServer'){
+                if(!isLoggedIn) navigation.navigate('Login');
+                else navigation.navigate('GameList');
+            } else if(buttonName === 'CustomerService'){
+                navigation.navigate('CustomerService');
+            } else if(buttonName === 'MyNotification'){
+                navigation.navigate('MyNotification');
+            }
         }
     };
 
@@ -79,7 +85,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.contentButtonText}>서버 생성</Text>
                 </TouchableOpacity>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleContentButtonPress('dd')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => handleContentButtonPress('MyNotification')} style={styles.rowButton}>
                         <Icon name="settings" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleContentButtonPress('CustomerService')} style={styles.rowButton}>
