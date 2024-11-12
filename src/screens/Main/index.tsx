@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { useAuth } from '../../context/Auth';
+import messaging from '@react-native-firebase/messaging';
 
 type RootStackParamList = {
     Main: undefined;
@@ -29,7 +30,17 @@ const Main: React.FC<Props> = ({ navigation }) => {
     /// 로그인 여부 
     const { isLoggedIn, logout } = useAuth();
 
-    
+    async function requestUserPermission() {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        if (enabled) {
+            console.log('Notification permission granted.');
+        } else {
+            console.log('Notification permission denied.');
+        }
+    }
 
     // event handler: 메뉴 버튼 클릭 이벤트 //
     const handleMenuPress = () => {
@@ -62,6 +73,39 @@ const Main: React.FC<Props> = ({ navigation }) => {
             }
         }
     };
+
+    const sendFcmTokenToServer = async (token: string) => {
+        try {
+            await fetch('http://http://10.0.2.2:4000/api/v1/user/update-fcm-token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fcmToken: token })
+            });
+        } catch (error) {
+            console.error('Error sending token to server:', error);
+        }
+    };
+
+    useEffect(() => {
+        requestUserPermission();
+        // FCM 토큰 가져오기
+        if(isLoggedIn){
+            messaging()
+            .getToken()
+            .then(token => {
+                console.log('FCM Token:', token);
+                // 서버로 토큰 전송 로직 추가 가능
+                sendFcmTokenToServer(token); 
+            });
+
+            // 토큰이 갱신될 때마다 새로운 토큰 가져오기
+            return messaging().onTokenRefresh(token => {
+                console.log('FCM Token refreshed:', token);
+                // 서버로 갱신된 토큰 전송 로직 추가 가능
+                sendFcmTokenToServer(token); 
+            });
+        }
+    }, []);
 
     // render: main 스크린 렌더링 //
     return (
