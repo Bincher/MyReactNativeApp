@@ -12,11 +12,12 @@ import GetUserServerListResponseDto from "./response/game/get-user-server-list.r
 import PatchGameServerRequestDto from "./request/game/patch-game-server.request.dto";
 import PatchServerRequestDto from "./request/game/patch-server.request.dto";
 import PatchServerResponseDto from "./response/game/patch-server.response.dto";
-import { SendEmailRequestDto } from "./request/support";
-import { SendEmailResponseDto } from "./response/support";
+import { PatchFcmTokenRequestDto, SendEmailRequestDto, SendNotificationRequestDto } from "./request/support";
+import { PatchFcmTokenResponseDto, SendEmailResponseDto, SendNotificationResponseDto } from "./response/support";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
+// http://localhost:4000
 
 const API_DOMAIN = `${DOMAIN}/api/v1`;
 
@@ -40,6 +41,8 @@ const PATCH_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${s
 const PATCH_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/admin/server/${serverId}`;
 const DELETE_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${serverId}`;
 const SEND_EMAIL_URL =()=> `${API_DOMAIN}/support/email`;
+const PATCH_FCM_TOKEN_URL =()=> `${API_DOMAIN}/notification/fcm`
+const SEND_NOTIFICATION_TO_ADMIN_URL =()=> `${API_DOMAIN}/notification/send-to-admins`
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -242,6 +245,35 @@ export const SendEmailRequest = async (requestBody: SendEmailRequestDto) =>{
     const result = await axios.post(SEND_EMAIL_URL(), requestBody)
         .then(responseHandler<SendEmailResponseDto>)
         .catch(errorHandler)
+    return result;
+}
+
+export const sendFcmTokenToServer = async (requestBody: PatchFcmTokenRequestDto, accessToken: string) => {
+    const result = await axios.patch(PATCH_FCM_TOKEN_URL(), requestBody, authorization(accessToken))
+        .then(response =>{
+            const responseBody: PatchFcmTokenResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+    return result;
+};
+
+export const SendNotificationToAdminRequest = async (requestBody: SendNotificationRequestDto) => {
+    const result = await axios.post(SEND_NOTIFICATION_TO_ADMIN_URL(), requestBody)
+    .then(response =>{
+        const responseBody: SendNotificationResponseDto = response.data;
+        console.log("!!!!");
+        return responseBody;
+    })
+    .catch(error =>{
+        if(!error.response) return null;
+        const responseBody: ResponseDto = error.response.data;
+        return responseBody;
+    })
     return result;
 }
 

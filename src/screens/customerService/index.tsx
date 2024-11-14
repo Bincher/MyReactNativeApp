@@ -7,12 +7,12 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Picker } from '@react-native-picker/picker';
 import { ServerListItem } from '../../types/interface';
 import { useAuth } from '../../context/Auth';
-import { SendEmailRequest, getUserServerListRequest } from '../../apis';
+import { SendEmailRequest, SendNotificationToAdminRequest, getUserServerListRequest } from '../../apis';
 import useLoginUserStore from '../../stores/login-user.store';
 import { GetUserServerListResponseDto } from '../../apis/response/game';
 import { ResponseDto } from '../../apis/response';
-import { SendEmailResponseDto } from '../../apis/response/support';
-import { SendEmailRequestDto } from '../../apis/request/support';
+import { SendEmailResponseDto, SendNotificationResponseDto } from '../../apis/response/support';
+import { SendEmailRequestDto, SendNotificationRequestDto } from '../../apis/request/support';
 
 // 미완성
 
@@ -49,10 +49,19 @@ const CustomerService: React.FC = () => {
         setServerList(userServerList);
     }
 
+    const sendNotificationResponse = (responseBody: SendNotificationResponseDto | ResponseDto | null) => {
+        if (!responseBody) return;
+        const { code } = responseBody;
+        console.log(code);
+        if (code === 'NF') Alert.alert('알림 전송 중 오류가 발생하였습니다.');
+        if (code !== 'SU') return;
+        setIsLoading(false);
+        Alert.alert('성공', '문의가 성공적으로 전송되었습니다.');
+    
+    }
+
     // function : sendEmailResponse 함수 //
     const sendEmailResponse = (responseBody: SendEmailResponseDto | ResponseDto | null) => {
-
-        setIsLoading(false);
 
         if (!responseBody) return;
         const { code } = responseBody;
@@ -60,11 +69,18 @@ const CustomerService: React.FC = () => {
         if (code === 'MF') Alert.alert('이메일 전송 중 오류가 발생하였습니다.');
         if (code !== 'SU') return;
         
-        Alert.alert('성공', '문의가 성공적으로 전송되었습니다.');
         setSelectedServer(0);
         setContent('');
 
-        navigation.navigate('Main');
+        if(loginUser?.id){
+            const requestBody: SendNotificationRequestDto = {
+                title: "고객 지원 알림",
+                message: `${loginUser.id} 님의 고객 지원 요청이 왔습니다. 이메일을 확인해주세요`
+            };
+            SendNotificationToAdminRequest(requestBody).then(sendNotificationResponse)
+        }
+
+        
     }
 
     const fetchServerList = async () => {

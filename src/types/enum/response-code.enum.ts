@@ -21,6 +21,7 @@ export enum ResponseCode {
   
     // HTTP Status 500
     MAIL_FAIL = "MF",
+    NOTIFICATION_FAIL = "NF",
     DATABASE_ERROR = "DBE",
   }
   
