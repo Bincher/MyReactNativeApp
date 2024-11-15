@@ -43,6 +43,7 @@ const DELETE_GAME_SERVER_URL =(serverId: number)=> `${API_DOMAIN}/game/server/${
 const SEND_EMAIL_URL =()=> `${API_DOMAIN}/support/email`;
 const PATCH_FCM_TOKEN_URL =()=> `${API_DOMAIN}/notification/fcm`
 const SEND_NOTIFICATION_TO_ADMIN_URL =()=> `${API_DOMAIN}/notification/send-to-admins`
+const SEND_NOTIFICATION_TO_USER_URL =(userId: string)=> `${API_DOMAIN}/notification/send-to-user/${userId}`
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -266,7 +267,20 @@ export const SendNotificationToAdminRequest = async (requestBody: SendNotificati
     const result = await axios.post(SEND_NOTIFICATION_TO_ADMIN_URL(), requestBody)
     .then(response =>{
         const responseBody: SendNotificationResponseDto = response.data;
-        console.log("!!!!");
+        return responseBody;
+    })
+    .catch(error =>{
+        if(!error.response) return null;
+        const responseBody: ResponseDto = error.response.data;
+        return responseBody;
+    })
+    return result;
+}
+
+export const SendNotificationToUserRequest = async (requestBody: SendNotificationRequestDto, userId: string) => {
+    const result = await axios.post(SEND_NOTIFICATION_TO_USER_URL(userId), requestBody)
+    .then(response =>{
+        const responseBody: SendNotificationResponseDto = response.data;
         return responseBody;
     })
     .catch(error =>{

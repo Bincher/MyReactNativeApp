@@ -18,11 +18,6 @@
       android.networkSecurityConfig="@xml/network_security_config">
       
       <!-- FCM 서비스 -->
-      <service android:name="io.invertase.firebase.messaging.RNFirebaseMessagingService" android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-      </service>
       <service android:name="io.invertase.firebase.messaging.RNFirebaseInstanceIdService" android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>

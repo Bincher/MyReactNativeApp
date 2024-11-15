@@ -6,13 +6,11 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useAuth } from "../../context/Auth";
 import { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import PostGameServerRequestDto from "../../apis/request/game/post-game-server.request.dto";
-import PostGameServerResponseDto from "../../apis/response/game/post-game-server.response.dto";
 import { ResponseDto } from "../../apis/response";
-import { patchBoardRequest, postGameServerRequest } from "../../apis";
 import { StyleSheet } from "react-native";
 import { PatchGameServerResponseDto } from "../../apis/response/game";
 import { PatchGameServerRequestDto } from "../../apis/request/game";
+import { patchServerRequest } from "../../apis";
 
 type RootStackParamList = {
     ServerUpdating: { server: ServerListItem };
@@ -197,7 +195,7 @@ const ServerUpdating: React.FC = () => {
             console.log(accessToken);
         
             if (accessToken) {
-                patchBoardRequest(server.id, requestBody, accessToken).then(patchGameServerResponse);
+                patchServerRequest(server.id, requestBody, accessToken).then(patchGameServerResponse);
             } else {
                 Alert.alert('Error', 'Failed to update server: No access token');
             }

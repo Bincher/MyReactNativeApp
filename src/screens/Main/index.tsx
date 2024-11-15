@@ -33,21 +33,16 @@ type Props = {
 const Main: React.FC<Props> = ({ navigation }) => {
 
     /// 로그인 여부 
-    const { isLoggedIn, logout, getAccessToken } = useAuth();
+    const {getAccessToken, isLoggedIn} = useAuth();
 
-    async function requestUserPermission() {
-        const authStatus = await messaging().requestPermission();
-        const enabled =
-            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-        if (enabled) {
-            console.log('Notification permission granted.');
-        } else {
-            console.log('Notification permission denied.');
-        }
+    // function: post game server response 처리 함수 //
+    const patchFcmTokenResponse =(responseBody : PatchFcmTokenResponseDto | ResponseDto | null) => {
+        if(!responseBody) return;
+        const {code} = responseBody;
+        if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if(code !== 'SU') return;
+        console.log(responseBody);
     }
-
-    
 
     // event handler: 메뉴 버튼 클릭 이벤트 //
     const handleMenuPress = () => {
@@ -81,36 +76,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
         }
     };
 
-    // function: post game server response 처리 함수 //
-    const patchFcmTokenResponse =(responseBody : PatchFcmTokenResponseDto | ResponseDto | null) => {
-        if(!responseBody) return;
-        const {code} = responseBody;
-        if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
-        if(code !== 'SU') return;
-        console.log(responseBody);
-    }
-
-    async function checkAlarm(): Promise<void> {
-        if (Platform.OS === 'android' && Platform.Version >= 33) {
-            try {
-                const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-                console.log("granted", granted);
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.log(error.message);
-                } else {
-                    console.log("Unknown error", error);
-                }
-            }
-        } else {
-            console.log("POST_NOTIFICATIONS permission is not required for this Android version.");
-        }
-    }
-
-    useEffect(() => {
-        requestUserPermission();
-        checkAlarm();
-        // FCM 토큰 가져오기
+    const getFcmToken = async () =>{
         if(isLoggedIn){
             messaging()
             .getToken()
@@ -124,33 +90,21 @@ const Main: React.FC<Props> = ({ navigation }) => {
                 if(accessToken != null) sendFcmTokenToServer(requestBody, accessToken).then(patchFcmTokenResponse); 
             });
             
-            // // 토큰이 갱신될 때마다 새로운 토큰 가져오기
-            // return messaging().onTokenRefresh(async token => {
-            //     console.log('FCM Token refreshed:', token);
-            //     // 서버로 갱신된 토큰 전송 로직 추가 가능
-            //     const requestBody: PatchFcmTokenRequestDto = {
-            //         fcmToken: token
-            //     };
-            //     const accessToken = await getAccessToken();
-            //     if(accessToken != null) sendFcmTokenToServer(requestBody, accessToken).then(patchFcmTokenResponse); 
-            // });
+            // 토큰이 갱신될 때마다 새로운 토큰 가져오기
+            return messaging().onTokenRefresh(async token => {
+                console.log('FCM Token refreshed:', token);
+                // 서버로 갱신된 토큰 전송 로직 추가 가능
+                const requestBody: PatchFcmTokenRequestDto = {
+                    fcmToken: token
+                };
+                const accessToken = await getAccessToken();
+                if(accessToken != null) sendFcmTokenToServer(requestBody, accessToken).then(patchFcmTokenResponse); 
+            });
         }
-        // // 포그라운드 상태에서 푸시 알림 처리
-        // const unsubscribe = messaging().onMessage(async remoteMessage => {
-        //     console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
-        //     Alert.alert(
-        //         '알림',
-        //         remoteMessage.notification?.body || '푸시 알림' // 메시지를 두 번째 매개변수로 전달
-        //     );
-        // });
+    }
 
-        //  // 백그라운드 및 종료 상태에서 메시지 처리 핸들러 등록
-        // messaging().setBackgroundMessageHandler(async remoteMessage => {
-        //     console.log('Message handled in the background!', remoteMessage);
-        // });
-
-        // return unsubscribe;
-
+    useEffect(() => {
+        getFcmToken()
     }, []);
 
     // render: main 스크린 렌더링 //

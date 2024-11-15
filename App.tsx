@@ -22,8 +22,7 @@ import { AuthProvider } from './src/context/Auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import ServerManaging from './src/screens/serverManaging';
 import MyNotification from './src/screens/myNotification';
-
-
+import useFirebaseCloudMessaging from './src/hook/useFirebaseCloudMessaging';
 
 type RootStackParamList = {
     Main: undefined;
@@ -58,6 +57,10 @@ const App: React.FC = () => {
         setLoginUser(loginUser);
     }
 
+    const {
+        requestUserPermission
+    } = useFirebaseCloudMessaging()
+
     // effect: accessToken cookie 값이 변경될 때 마다 실행할 함수 //
     useEffect(() => {
 
@@ -75,8 +78,9 @@ const App: React.FC = () => {
                 resetLoginUser();
             }
         };
-    
+
         checkToken();
+        requestUserPermission();
     }, []);
 
     return (

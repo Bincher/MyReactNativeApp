@@ -6,7 +6,7 @@ import ServerListItem from '../../types/interface/server-list-item.interface';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DeleteGameServerResponseDto } from '../../apis/response/game';
 import { ResponseDto } from '../../apis/response';
-import { deleteGameServerRequest, patchBoardRequest } from '../../apis';
+import { deleteGameServerRequest } from '../../apis';
 import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {

@@ -4,9 +4,12 @@ import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, Text, TextInput, T
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useAuth } from "../../context/Auth";
 import { useState } from "react";
-import { patchAdminServerRequest} from "../../apis";
+import { SendNotificationToAdminRequest, SendNotificationToUserRequest, patchAdminServerRequest} from "../../apis";
 import { StyleSheet } from "react-native";
 import { AdminServerListItem } from "../../types/interface";
+import { SendNotificationRequestDto } from "../../apis/request/support";
+import { SendNotificationResponseDto } from "../../apis/response/support";
+import { ResponseDto } from "../../apis/response";
 
 type RootStackParamList = {
     ServerManaging: { server: AdminServerListItem };
@@ -37,6 +40,16 @@ const ServerManaging: React.FC = () => {
     });
 
     const [hasChanges, setHasChanges] = useState(false);
+
+    const sendNotificationResponse = (responseBody: SendNotificationResponseDto | ResponseDto | null) => {
+        if (!responseBody) return;
+        const { code } = responseBody;
+        console.log(code);
+        if (code === 'NF') Alert.alert('알림 전송 중 오류가 발생하였습니다.');
+        if (code !== 'SU') return;
+
+        Alert.alert('성공', '알림이 성공적으로 전송되었습니다.');
+    }
 
     const toggleEdit = (field: keyof typeof editableFields) => {
         setEditableFields(prev => ({
@@ -102,6 +115,14 @@ const ServerManaging: React.FC = () => {
         }
     };
 
+    const handleContactUser = () => {
+        const requestBody: SendNotificationRequestDto = {
+            title: "고객 지원 답변",
+            message: `운영자가 문의에 대한 답변을 전송하였습니다. 이메일을 확인해주세요.`
+        };
+        SendNotificationToUserRequest(requestBody, server.userId).then(sendNotificationResponse)
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView 
@@ -113,7 +134,9 @@ const ServerManaging: React.FC = () => {
                     showsVerticalScrollIndicator={false}
                 >
                     <Text style={styles.title}>Server Details</Text>
-
+                    <TouchableOpacity style={styles.contactButton} onPress={handleContactUser}>
+                        <Text style={styles.contactButtonText}>사용자에게 답변 알림 전송</Text>
+                    </TouchableOpacity>
                     <View style={styles.section}>    
                         <Text style={styles.sectionTitle}>Basic Information</Text>
                         <Text style={styles.field}>ID: {server.id}</Text>
@@ -225,6 +248,18 @@ const styles = StyleSheet.create({
         color: '#fff',
         textAlign: 'center',
         fontWeight: 'bold',
+    },
+    contactButton: {
+        backgroundColor: '#6200ea',
+        padding: 15,
+        borderRadius: 5,
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    contactButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });
 
