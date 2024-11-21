@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
 import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
-import { GetSignInUserResponseDto, GetUserResponseDto } from "./response/user";
+import { GetSignInUserResponseDto, GetUserResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from "./response/user";
 import { PostGameRequestDto } from "./request/game";
 import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
@@ -14,6 +14,7 @@ import PatchServerRequestDto from "./request/game/patch-server.request.dto";
 import PatchServerResponseDto from "./response/game/patch-server.response.dto";
 import { PatchFcmTokenRequestDto, SendEmailRequestDto, SendNotificationRequestDto } from "./request/support";
 import { PatchFcmTokenResponseDto, SendEmailResponseDto, SendNotificationResponseDto } from "./response/support";
+import { IsPasswordRightRequestDto, PatchEmailRequestDto, PatchPasswordRequestDto, PatchProfileImageRequestDto } from "./request/user";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -44,6 +45,10 @@ const SEND_EMAIL_URL =()=> `${API_DOMAIN}/support/email`;
 const PATCH_FCM_TOKEN_URL =()=> `${API_DOMAIN}/notification/fcm`
 const SEND_NOTIFICATION_TO_ADMIN_URL =()=> `${API_DOMAIN}/notification/send-to-admins`
 const SEND_NOTIFICATION_TO_USER_URL =(userId: string)=> `${API_DOMAIN}/notification/send-to-user/${userId}`
+const PATCH_EMAIL_URL =()=>`${API_DOMAIN}/user/email`;
+const PATCH_PASSWORD_URL =()=>`${API_DOMAIN}/user/password`;
+const PATCH_PROFILE_IMAGE_URL =()=>`${API_DOMAIN}/user/profile-image`;
+const IS_PASSWORD_RIGHT_URL =()=>`${API_DOMAIN}/user/password/is-right`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -288,6 +293,55 @@ export const SendNotificationToUserRequest = async (requestBody: SendNotificatio
         const responseBody: ResponseDto = error.response.data;
         return responseBody;
     })
+    return result;
+}
+
+export const patchEmailRequest =async (requestBody: PatchEmailRequestDto,accessToken: string)=>{
+    const result = await axios.patch(PATCH_EMAIL_URL(), requestBody, authorization(accessToken))
+        .then(response =>{
+            const responseBody: PatchEmailResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+    return result;
+}
+
+export const patchPasswordRequest =async (requestBody: PatchPasswordRequestDto,accessToken: string)=>{
+    const result = await axios.patch(PATCH_PASSWORD_URL(), requestBody, authorization(accessToken))
+        .then(response =>{
+            const responseBody: PatchPasswordResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+    return result;
+}
+
+export const patchProfileImageRequest =async (requestBody: PatchProfileImageRequestDto, accessToken: string)=>{
+    const result = await axios.patch(PATCH_PROFILE_IMAGE_URL(), requestBody, authorization(accessToken))
+        .then(response =>{
+            const responseBody: PatchProfileImageResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error =>{
+            if(!error.response) return null;
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+    return result;
+}
+
+export const isPasswordRightRequest = async (requestBody: IsPasswordRightRequestDto, accessToken: string) =>{
+    const result = await axios.post(IS_PASSWORD_RIGHT_URL(), requestBody, authorization(accessToken))
+        .then(responseHandler<IsPasswordRightResponseDto>)
+        .catch(errorHandler)
     return result;
 }
 

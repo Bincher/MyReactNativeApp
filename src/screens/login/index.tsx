@@ -228,7 +228,7 @@ const Login: React.FC = () => {
             
             if(!responseBody) return;
             const {code} = responseBody;
-            if (code === ResponseCode.VALIDATION_FAIL) {
+            if (code === ResponseCode.VALIDATION_FAILED) {
                 Alert.alert('아이디를 입력하세요.');}
             if (code === ResponseCode.DUPLICATE_ID){
                 setIdError(true);
@@ -250,7 +250,7 @@ const Login: React.FC = () => {
             if(!responseBody) return;
             const {code} = responseBody;
 
-            if(code === ResponseCode.VALIDATION_FAIL) Alert.alert('아이디와 이메일을 다시 확인해주세요.');
+            if(code === ResponseCode.VALIDATION_FAILED) Alert.alert('아이디와 이메일을 다시 확인해주세요.');
             if(code === ResponseCode.DUPLICATE_ID){
                 setIdError(true);
                 setIdCheckMessage('이미 사용중인 아이디 입니다.');
@@ -274,7 +274,7 @@ const Login: React.FC = () => {
             if(!responseBody) return;
             const {code} = responseBody;
 
-            if(code === ResponseCode.VALIDATION_FAIL) Alert.alert('아이디와 이메일을 다시 확인해주세요.');
+            if(code === ResponseCode.VALIDATION_FAILED) Alert.alert('아이디와 이메일을 다시 확인해주세요.');
             if(code === ResponseCode.CERTIFICATION_FAIL){
                 setIsCertificationNumberError(true);
                 setCertificationNumberMessage('인증번호가 일치하지 않습니다');
@@ -298,7 +298,7 @@ const Login: React.FC = () => {
             } 
             const{code} = responseBody;
 
-            if(code === ResponseCode.VALIDATION_FAIL) Alert.alert('아이디, 이메일, 인증번호를 모두 입력하세요.');
+            if(code === ResponseCode.VALIDATION_FAILED) Alert.alert('아이디, 이메일, 인증번호를 모두 입력하세요.');
             if(code === ResponseCode.CERTIFICATION_FAIL) {
                 setIsCertificationNumberError(true);
                 setCertificationNumberMessage('인증번호가 일치하지 않습니다.');
