@@ -333,7 +333,6 @@ const Login: React.FC = () => {
         // event handler: 이메일 인증 번호 전송 버튼 클릭 이벤트 처리 //
         const onCertificationEmailButtonClickHandler = () => {
             const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
-            console.log(email);
 
             const checkedEmail = emailPattern.test(email);
             if(!checkedEmail){

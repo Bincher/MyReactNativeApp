@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
 import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
-import { GetSignInUserResponseDto, GetUserResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from "./response/user";
+import { CheckCertificationForChangeResponseDto, EmailCertificationForChangeResponseDto, GetSignInUserResponseDto, GetUserResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from "./response/user";
 import { PostGameRequestDto } from "./request/game";
 import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
@@ -14,7 +14,7 @@ import PatchServerRequestDto from "./request/game/patch-server.request.dto";
 import PatchServerResponseDto from "./response/game/patch-server.response.dto";
 import { PatchFcmTokenRequestDto, SendEmailRequestDto, SendNotificationRequestDto } from "./request/support";
 import { PatchFcmTokenResponseDto, SendEmailResponseDto, SendNotificationResponseDto } from "./response/support";
-import { IsPasswordRightRequestDto, PatchEmailRequestDto, PatchPasswordRequestDto, PatchProfileImageRequestDto } from "./request/user";
+import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeRequestDto, IsPasswordRightRequestDto, PatchEmailRequestDto, PatchPasswordRequestDto, PatchProfileImageRequestDto } from "./request/user";
 
 
 const DOMAIN = 'http://10.0.2.2:4000';
@@ -49,6 +49,8 @@ const PATCH_EMAIL_URL =()=>`${API_DOMAIN}/user/email`;
 const PATCH_PASSWORD_URL =()=>`${API_DOMAIN}/user/password`;
 const PATCH_PROFILE_IMAGE_URL =()=>`${API_DOMAIN}/user/profile-image`;
 const IS_PASSWORD_RIGHT_URL =()=>`${API_DOMAIN}/user/password/is-right`;
+const EMAIL_CERTIFICATION_FOR_CHANGE_URL =()=> `${API_DOMAIN}/user/email-certification`;
+const CHECK_CERTIFICATION_FOR_CHANGE_URL =()=> `${API_DOMAIN}/user/check-certification`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -341,6 +343,20 @@ export const patchProfileImageRequest =async (requestBody: PatchProfileImageRequ
 export const isPasswordRightRequest = async (requestBody: IsPasswordRightRequestDto, accessToken: string) =>{
     const result = await axios.post(IS_PASSWORD_RIGHT_URL(), requestBody, authorization(accessToken))
         .then(responseHandler<IsPasswordRightResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const emailCertificationForChangeRequest = async (requestBody: EmailCertificationForChangeRequestDto, accessToken: string) =>{
+    const result = await axios.post(EMAIL_CERTIFICATION_FOR_CHANGE_URL(), requestBody, authorization(accessToken))
+        .then(responseHandler<EmailCertificationForChangeResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const checkCertificationForChangeRequest = async (requestBody: CheckCertificationForChangeRequestDto, accessToken: string) =>{
+    const result = await axios.post(CHECK_CERTIFICATION_FOR_CHANGE_URL(), requestBody, authorization(accessToken))
+        .then(responseHandler<CheckCertificationForChangeResponseDto>)
         .catch(errorHandler)
     return result;
 }

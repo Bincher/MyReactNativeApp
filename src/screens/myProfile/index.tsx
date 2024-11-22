@@ -4,12 +4,15 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../../context/Auth';
 import useLoginUserStore from '../../stores/login-user.store';
-import { checkCertificationRequest, emailCertificationRequest, fileUploadRequest, getUserRequest, isPasswordRightRequest, patchEmailRequest, patchPasswordRequest, patchProfileImageRequest } from '../../apis';
-import { ResponseCode } from '../../types/enum';
-import { IsPasswordRightResponseDto, PatchProfileImageResponseDto } from '../../apis/response/user';
+import { checkCertificationForChangeRequest, checkCertificationRequest, emailCertificationForChangeRequest, emailCertificationRequest, fileUploadRequest, getUserRequest, isPasswordRightRequest, patchEmailRequest, patchPasswordRequest, patchProfileImageRequest } from '../../apis';
+import { ResponseBody, ResponseCode } from '../../types/enum';
+import { CheckCertificationForChangeResponseDto, EmailCertificationForChangeResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from '../../apis/response/user';
 import { ResponseDto } from '../../apis/response';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import { User } from '../../types/interface';
+import { CheckCertificationRequestDto, EmailCertificationRequestDto } from '../../apis/request/auth';
+import { CheckCertificationResponseDto, EmailCertificationResponseDto } from '../../apis/response/auth';
+import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeRequestDto } from '../../apis/request/user';
 
 type RootStackParamList = {
   Main: undefined;
@@ -177,14 +180,46 @@ const MyProfile: React.FC = () =>  {
     // state: 추가할 게임 이미지 저장 상태 //
     const [myNewProfileImageFile, setMyNewProfileImageFile] = useState<any>(null);
 
+    // state: 이메일 상태 //
+    const [newEmail, setNewEmail] = useState<string>('');
 
-    const [myNewEmail, setMyNewEmail] = useState('');
-    const [emailCode, setEmailCode] = useState('');
-    const [isEmailVerified, setIsEmailVerified] = useState(false);
-    const [myPassword, setMyPassword] = useState('');
-    const [myNewPassword, setMyNewPassword] = useState('');
+    // state: 이메일 체크 상태 //
+    const [isEmailCheck, setEmailCheck] = useState<boolean>(false);
+
+    // state: 이메일 에러 상태 //
+    const [isEmailError, setEmailError] = useState<boolean>(false);
+
+    // state: 이메일 인증 번호 상태 //
+    const [certificationNumber, setCertificationNumber] = useState<string>('');
+
+    // state: 이메일 인증 번호 확인 상태 //
+    const [isCertificationNumberCheck, setIsCertificationNumberCheck] = useState<boolean>(false);
+
+    // state: 이메일 확인 넘버 에러 상태 //
+    const [isCertificationNumberError, setIsCertificationNumberError] = useState<boolean>(false);
+
     
+    const [myPassword, setMyPassword] = useState<string>('');
 
+    const [myNewPassword, setMyNewPassword] = useState<string>('');
+
+    // function: email certification response 처리 함수 //
+    const emailCertificationForChangeResponse = (responseBody: ResponseBody<EmailCertificationForChangeResponseDto>) => {
+      if(!responseBody) return;
+      const {code} = responseBody;
+
+      if(code === ResponseCode.VALIDATION_FAILED) Alert.alert('이메일을 다시 확인해주세요.');
+      if(code === ResponseCode.MAIL_FAIL) Alert.alert('이메일 전송에 실패했습니다.');
+      if(code === ResponseCode.DATABASE_ERROR) Alert.alert('데이터베이스 오류입니다.');
+      if(code !== ResponseCode.SUCCESS){
+          setEmailCheck(false);
+          return;
+      } 
+
+      setEmailError(false);
+      setEmailCheck(true);
+      Alert.alert("인증번호가 전송되었습니다.");
+  }
 
     // function: post game response 처리 함수 //
     const patchProfileImageResponse =(responseBody : PatchProfileImageResponseDto | ResponseDto | null) => {
@@ -206,6 +241,74 @@ const MyProfile: React.FC = () =>  {
       setMyNewProfileImageFile(null);
 
       Alert.alert('성공', '이미지가 성공적으로 저장되었습니다.');
+  }
+
+  const patchEmailResponse =(responseBody : PatchEmailResponseDto | ResponseDto | null) => {
+      
+    if(!responseBody) return;
+    const {code} = responseBody;
+    if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+    if(code !== 'SU') return;
+
+    const newLoginUser : User = {
+      id : myId,
+      email: newEmail,
+      profileImage: myProfileImage,
+      role: myRole
+    }
+    setLoginUser(newLoginUser);
+    // Reset form
+    setNewEmail("");
+
+    Alert.alert('성공', '이메일이 성공적으로 수정되었습니다.');
+}
+
+  // function: check certification response 처리 함수 //
+  const checkCertificationForChangeResponse = (responseBody: ResponseBody<CheckCertificationForChangeResponseDto>) => {
+    if(!responseBody) return;
+    const {code} = responseBody;
+
+    if(code === ResponseCode.VALIDATION_FAILED) Alert.alert('이메일을 다시 확인해주세요.');
+    if(code === ResponseCode.CERTIFICATION_FAIL){
+        setIsCertificationNumberError(true);
+        Alert.alert("인증번호가 일치하지 않습니다.");
+        setIsCertificationNumberCheck(false);
+    }
+
+    if(code === ResponseCode.DATABASE_ERROR) Alert.alert('데이터베이스 오류입니다.');
+    if(code !== ResponseCode.SUCCESS) return;
+
+    setIsCertificationNumberError(false);
+    Alert.alert("인증번호가 확인되었습니다.");
+    setIsCertificationNumberCheck(true);
+}
+
+  const isPasswordRightResponse = async (responseBody: IsPasswordRightResponseDto | ResponseDto | null) => {
+    if (!responseBody) return;
+    const { code } = responseBody;
+    if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+    if (code === 'PF') Alert.alert('패스워드가 일치하지 않습니다');
+    if (code !== 'SU') return;
+
+    const requestBody = {
+      password : myNewPassword
+    }
+    const accessToken = await getAccessToken();
+        if(!accessToken){
+          Alert.alert('오류', '유저 정보를 가져오지 못했습니다. 다시 시도해주세요');
+          return;
+        }
+
+    patchPasswordRequest(requestBody, accessToken).then(patchPasswordResponse)
+  };
+
+  const patchPasswordResponse = (responseBody: PatchPasswordResponseDto | ResponseDto | null) => {
+    if (!responseBody) return;
+    const { code } = responseBody;
+    if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+    if (code !== 'SU') return;
+
+    Alert.alert("비밀번호가 성공적으로 저장되었습니다.");
   }
 
   const handleClickSaveImage = async () => {
@@ -271,27 +374,66 @@ const MyProfile: React.FC = () =>  {
           }
       });
   }; 
-
-    
   
     // 이메일 인증 코드 전송
-    const handleSendEmailCode = async () => {
+    const onCertificationEmailButtonClickHandler = async () => {
+      const emailPattern = /^[a-zA-Z0-9]*@([-,]?[a-zA-Z0-9])*\.[a-zA-z]{2,4}$/;
 
+            const checkedEmail = emailPattern.test(newEmail);
+            if(!checkedEmail){
+                setEmailError(true);
+                Alert.alert("이메일 형식이 잘못되었습니다");
+                return;
+            }
+
+            const accessToken = await getAccessToken();
+            if(!accessToken){
+              Alert.alert('오류', '유저 정보를 가져오지 못했습니다. 다시 시도해주세요');
+              return;
+            }
+            
+            const requestBody: EmailCertificationForChangeRequestDto = {email: newEmail};
+            console.log(requestBody);
+            emailCertificationForChangeRequest(requestBody, accessToken).then(emailCertificationForChangeResponse);
     };
   
     // 이메일 인증 코드 확인
-    const handleVerifyEmailCode = async () => {
+    const onCertificationNumberButtonClickHandler = async () => {
+      const accessToken = await getAccessToken();
+            if(!accessToken){
+              Alert.alert('오류', '유저 정보를 가져오지 못했습니다. 다시 시도해주세요');
+              return;
+            }
 
+      const requestBody: CheckCertificationForChangeRequestDto = {email: newEmail, certificationNumber};
+            checkCertificationForChangeRequest(requestBody, accessToken).then(checkCertificationForChangeResponse);
     };
   
     // 이메일 변경
     const handleChangeEmail = async () => {
-      
+      const requestBody = {
+        email : newEmail
+      }
+      const accessToken = await getAccessToken();
+        if(!accessToken){
+          Alert.alert('오류', '유저 정보를 가져오지 못했습니다. 다시 시도해주세요');
+          return;
+        }
+      patchEmailRequest(requestBody, accessToken).then(patchEmailResponse);
     };
   
     // 비밀번호 변경
     const handleChangePassword = async () => {
-      
+
+      const requestBody = {
+        password: myPassword
+      }
+      const accessToken = await getAccessToken();
+        if(!accessToken){
+          Alert.alert('오류', '유저 정보를 가져오지 못했습니다. 다시 시도해주세요');
+          return;
+        }
+      isPasswordRightRequest(requestBody, accessToken).then(isPasswordRightResponse)
     };
   
     return (
@@ -320,27 +462,27 @@ const MyProfile: React.FC = () =>  {
           <TextInput
             style={styles.input}
             placeholder="새 이메일"
-            value={myNewEmail}
-            onChangeText={setMyNewEmail}
+            value={newEmail}
+            onChangeText={(text) => setNewEmail(text)}
             autoCapitalize="none"
             keyboardType="email-address"
           />
-          <TouchableOpacity style={styles.button} onPress={handleSendEmailCode}>
+          <TouchableOpacity style={styles.button} onPress={onCertificationEmailButtonClickHandler}>
             <Text style={styles.buttonText}>인증 코드 전송</Text>
           </TouchableOpacity>
           <TextInput
             style={styles.input}
             placeholder="인증 코드"
-            value={emailCode}
-            onChangeText={setEmailCode}
+            value={certificationNumber}
+            onChangeText={(text) => setCertificationNumber(text)}
             keyboardType="numeric"
           />
-          <TouchableOpacity style={styles.button} onPress={handleVerifyEmailCode}>
+          <TouchableOpacity style={styles.button} onPress={onCertificationNumberButtonClickHandler}>
             <Text style={styles.buttonText}>코드 확인</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, isEmailVerified ? styles.activeButton : styles.disabledButton]}
-            disabled={!isEmailVerified}
+            style={[styles.button, isCertificationNumberCheck ? styles.activeButton : styles.disabledButton]}
+            disabled={!isCertificationNumberCheck}
             onPress={handleChangeEmail}
           >
             <Text style={styles.buttonText}>이메일 변경</Text>
@@ -475,11 +617,13 @@ const styles = StyleSheet.create({
 
   section: {
     marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginVertical: 10,
   },
   input: {
     borderWidth: 1,
@@ -489,6 +633,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 10,
     backgroundColor: '#fff',
+    width: '90%'
   },
   // 활성화된 버튼 스타일
   activeButton: {
