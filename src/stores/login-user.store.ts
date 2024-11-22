@@ -1,10 +1,14 @@
-
 import { create } from 'zustand'
 import User from "../types/interface/user.interface";
 
 interface LoginUserStore {
+    /// 유저의 정보(id, email, role, profileImage) 제공
     loginUser: User | null;
+
+    /// 유저의 정보(id, email, role, profileImage) 업데이트
     setLoginUser: (loginUser: User) => void;
+
+    /// 유저의 정보(id, email, role, profileImage) 리셋
     resetLoginUser: () => void;
 }
 

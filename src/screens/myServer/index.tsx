@@ -8,7 +8,6 @@ import useLoginUserStore from '../../stores/login-user.store';
 import { ResponseDto } from '../../apis/response';
 import GetUserServerListResponseDto from '../../apis/response/game/get-user-server-list.response.dto';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Server } from '../../types/Server';
 import { GetServerListResponseDto } from '../../apis/response/game';
 import { AdminServerListItem } from '../../types/interface';
 import { useAuth } from '../../context/Auth';
@@ -35,6 +34,7 @@ const MyServer: React.FC = () => {
     // state: 페이지 상태 //
     const [view, setView] = useState<'user' | 'admin'>(loginUser?.role === "ROLE_ADMIN" ? "admin" : "user");
 
+    // component : 유저용 컴포넌트 //
     const UserCard =()=>{
 
         // state: 검색 쿼리 상태 //
@@ -50,7 +50,7 @@ const MyServer: React.FC = () => {
         const renderServerCard = ({ item }: { item: ServerListItem }) => {
             const imageUrl = item.gameImage.replace('localhost', '10.0.2.2');
             return (
-                <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
+                <TouchableOpacity onPress={() => serverListCardClickEventHandler(item)} style={styles.card}>
                     <Image 
                         source={{uri: imageUrl}} 
                         style={styles.gameImage} 
@@ -81,13 +81,13 @@ const MyServer: React.FC = () => {
         }
 
         // event handler: 리스트 카드 클릭 이벤트 처리 //
-        const handleCardPress = (server: ServerListItem) => {
+        const serverListCardClickEventHandler = (server: ServerListItem) => {
             navigation.navigate('ServerDetails', { server });
             
         };
 
         // event handler: 검색 버튼 클릭 이벤트 처리 //
-        const handleSearch = (query: string) => {
+        const searchButtonClickEventHandler = (query: string) => {
             setSearchQuery(query);
             if (query.trim() === '') {
                 setFilteredServers(serverData);
@@ -100,9 +100,8 @@ const MyServer: React.FC = () => {
             }
         };
 
-        // effect : 첫 마운트 시 실행될 함수 //
+        // effect : 첫 마운트 시 실행될 함수 - 서버 리스트 불려오기 //
         useEffect(() => {
-            console.log("user");
             if (loginUser?.id) getUserServerListRequest(loginUser.id).then(getUserServerListResponse);
         }, [loginUser]);
 
@@ -114,7 +113,7 @@ const MyServer: React.FC = () => {
                     <TextInput
                         style={styles.searchInput}
                         placeholder="서버 검색"
-                        onChangeText={handleSearch}
+                        onChangeText={searchButtonClickEventHandler}
                         value={searchQuery}
                     />
                 </View>
@@ -128,6 +127,7 @@ const MyServer: React.FC = () => {
         );
     }
 
+    // component : 어드민용 컴포넌트 //
     const AdminCard =()=>{
 
         // state: 검색 쿼리 상태 //
@@ -142,7 +142,7 @@ const MyServer: React.FC = () => {
         // function : renderAdminServerCard 함수 //
         const renderAdminServerCard = ({ item }: { item: AdminServerListItem}) => {
             return (
-                <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
+                <TouchableOpacity onPress={() => serverListCardClickEventHandler(item)} style={styles.card}>
                     <View style={styles.textContainer}>
                         <Text style={styles.serverName}>{item.name}</Text>
                         <Text style={styles.billingAmount}>고객 ID : {item.userId}</Text>
@@ -169,12 +169,12 @@ const MyServer: React.FC = () => {
         }
 
         // event handler: 리스트 카드 클릭 이벤트 처리 //
-        const handleCardPress = (server: AdminServerListItem) => {
+        const serverListCardClickEventHandler = (server: AdminServerListItem) => {
             navigation.navigate('ServerManaging', { server });
         };
 
         // event handler: 검색 버튼 클릭 이벤트 처리 //
-        const handleSearch = (query: string) => {
+        const searchButtonClickEventHandler = (query: string) => {
             setSearchQuery(query);
             if (query.trim() === '') {
                 setFilteredServers(serverData);
@@ -187,7 +187,7 @@ const MyServer: React.FC = () => {
             }
         };
 
-        // effect : 첫 마운트 시 실행될 함수 //
+        // effect : 첫 마운트 시 실행될 함수 - 모든 서버 리스트 가져오기 //
         useEffect(() => {
             const fetchData = async () => {
                 try {
@@ -196,11 +196,10 @@ const MyServer: React.FC = () => {
                     const response = await getAdminServerListRequest(accessToken);
                     getAdminServerListResponse(response);
                     } else {
-                    Alert.alert('Error', 'Failed to get access token');
+                    Alert.alert('Error', 'accessToken을 얻는데 실패하였습니다.');
                     }
                 } catch (error) {
-                    console.error('Error fetching admin server list:', error);
-                    Alert.alert('Error', 'Failed to fetch server list');
+                    Alert.alert('Error', '서버 목록을 얻는데 실패하였습니다.');
                 }
             };
         
@@ -215,7 +214,7 @@ const MyServer: React.FC = () => {
                     <TextInput
                         style={styles.searchInput}
                         placeholder="서버 검색"
-                        onChangeText={handleSearch}
+                        onChangeText={searchButtonClickEventHandler}
                         value={searchQuery}
                     />
                 </View>
@@ -229,6 +228,7 @@ const MyServer: React.FC = () => {
         );
     }
 
+    // render : user의 ROLE에 따른 컴포넌트 렌더링 //
     return(
         <View style={styles.mainContainer}>
             {view === 'user' && <UserCard />}

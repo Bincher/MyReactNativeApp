@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Alert } from 'react-native';
-import { Game } from '../../types/Game';
+import { Game } from '../../types/game';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import useLoginUserStore from '../../stores/login-user.store';
@@ -100,7 +100,7 @@ const GameList: React.FC = () => {
     };
 
     // event handler: 게임 리스트 클릭 이벤트 처리 //
-    const handleCardPress = (game: Game) => {
+    const gameListCardButtonClickEventHandler = (game: Game) => {
         navigation.navigate('ServerMaking', {game});
     };
 
@@ -108,9 +108,8 @@ const GameList: React.FC = () => {
     const renderGameCard = ({ item }: { item: Game }) => {
         const imageUrl = item.gameImage.replace('localhost', '10.0.2.2'); // Android 에뮬레이터용
         // const imageUrl = item.gameImage.replace('localhost', '127.0.0.1'); // iOS 시뮬레이터용
-        // console.log('Game Image URL: ', imageUrl);
         return (
-            <TouchableOpacity onPress={() => handleCardPress(item)} style={styles.card}>
+            <TouchableOpacity onPress={() => gameListCardButtonClickEventHandler(item)} style={styles.card}>
                 <Image 
                     source={{uri: imageUrl}} 
                     style={styles.gameImage} 
@@ -125,12 +124,12 @@ const GameList: React.FC = () => {
     };
 
     // event handler: 게임 추가 버튼 클릭 이벤트 처리 //
-    const handleAddGame = () => {
+    const addGameButtonClickEventHandler = () => {
         setIsDialogVisible(true);
     };
 
     // event handler: 이미지 업로드 버튼 클릭 이벤트 처리 //
-    const handleImageUpload = () => {
+    const imageUpButtonClickEventHandler = () => {
         const options = {
             mediaType : "photo" as MediaType,
             includeBase64: false,
@@ -152,7 +151,7 @@ const GameList: React.FC = () => {
     };
 
     // event handler: 게임 저장 버튼 클릭 이벤트 처리 //
-    const handleSaveGame = async () => {
+    const saveGameButtonClickEventHandler = async () => {
         if (!newGameImageFile || !newGameTitle || !newGameDescription) {
             Alert.alert('Error', '타이틀, 설명, 이미지를 모두 작성해주세요');
             return;
@@ -179,12 +178,10 @@ const GameList: React.FC = () => {
                 title, description, gameImage, amountLevel
             }
 
-            // console.log('New game:', { image: imageUrl, title: newGameTitle, description: newGameDescription });
             postGameRequest(requestBody).then(postGameResponse);
 
         } catch (error) {
-            console.error('Error saving game:', error);
-            Alert.alert('Error', 'Failed to save game');
+            Alert.alert('에러', '게임 저장 도중 오류가 발생하였습니다.');
         }
     };
 
@@ -208,7 +205,7 @@ const GameList: React.FC = () => {
                 keyExtractor={item => item.title.toString()}
             />
             {loginUser?.role === 'ROLE_ADMIN' && (
-                <TouchableOpacity style={styles.addButton} onPress={handleAddGame}>
+                <TouchableOpacity style={styles.addButton} onPress={addGameButtonClickEventHandler}>
                     <Icon name="add" size={24} color="#fff" />
                 </TouchableOpacity>
             )}
@@ -226,7 +223,7 @@ const GameList: React.FC = () => {
                                 <Text>No Image</Text>
                             </View>
                         )}
-                        <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
+                        <TouchableOpacity style={styles.uploadButton} onPress={imageUpButtonClickEventHandler}>
                             <Text style={styles.buttonText}>Upload Image</Text>
                         </TouchableOpacity>
                         <TextInput
@@ -255,7 +252,7 @@ const GameList: React.FC = () => {
                             <Picker.Item label="D" value="D" />
                         </Picker>
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.button} onPress={handleSaveGame}>
+                            <TouchableOpacity style={styles.button} onPress={saveGameButtonClickEventHandler}>
                                 <Text style={styles.buttonText}>Save</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.button} onPress={() => setIsDialogVisible(false)}>

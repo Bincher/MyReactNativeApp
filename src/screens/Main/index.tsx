@@ -1,6 +1,6 @@
 // src/screens/Main/index.tsx
-import React, { useEffect, useState } from 'react';
-import { Image, View, Text, TouchableOpacity, StyleSheet, Alert, PermissionsAndroid, Platform, } from 'react-native';
+import React, { useEffect } from 'react';
+import { Image, View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -10,7 +10,6 @@ import { sendFcmTokenToServer } from '../../apis';
 import { PatchFcmTokenRequestDto } from '../../apis/request/support';
 import { PatchFcmTokenResponseDto } from '../../apis/response/support';
 import { ResponseDto } from '../../apis/response';
-import { PERMISSIONS, check, request } from 'react-native-permissions';
 
 type RootStackParamList = {
     Main: undefined;
@@ -45,13 +44,13 @@ const Main: React.FC<Props> = ({ navigation }) => {
     }
 
     // event handler: 메뉴 버튼 클릭 이벤트 //
-    const handleMenuPress = () => {
+    const menuButtonClickEventHandler = () => {
         // 미구현
         console.log('Menu button pressed');
     };
 
     // event handler: 마이페이지(마이 프로필) 클릭 이벤트 처리 //
-    const handleMyPagePress = async () => {
+    const myPageButtonClickEventHandler = async () => {
         if(!isLoggedIn) navigation.navigate('Login');
         else {
             console.log(isLoggedIn);
@@ -60,7 +59,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
     };
 
     // event handler: 메인 화면 버튼 클릭 이벤트 처리 //
-    const handleContentButtonPress = (buttonName: string) => {
+    const mainContentButtonClickEventHandler = (buttonName: string) => {
         if(!isLoggedIn) navigation.navigate('Login');
         else{
             if (buttonName === 'MyServer') {
@@ -76,13 +75,14 @@ const Main: React.FC<Props> = ({ navigation }) => {
         }
     };
 
+    // function : get FCM TOKEN - 나중에 hook 함수로 넘기기 //
     const getFcmToken = async () =>{
+
+        // 로그인 되어있을때만
         if(isLoggedIn){
             messaging()
             .getToken()
             .then(async token => {
-                console.log('FCM Token:', token);
-                // 서버로 토큰 전송 로직 추가 가능
                 const requestBody: PatchFcmTokenRequestDto = {
                     fcmToken: token
                 };
@@ -90,10 +90,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
                 if(accessToken != null) sendFcmTokenToServer(requestBody, accessToken).then(patchFcmTokenResponse); 
             });
             
-            // 토큰이 갱신될 때마다 새로운 토큰 가져오기
             return messaging().onTokenRefresh(async token => {
-                console.log('FCM Token refreshed:', token);
-                // 서버로 갱신된 토큰 전송 로직 추가 가능
                 const requestBody: PatchFcmTokenRequestDto = {
                     fcmToken: token
                 };
@@ -103,6 +100,7 @@ const Main: React.FC<Props> = ({ navigation }) => {
         }
     }
 
+    // effect : 렌더링시 실행 - FCM 토큰 얻기 //
     useEffect(() => {
         getFcmToken()
     }, []);
@@ -111,28 +109,28 @@ const Main: React.FC<Props> = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={handleMenuPress} style={styles.button}>
+                <TouchableOpacity onPress={menuButtonClickEventHandler} style={styles.button}>
                     <Icon name="menu" style={styles.buttonIcon} size={30} />
                 </TouchableOpacity>
                 <Text style={styles.appName}>App Name</Text>
-                <TouchableOpacity onPress={handleMyPagePress} style={styles.button}>
+                <TouchableOpacity onPress={myPageButtonClickEventHandler} style={styles.button}>
                     <Icon name="manage-accounts" style={styles.buttonIcon} size={30} />
                 </TouchableOpacity>
             </View>
             <View style={styles.content}>
-                <TouchableOpacity onPress={() => handleContentButtonPress('MyServer')} style={styles.contentButton}>
+                <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('MyServer')} style={styles.contentButton}>
                     <Image source={require('../../assets/images/game_server.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>나의 서버</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleContentButtonPress('MakingServer')} style={styles.contentButton}>
+                <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('MakingServer')} style={styles.contentButton}>
                     <Image source={require('../../assets/images/game.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>서버 생성</Text>
                 </TouchableOpacity>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleContentButtonPress('MyNotification')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('MyNotification')} style={styles.rowButton}>
                         <Icon name="settings" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleContentButtonPress('CustomerService')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('CustomerService')} style={styles.rowButton}>
                         <Icon name="headset-mic" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
                 </View>

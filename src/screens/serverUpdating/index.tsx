@@ -138,12 +138,12 @@ const ServerUpdating: React.FC = () => {
     }
 
     // event handler: 취소 버튼 클릭 이벤트 처리 //
-    const handleCancel = () => {
+    const cancelButtonClickEventHandler = () => {
         navigation.goBack();
     };
 
     // event handler: mode count input box 데이터 입력 이벤트 처리 //
-    const handleInputChange = (text: string) => {
+    const inputChangeEventHandler = (text: string) => {
         const parsedNumber = parseInt(text, 10);
         if (!isNaN(parsedNumber) && parsedNumber >= 0) {
             setServerModeCount(parsedNumber);
@@ -154,7 +154,7 @@ const ServerUpdating: React.FC = () => {
     };
 
     // event handler: 생성 버튼 클릭 이벤트 처리 //
-    const handleUpdateServer = async () => {
+    const updateServerButtonClickEventHandler = async () => {
         let hasError = false;
     
         if (!serverName) {
@@ -189,19 +189,13 @@ const ServerUpdating: React.FC = () => {
             };
 
             const accessToken = await getAccessToken();
-
-            console.log(requestBody);
-            console.log(server.id);
-            console.log(accessToken);
-        
             if (accessToken) {
                 patchServerRequest(server.id, requestBody, accessToken).then(patchGameServerResponse);
             } else {
-                Alert.alert('Error', 'Failed to update server: No access token');
+                Alert.alert('에러', '유저 인증 과정에서 문제가 발생하였습니다.');
             }
         } catch (error) {
-            console.error('Error updating server:', error);
-            Alert.alert('Error', 'Failed to update server');
+            Alert.alert('에러', '서버 업데이트 과정에서 에러가 발생하였습니다.');
         }
     };
     
@@ -319,7 +313,7 @@ const ServerUpdating: React.FC = () => {
                     <TextInput
                         style={styles.input}
                         value={serverModeCount.toString()}
-                        onChangeText={handleInputChange}
+                        onChangeText={inputChangeEventHandler}
                         placeholder="모드 개수를 입력하세요"
                         keyboardType="numeric"
                     />
@@ -349,10 +343,10 @@ const ServerUpdating: React.FC = () => {
                 <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost(server.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount)}</Text>
         
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button} onPress={handleUpdateServer}>
+                    <TouchableOpacity style={styles.button} onPress={updateServerButtonClickEventHandler}>
                         <Text style={styles.buttonText}>서버 수정</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+                    <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={cancelButtonClickEventHandler}>
                         <Text style={styles.buttonText}>취소</Text>
                     </TouchableOpacity>
                 </View>

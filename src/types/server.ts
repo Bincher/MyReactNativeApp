@@ -1,4 +1,3 @@
-// types/Server.ts
 export interface Server {
     id: string;
     name: string;

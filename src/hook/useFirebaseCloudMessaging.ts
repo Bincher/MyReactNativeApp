@@ -1,18 +1,11 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect } from "react";
-import { useAuth } from "../context/Auth";
+import { useEffect } from "react";
 import messaging from '@react-native-firebase/messaging';
-import { PatchFcmTokenRequestDto } from "../apis/request/support";
-import { sendFcmTokenToServer } from "../apis";
 import { PatchFcmTokenResponseDto } from "../apis/response/support";
 import { ResponseDto } from "../apis/response";
 import { Alert, PermissionsAndroid, Platform } from "react-native";
-import useLoginUserStore from "../stores/login-user.store";
 
-
+// 차후 수정 필요 - fcm Token 받아오는 함수를 main에서 여기로 이전 //
 const useFirebaseCloudMessaging = () => {
-
-    const { loginUser } = useLoginUserStore();
 
     // function: post game server response 처리 함수 //
     const patchFcmTokenResponse = (responseBody: PatchFcmTokenResponseDto | ResponseDto | null) => {
@@ -23,6 +16,7 @@ const useFirebaseCloudMessaging = () => {
         console.log(responseBody);
     };
 
+    // function : request user permission 처리 함수 //
     async function requestUserPermission() {
         const authStatus = await messaging().requestPermission();
         const enabled =
@@ -35,6 +29,7 @@ const useFirebaseCloudMessaging = () => {
         }
     }
 
+    // function : check alaram 처리 함수 //
     async function checkAlarm(): Promise<void> {
         if (Platform.OS === 'android' && Platform.Version >= 33) {
             try {
@@ -48,12 +43,11 @@ const useFirebaseCloudMessaging = () => {
                 }
             }
         } else {
-            console.log("POST_NOTIFICATIONS permission is not required for this Android version.");
+            // console.log("POST_NOTIFICATIONS permission is not required for this Android version.");
         }
     }
     
-    
-
+    // effect : 첫 실행시 실행될 함수 - fcm 메시지의 수신 처리 //
     useEffect(() => {
         // 포그라운드 상태에서 푸시 알림 처리
         const unsubscribe = messaging().onMessage(async remoteMessage => {
@@ -72,9 +66,7 @@ const useFirebaseCloudMessaging = () => {
         return unsubscribe;
     }, []);
 
-
-    
-
+    // effect : 첫 실행시 실행될 함수 - check Alarm //
     useEffect(() => {
         checkAlarm();
     }, []);

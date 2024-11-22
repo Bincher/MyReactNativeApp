@@ -4,7 +4,7 @@ import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, Text, TextInput, T
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useAuth } from "../../context/Auth";
 import { useState } from "react";
-import { SendNotificationToAdminRequest, SendNotificationToUserRequest, patchAdminServerRequest} from "../../apis";
+import { SendNotificationToUserRequest, patchAdminServerRequest} from "../../apis";
 import { StyleSheet } from "react-native";
 import { AdminServerListItem } from "../../types/interface";
 import { SendNotificationRequestDto } from "../../apis/request/support";
@@ -18,6 +18,7 @@ type RootStackParamList = {
 type ServerManagingRouteProp = RouteProp<RootStackParamList, 'ServerManaging'>;
 
 const ServerManaging: React.FC = () => {
+
     /// 네비게이션 등록
     const navigation = useNavigation();
 
@@ -30,6 +31,7 @@ const ServerManaging: React.FC = () => {
     /// AccessToken 접근
     const { getAccessToken } = useAuth();
 
+    // state : 유저가 수정 가능한 각 필드 상태 //
     const [editableFields, setEditableFields] = useState({
         name: { value: server.name, isEditing: false },
         billingAmount: { value: server.billingAmount, isEditing: false },
@@ -39,8 +41,10 @@ const ServerManaging: React.FC = () => {
         serverAddress: { value: server.serverAddress, isEditing: false },
     });
 
+    // state : 변경 여부 상태 //
     const [hasChanges, setHasChanges] = useState(false);
 
+    // function : send notification response 함수 //
     const sendNotificationResponse = (responseBody: SendNotificationResponseDto | ResponseDto | null) => {
         if (!responseBody) return;
         const { code } = responseBody;
@@ -51,6 +55,7 @@ const ServerManaging: React.FC = () => {
         Alert.alert('성공', '알림이 성공적으로 전송되었습니다.');
     }
 
+    // function : toggle edit - 데이터 수정 함수 //
     const toggleEdit = (field: keyof typeof editableFields) => {
         setEditableFields(prev => ({
             ...prev,
@@ -59,7 +64,8 @@ const ServerManaging: React.FC = () => {
         setHasChanges(true);
     };
 
-    const handleChange = (field: keyof typeof editableFields, value: string) => {
+    // event handler : 변경 버튼 클릭 이벤트 처리 //
+    const changeButtonClickEventHandler = (field: keyof typeof editableFields, value: string) => {
         setEditableFields(prev => ({
             ...prev,
             [field]: { ...prev[field], value }
@@ -67,6 +73,7 @@ const ServerManaging: React.FC = () => {
         setHasChanges(true);
     };
 
+    // component : 필드 수정시 나타날 컴포넌트 //
     const renderEditableField = (label: string, field: keyof typeof editableFields) => (
         <View style={styles.fieldContainer}>
             <Text style={styles.label}>{label}</Text>
@@ -74,7 +81,7 @@ const ServerManaging: React.FC = () => {
                 <TextInput
                     style={styles.input}
                     value={editableFields[field].value}
-                    onChangeText={(value) => handleChange(field, value)}
+                    onChangeText={(value) => changeButtonClickEventHandler(field, value)}
                 />
             ) : (
                 <Text style={styles.value}>{editableFields[field].value}</Text>
@@ -85,7 +92,8 @@ const ServerManaging: React.FC = () => {
         </View>
     );
 
-    const handleSave = async () => {
+    // event handler : 저장 버튼 클릭 이벤트 처리 //
+    const saveButtonClickEventHandler = async () => {
         try {
             const accessToken = await getAccessToken();
             if (!accessToken) {
@@ -104,18 +112,18 @@ const ServerManaging: React.FC = () => {
 
             const response = await patchAdminServerRequest(server.id, updatedData, accessToken);
             if (response && response.code === 'SU') {
-                Alert.alert('Success', 'Server information updated successfully');
+                Alert.alert('성공', '서버 정보가 성공적으로 저장되었습니다.');
                 navigation.goBack();
             } else {
-                Alert.alert('Error', 'Failed to update server information');
+                Alert.alert('에러', '서버 정보를 저장하는 과정에서 오류가 발생하였습니다.');
             }
         } catch (error) {
-            console.error('Error updating server:', error);
-            Alert.alert('Error', 'An error occurred while updating server information');
+            Alert.alert('에러', '서버 업데이트 과정에 문제가 발생하였습니다.');
         }
     };
 
-    const handleContactUser = () => {
+    // event handler : 유저에게 알림 보내기 버튼 클릭 이벤트 처리 //
+    const contactUserButtonClickEventHandler = () => {
         const requestBody: SendNotificationRequestDto = {
             title: "고객 지원 답변",
             message: `운영자가 문의에 대한 답변을 전송하였습니다. 이메일을 확인해주세요.`
@@ -123,6 +131,7 @@ const ServerManaging: React.FC = () => {
         SendNotificationToUserRequest(requestBody, server.userId).then(sendNotificationResponse)
     };
 
+    // render : serverManaging 렌더링 //
     return (
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView 
@@ -134,7 +143,7 @@ const ServerManaging: React.FC = () => {
                     showsVerticalScrollIndicator={false}
                 >
                     <Text style={styles.title}>Server Details</Text>
-                    <TouchableOpacity style={styles.contactButton} onPress={handleContactUser}>
+                    <TouchableOpacity style={styles.contactButton} onPress={contactUserButtonClickEventHandler}>
                         <Text style={styles.contactButtonText}>사용자에게 답변 알림 전송</Text>
                     </TouchableOpacity>
                     <View style={styles.section}>    
@@ -161,7 +170,7 @@ const ServerManaging: React.FC = () => {
 
                     {hasChanges && (
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.button} onPress={handleSave}>
+                            <TouchableOpacity style={styles.button} onPress={saveButtonClickEventHandler}>
                                 <Text style={styles.buttonText}>Save Changes</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => navigation.goBack()}>

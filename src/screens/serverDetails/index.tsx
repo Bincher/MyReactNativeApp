@@ -1,6 +1,5 @@
-// src/screens/serverDetail/index.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Button, Alert, Image, ImageSourcePropType, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import ServerListItem from '../../types/interface/server-list-item.interface';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -58,13 +57,13 @@ const ServerDetails: React.FC = () => {
         navigation.goBack();
     }
 
-    // event handler: 수정 버튼 클릭 이벤트
-    const handleEdit = () => {
+    // event handler: 수정 버튼 클릭 이벤트 //
+    const editButtonClickEventHandler = () => {
         navigation.navigate('ServerUpdating', { server });
     };
 
-    // event handler : 삭제 버튼 클릭 이벤트
-    const handleClickDeleteButton = () => {
+    // event handler : 삭제 버튼 클릭 이벤트 //
+    const deleteButtonClickEventHandler = () => {
         Alert.alert(
             '서버 삭제',
             '서버를 삭제합니다. \n요금은 현재까지 사용한 내역만큼만 결제됩니다.',
@@ -124,10 +123,10 @@ const ServerDetails: React.FC = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+                <TouchableOpacity style={styles.editButton} onPress={editButtonClickEventHandler}>
                     <Text style={styles.buttonText}>수정</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.deleteButton} onPress={handleClickDeleteButton}>
+                <TouchableOpacity style={styles.deleteButton} onPress={deleteButtonClickEventHandler}>
                     <Text style={styles.buttonText}>삭제</Text>
                 </TouchableOpacity>
             </View>

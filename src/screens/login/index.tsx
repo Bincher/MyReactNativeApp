@@ -1,8 +1,7 @@
-import React, { createContext, ChangeEvent, useRef, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image, Pressable, SafeAreaView, Modal, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import  * as KakaoLogin from '@react-native-seoul/kakao-login';
 import SignInResponseDto from '../../apis/response/auth/sign-in-response.dto';
 import ResponseDto from '../../apis/response/response.dto';
 import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from '../../apis/request/auth';
@@ -20,37 +19,42 @@ type RootStackParamList = {
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
 const Login: React.FC = () => {
+
+    // 네비게이션
     const navigation = useNavigation<LoginScreenNavigationProp>();
+
+    // 로그인 여부
     const { login } = useAuth();
 
     // state: 페이지 상태 //
     const [view, setView] = useState<'sign-in' | 'sign-up'>('sign-in');
 
     // event handler: 카카오 로그인 버튼 클릭 이벤트 처리 - 작동 X //
-    const kakaoLogin = () => {
-        KakaoLogin.login().then((result) => {
-            console.log("Login Success", JSON.stringify(result));
-            getProfile();
-        }).catch((error) => {
-            if (error.code === 'E_CANCELLED_OPERATION') {
-                console.log("Login Cancel", error.message);
-            } else {
-                console.log(`Login Fail(code:${error.code})`, error.message);
-            }
-        });
+    const kakaoLoginButtonClickEventHandler = () => {
+        console.log("카카오 로그인 버튼 클릭 이벤트");
+        // KakaoLogin.login().then((result) => {
+        //     console.log("Login Success", JSON.stringify(result));
+        //     getProfile();
+        // }).catch((error) => {
+        //     if (error.code === 'E_CANCELLED_OPERATION') {
+        //         console.log("Login Cancel", error.message);
+        //     } else {
+        //         console.log(`Login Fail(code:${error.code})`, error.message);
+        //     }
+        // });
     };
 
-    // event handler: 카카오 프로필 가져오기 이벤트 처리 - 작동 X //
-    const getProfile = () => {
-        KakaoLogin.getProfile().then((result) => {
-            console.log("GetProfile Success", JSON.stringify(result));
-        }).catch((error) => {
-            console.log(`GetProfile Fail(code:${error.code})`, error.message);
-        });
-    };
+    // // event handler: 카카오 프로필 가져오기 이벤트 처리 - 작동 X //
+    // const getProfile = () => {
+    //     KakaoLogin.getProfile().then((result) => {
+    //         console.log("GetProfile Success", JSON.stringify(result));
+    //     }).catch((error) => {
+    //         console.log(`GetProfile Fail(code:${error.code})`, error.message);
+    //     });
+    // };
 
     // event handler: 뒤로가기 버튼 클릭 이벤트 처리 //
-    const handleBack = () => {
+    const backButtonClickEventHandler = () => {
         navigation.navigate('Main');
     };
 
@@ -84,12 +88,11 @@ const Login: React.FC = () => {
             const {token} = responseBody as SignInResponseDto;
 
             try {
-                //await AsyncStorage.setItem('accessToken', token);
                 await login(token);
             
-                navigation.replace('Main');  // 로그인 후 Main 화면으로 이동
+                navigation.replace('Main'); 
             } catch (e) {
-                console.log('Failed to save the token', e);
+                Alert.alert('로그인 과정에서 문제가 발생하였습니다. 다시 로그인하여 주십시오');
             }
         }
 
@@ -107,7 +110,7 @@ const Login: React.FC = () => {
         }
     
         // event handler: 회원가입 링크 클릭 이벤트 처리 //
-        const onSignUpButtonClickHandler=()=>{
+        const onSignUpButtonClickHandler =()=>{
             setView('sign-up');
         }
         
@@ -118,7 +121,7 @@ const Login: React.FC = () => {
                 <View style={styles.socialLoginContainer}>
                     <TouchableOpacity
                         style={styles.kakaoLoginButton}
-                        onPress={kakaoLogin}
+                        onPress={kakaoLoginButtonClickEventHandler}
                     >
                         <Text style={styles.kakaoLoginButtonText}>카카오 로그인</Text>
                     </TouchableOpacity>
@@ -148,7 +151,7 @@ const Login: React.FC = () => {
                     <TouchableOpacity style={styles.button} onPress={onSignUpButtonClickHandler}>
                         <Text style={styles.buttonText}>회원가입</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={handleBack}>
+                    <TouchableOpacity style={styles.button} onPress={backButtonClickEventHandler}>
                         <Text style={styles.buttonText}>뒤로가기</Text>
                     </TouchableOpacity>
                 </View>
@@ -163,7 +166,6 @@ const Login: React.FC = () => {
 
         // state: 아이디 에러 상태 //
         const [isIdError, setIdError] = useState<boolean>(false);
-
 
         // state: 아이디 중복 체크 상태 //
         const [isIdCheck, setIdCheck] = useState<boolean>(false);
@@ -220,8 +222,9 @@ const Login: React.FC = () => {
         // state: 개인 정보 동의 상태 //
         const [isAgreedPersonal, setIsAgreedPersonal] = useState<boolean>(false);
 
-        // state: 이게 뭐였더라... //
+        // state: 약관 보기 상태 //
         const [showTerms, setShowTerms] = useState(false);
+
 
         // function: id check response 처리 함수 //
         const idCheckResponse = (responseBody: ResponseBody<IdCheckResponseDto>) => {
@@ -499,7 +502,8 @@ const Login: React.FC = () => {
                             <View style={styles.modalContent}>
                                 <Text style={styles.modalTitle}>이용약관</Text>
                                 <Text style={styles.modalText}>
-                                    여기에 약관 내용을 넣으세요...
+                                    약관약관약관...
+                                    약관약관약관...
                                 </Text>
                                 <View style={styles.modalButtonContainer}>
                                     <TouchableOpacity 

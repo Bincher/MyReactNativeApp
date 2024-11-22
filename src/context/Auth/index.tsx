@@ -7,9 +7,17 @@ import { GetSignInUserResponseDto } from '../../apis/response/user';
 import { User } from '../../types/interface';
 
 interface AuthContextType {
+
+    /// 로그인 여부
     isLoggedIn: boolean;
+
+    /// Access Token 얻기 
     getAccessToken: () => Promise<string | null>;
+
+    /// 로그인
     login: (token: string) => Promise<void>;
+
+    /// 로그아웃
     logout: () => Promise<void>;
 }
 
@@ -19,23 +27,27 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+// function : 유저 정보(id, email, role, profileImage) 매핑 함수 //
 const mapToUser = (responseDto: GetSignInUserResponseDto): User => {
     return {
         id: responseDto.id,
         email: responseDto.email,
         role: responseDto.role,
         profileImage: responseDto.profileImage
-        // 필요한 다른 필드를 매핑
     };
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+
+    // state : 로그인 여부 상태 //
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+    // effect : check login status //
     useEffect(() => {
         checkLoginStatus();
     }, []);
 
+    // function : check login status 함수 //
     const checkLoginStatus = async (): Promise<void> => {
         try {
             const token = await EncryptedStorage.getItem('user_token');
@@ -45,6 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    // function : get Access Token 함수 //
     const getAccessToken = async (): Promise<string | null> => {
         try {
             const token = await EncryptedStorage.getItem('user_token');
@@ -55,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    // function : login 함수 //
     const login = async (token: string): Promise<void> => {
         try {
             await EncryptedStorage.setItem('user_token', token);
@@ -72,6 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    // function : logout 함수 //
     const logout = async (): Promise<void> => {
         try {
             await EncryptedStorage.removeItem('user_token');
@@ -87,6 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 };
 
+// 다른 곳에서 useAuth를 통해 사용 가눙
 export const useAuth = (): AuthContextType => {
     const context = useContext(AuthContext);
     if (context === undefined) {

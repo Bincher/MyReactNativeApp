@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button, Alert, Switch, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Switch, Modal, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Game } from '../../types/Game';
+import { Game } from '../../types/game';
 import PostGameServerRequestDto from '../../apis/request/game/post-game-server.request.dto';
 import { postGameServerRequest } from '../../apis';
 import PostGameServerResponseDto from '../../apis/response/game/post-game-server.response.dto';
@@ -71,7 +71,7 @@ const ServerMaking: React.FC = () => {
     // state: 자세한 정보 내용 상태 //
     const [infoContent, setInfoContent] = useState('');
 
-    // function: calcuateEstimatedCost 함수
+    // function: calcuateEstimatedCost 함수 //
     const calculateEstimatedCost = (
         gameGrade: string,
         serverPerformance: 'BASIC' | 'STANDARD' | 'PLUS' | 'PRO',
@@ -114,11 +114,9 @@ const ServerMaking: React.FC = () => {
             baseCost += 20000;
         }
 
-        // 모드 개수에 따른 추가 비용 (모드 하나당 5000원 추가, 최대 10개까지)
         const additionalModeCost = Math.min(modeCount, 10) * 5000;
         baseCost += additionalModeCost;
 
-        // 최종 비용을 원화 형식으로 변환
         return `${baseCost.toLocaleString()}원`;
     };
 
@@ -142,12 +140,12 @@ const ServerMaking: React.FC = () => {
     }
 
     // event handler: 취소 버튼 클릭 이벤트 처리 //
-    const handleCancel = () => {
+    const cancelButtonClickEventHandler = () => {
         navigation.goBack();
     };
 
     // event handler: mode count input box 데이터 입력 이벤트 처리 //
-    const handleInputChange = (text: string) => {
+    const inputChangeEventHandler = (text: string) => {
         setInputValue(text);
         const parsedNumber = parseInt(text, 10);
         if (!isNaN(parsedNumber) && parsedNumber > 0) {
@@ -160,7 +158,7 @@ const ServerMaking: React.FC = () => {
     };
 
     // event handler: 생성 버튼 클릭 이벤트 처리 //
-    const handleCreateServer = async () => {
+    const createServerButtonClickEventHandler = async () => {
         let hasError = false;
     
         if (!serverName) {
@@ -198,11 +196,10 @@ const ServerMaking: React.FC = () => {
             if (accessToken) {
                 postGameServerRequest(requestBody, accessToken).then(postGameServerResponse);
             } else {
-                Alert.alert('Error', 'Failed to save game by accessToken');
+                Alert.alert('에러', '유저 인증 과정에 문제가 발생하였습니다.');
             }
         } catch (error) {
-            console.error('Error saving game:', error);
-            Alert.alert('Error', 'Failed to save game');
+            Alert.alert('에러', '게임 저장에 실패하였습니다.');
         }
     };
 
@@ -320,7 +317,7 @@ const ServerMaking: React.FC = () => {
                         <TextInput
                         style={styles.input}
                         value={inputValue}
-                        onChangeText={handleInputChange}
+                        onChangeText={inputChangeEventHandler}
                         placeholder="모드 개수를 입력하세요"
                         keyboardType="numeric"
                         />
@@ -350,10 +347,10 @@ const ServerMaking: React.FC = () => {
                 <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost(game.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount)}</Text>
         
                 <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={handleCreateServer}>
+                <TouchableOpacity style={styles.button} onPress={createServerButtonClickEventHandler}>
                     <Text style={styles.buttonText}>서버 생성</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={cancelButtonClickEventHandler}>
                     <Text style={styles.buttonText}>취소</Text>
                 </TouchableOpacity>
                 </View>
