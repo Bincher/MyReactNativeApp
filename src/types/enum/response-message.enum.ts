@@ -13,6 +13,7 @@ enum ResposneMessage{
     NOT_ADMIN = "Only Admin can post new game",
     NOT_EXISTED_GAME = "This game does not exist",
     NOT_EXISTED_CHAT = "This chat does not exist",
+    SERVER_EXIST = "Game servers must not exist",
 
     SIGN_IN_FAIL = "Login information mismatch",
     AUTHORIZATION_FAIL = "Authorization fail",

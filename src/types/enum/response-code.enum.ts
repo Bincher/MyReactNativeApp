@@ -13,6 +13,7 @@ export enum ResponseCode {
     NOT_ADMIN = "NA",
     NOT_EXISTED_GAME = "NG",
     NOT_EXISTED_CHAT = "NC",
+    SERVER_EXIST = "SE",
   
   
     // HTTP Status 401

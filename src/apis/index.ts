@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { CheckCertificationRequestDto, EmailCertificationRequestDto, IdCheckRequestDto, SignInRequestDto, SignUpRequestDto } from "./request/auth";
 import { ResponseDto } from "./response";
-import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto } from "./response/auth";
+import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto, DeleteUserResponseDto } from "./response/auth";
 import { CheckCertificationForChangeResponseDto, EmailCertificationForChangeResponseDto, GetSignInUserResponseDto, GetUserResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from "./response/user";
 import { PostGameRequestDto } from "./request/game";
 import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
@@ -51,6 +51,7 @@ const PATCH_PROFILE_IMAGE_URL =()=>`${API_DOMAIN}/user/profile-image`;
 const IS_PASSWORD_RIGHT_URL =()=>`${API_DOMAIN}/user/password/is-right`;
 const EMAIL_CERTIFICATION_FOR_CHANGE_URL =()=> `${API_DOMAIN}/user/email-certification`;
 const CHECK_CERTIFICATION_FOR_CHANGE_URL =()=> `${API_DOMAIN}/user/check-certification`;
+const DELETE_USER_URL =()=> `${API_DOMAIN}/auth/delete`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -357,6 +358,13 @@ export const emailCertificationForChangeRequest = async (requestBody: EmailCerti
 export const checkCertificationForChangeRequest = async (requestBody: CheckCertificationForChangeRequestDto, accessToken: string) =>{
     const result = await axios.post(CHECK_CERTIFICATION_FOR_CHANGE_URL(), requestBody, authorization(accessToken))
         .then(responseHandler<CheckCertificationForChangeResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const deleteUserRequqest = async(accessToken: string) =>{
+    const result = await axios.delete(DELETE_USER_URL(), authorization(accessToken))
+        .then(responseHandler<DeleteUserResponseDto>)
         .catch(errorHandler)
     return result;
 }

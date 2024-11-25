@@ -1,4 +1,5 @@
 import CheckCertificationResponseDto from "./check-certification.response.dto"
+import DeleteUserResponseDto from "./delete-user.response.dto"
 import EmailCertificationResponseDto from "./email-certification.response.dto"
 import IdCheckResponseDto from "./id-check.response.dto"
 import SignInResponseDto from "./sign-in-response.dto"
@@ -9,5 +10,6 @@ export type{
     SignInResponseDto,
     IdCheckResponseDto,
     EmailCertificationResponseDto,
-    CheckCertificationResponseDto
+    CheckCertificationResponseDto,
+    DeleteUserResponseDto
 }

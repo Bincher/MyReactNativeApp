@@ -4,13 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../../context/Auth';
 import useLoginUserStore from '../../stores/login-user.store';
-import { checkCertificationForChangeRequest, emailCertificationForChangeRequest,fileUploadRequest, isPasswordRightRequest, patchEmailRequest, patchPasswordRequest, patchProfileImageRequest } from '../../apis';
+import { checkCertificationForChangeRequest, deleteUserRequqest, emailCertificationForChangeRequest,fileUploadRequest, isPasswordRightRequest, patchEmailRequest, patchPasswordRequest, patchProfileImageRequest } from '../../apis';
 import { ResponseBody, ResponseCode } from '../../types/enum';
 import { CheckCertificationForChangeResponseDto, EmailCertificationForChangeResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from '../../apis/response/user';
 import { ResponseDto } from '../../apis/response';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import { User } from '../../types/interface';
 import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeRequestDto } from '../../apis/request/user';
+import { DeleteUserResponseDto } from '../../apis/response/auth';
 
 type RootStackParamList = {
   MainScreen: undefined;
@@ -28,7 +29,7 @@ const ProfileScreen: React.FC = () =>  {
   const { logout, getAccessToken } = useAuth();
 
   /// userLogin 정보
-  const { loginUser, setLoginUser } = useLoginUserStore();
+  const { loginUser, setLoginUser, resetLoginUser } = useLoginUserStore();
 
   // state: 페이지 상태 //
   const [view, setView] = useState<'profile' | 'change' | 'password'>('profile');
@@ -56,6 +57,19 @@ const ProfileScreen: React.FC = () =>  {
     return uri.replace('localhost', '10.0.2.2'); // localhost를 10.0.2.2로 변환
   };
 
+  const deleteUserResponse = (responseBody : DeleteUserResponseDto | ResponseDto | null) =>{
+    if (!responseBody) return;
+    const { code } = responseBody;
+    if(code === 'NU') Alert.alert('회원 정보를 불려오지 못했습니다. 다시 시도해주세요');
+    if(code === 'SE') Alert.alert('게임 서버가 존재합니다. 모두 삭제 후 다시 시도해주세요');
+    if(code !== 'SU') return;
+
+    resetLoginUser();
+    logout();
+    Alert.alert('회원탈퇴가 완료되었습니다.');
+    navigation.navigate('MainScreen');
+  }
+
   // component: 유저 프로필 정보 컴포넌트(profile) //
   const ProfileInformation =()=>{
 
@@ -81,8 +95,29 @@ const ProfileScreen: React.FC = () =>  {
     // event handler: 회원탈퇴 버튼 클릭 이벤트 처리 - 미구현 //
     const withdrawalButtonClickHandler = async () => {
       try {
-        console.log("회원 탈퇴");
-        navigation.navigate('MainScreen');
+        Alert.alert(
+          '회원탈퇴',
+          '정말로 회원탈퇴를 하시겠습니까?\n만약 만들어진 게임 서버가 존재한다면 삭제가 불가능합니다.\n게임 서버를 먼저 삭제해주기 바랍니다.\n또한 회원탈퇴시 복구는 불가능합니다.',
+          [
+            {text: '취소', onPress: () => {}, style: 'cancel'},
+            {
+              text: '회원 탈퇴',
+              onPress: async () => {
+                const accessToken = await getAccessToken();
+                if (accessToken == null) {
+                  Alert.alert('오류', '유저 정보를 불려오지 못하였습니다.\n다시 시도해주세요.\n동일한 문제 발생시 재로그인을 하십시오.');
+                  return;
+                }
+                deleteUserRequqest(accessToken).then(deleteUserResponse);
+              },
+              style: 'destructive',
+            },
+          ],
+          {
+            cancelable: true,
+            onDismiss: () => {},
+          },
+        );
       } catch (error) {
         Alert.alert('에러', '예상치못한 에러가 발생하였습니다. 다시 시도해주세요');
       }
