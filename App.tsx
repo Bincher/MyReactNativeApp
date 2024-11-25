@@ -1,41 +1,41 @@
 // App.tsx
 import React, { useEffect, useState } from 'react';
-import Main from './src/screens/Main';
-import MyServer from './src/screens/myServer';
-import ServerDetails from './src/screens/serverDetails';
-import GameList from './src/screens/gameList';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Text, TouchableOpacity } from 'react-native';
-import ServerMaking from './src/screens/serverMaking';
-import ServerUpdating from './src/screens/serverUpdating';
-import Login from './src/screens/login';
-import CustomerService from './src/screens/customerService';
+import ServerUpdatingScreen from './src/screens/ServerUpdatingScreen';
 import useLoginUserStore from './src/stores/login-user.store';
 import { ResponseDto } from './src/apis/response';
 import { GetSignInUserResponseDto } from './src/apis/response/user';
 import User from './src/types/interface/user.interface';
 import { GetSignInUserRequest } from './src/apis';
-import MyProfile from './src/screens/myProfile';
 import { AuthProvider } from './src/context/Auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import ServerManaging from './src/screens/serverManaging';
-import MyNotification from './src/screens/myNotification';
 import useFirebaseCloudMessaging from './src/hook/useFirebaseCloudMessaging';
+import MainScreen from './src/screens/Main';
+import ServerScreen from './src/screens/ServerScreen';
+import ServerDetailsScreen from './src/screens/ServerDetailsScreen';
+import GameListScreen from './src/screens/GameListScreen';
+import ServerMakingScreen from './src/screens/ServerMakingScreen';
+import ServerManagingScreen from './src/screens/ServerManagingScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import CustomerServiceScreen from './src/screens/CustomerServiceScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import SettingScreen from './src/screens/SettingScreen';
 
 type RootStackParamList = {
-    Main: undefined;
-    MyServer: undefined;
-    ServerDetails: undefined;
-    GameList: undefined;
-    ServerMaking: undefined;
-    ServerUpdating: undefined;
-    ServerManaging: undefined;
-    Login: undefined;
-    CustomerService: undefined;
-    MyProfile: undefined;
-    MyNotification: undefined;
+    MainScreen: undefined;
+    ServerScreen: undefined;
+    ServerDetailsScreen: undefined;
+    GameListScreen: undefined;
+    ServerMakingScreen: undefined;
+    ServerUpdatingScreen: undefined;
+    ServerManagingScreen: undefined;
+    LoginScreen: undefined;
+    CustomerServiceScreen: undefined;
+    ProfileScreen: undefined;
+    SettingScreen: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -86,13 +86,13 @@ const App: React.FC = () => {
     return (
         <AuthProvider> 
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="Main" >
-                    <Stack.Screen name="Main" component={Main} options={{ headerShown: false, title: 'Main' }} />
+                <Stack.Navigator initialRouteName="MainScreen" >
+                    <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false, title: 'MainScreen' }} />
                     <Stack.Screen 
-                        name="MyServer" 
-                        component={MyServer} 
+                        name="ServerScreen" 
+                        component={ServerScreen} 
                         options={({ navigation }) => ({
-                            title: 'My Server',
+                            title: 'ServerScreen',
                             headerLeft: () => (
                                 <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
                                     <Icon name="arrow-back" size={25} color="#fff" />
@@ -110,8 +110,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="ServerDetails" 
-                        component={ServerDetails} 
+                        name="ServerDetailsScreen" 
+                        component={ServerDetailsScreen} 
                         options={({ navigation }) => ({
                             title: 'ServerDetails',
                             headerLeft: () => (
@@ -131,8 +131,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="GameList"
-                        component={GameList} 
+                        name="GameListScreen"
+                        component={GameListScreen} 
                         options={({ navigation }) => ({
                             title: 'Game List',
                             headerLeft: () => (
@@ -152,8 +152,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="ServerMaking"
-                        component={ServerMaking} 
+                        name="ServerMakingScreen"
+                        component={ServerMakingScreen} 
                         options={({ navigation }) => ({
                             title: 'ServerMaking',
                             headerLeft: () => (
@@ -173,8 +173,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="ServerUpdating"
-                        component={ServerUpdating} 
+                        name="ServerUpdatingScreen"
+                        component={ServerUpdatingScreen} 
                         options={({ navigation }) => ({
                             title: 'ServerUpdating',
                             headerLeft: () => (
@@ -194,8 +194,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="ServerManaging"
-                        component={ServerManaging} 
+                        name="ServerManagingScreen"
+                        component={ServerManagingScreen} 
                         options={({ navigation }) => ({
                             title: 'ServerManaging',
                             headerLeft: () => (
@@ -214,10 +214,10 @@ const App: React.FC = () => {
                             },
                         })}
                     />
-                    <Stack.Screen name="Login" component={Login} options={{ headerShown: false, title: 'Login' }} />
+                    <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false, title: 'Login' }} />
                     <Stack.Screen 
-                        name="CustomerService"
-                        component={CustomerService} 
+                        name="CustomerServiceScreen"
+                        component={CustomerServiceScreen} 
                         options={({ navigation }) => ({
                             title: 'CustomerService',
                             headerLeft: () => (
@@ -237,8 +237,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="MyProfile"
-                        component={MyProfile} 
+                        name="ProfileScreen"
+                        component={ProfileScreen} 
                         options={({ navigation }) => ({
                             title: 'MyProfile',
                             headerLeft: () => (
@@ -258,10 +258,10 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="MyNotification"
-                        component={MyNotification} 
+                        name="SettingScreen"
+                        component={SettingScreen} 
                         options={({ navigation }) => ({
-                            title: 'MyNotification',
+                            title: '세팅',
                             headerLeft: () => (
                                 <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
                                     <Icon name="arrow-back" size={25} color="#fff" />

@@ -12,13 +12,13 @@ import { SendEmailResponseDto, SendNotificationResponseDto } from '../../apis/re
 import { SendEmailRequestDto, SendNotificationRequestDto } from '../../apis/request/support';
 
 type RootStackParamList = {
-    CustomerService: undefined;
-    Main: undefined;
+    CustomerServiceScreen: undefined;
+    MainScreen: undefined;
 };
 
-type CustomerServiceScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CustomerService'>;
+type CustomerServiceScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CustomerServiceScreen'>;
 
-const CustomerService: React.FC = () => {
+const CustomerServiceScreen: React.FC = () => {
 
     // navigation
     const navigation = useNavigation<CustomerServiceScreenNavigationProp>();
@@ -222,4 +222,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CustomerService;
+export default CustomerServiceScreen;

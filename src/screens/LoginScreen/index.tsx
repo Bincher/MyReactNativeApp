@@ -11,14 +11,14 @@ import { ResponseBody, ResponseCode } from '../../types/enum';
 import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
-    Login: undefined;
-    Main: undefined;
+    LoginScreen: undefined;
+    MainScreen: undefined;
     Signup: undefined;
 };
 
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'LoginScreen'>;
 
-const Login: React.FC = () => {
+const LoginScreen: React.FC = () => {
 
     // 네비게이션
     const navigation = useNavigation<LoginScreenNavigationProp>();
@@ -55,7 +55,7 @@ const Login: React.FC = () => {
 
     // event handler: 뒤로가기 버튼 클릭 이벤트 처리 //
     const backButtonClickEventHandler = () => {
-        navigation.navigate('Main');
+        navigation.navigate('MainScreen');
     };
 
     // component : SignInCard 컴포넌트 //
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
             try {
                 await login(token);
             
-                navigation.replace('Main'); 
+                navigation.replace('MainScreen'); 
             } catch (e) {
                 Alert.alert('로그인 과정에서 문제가 발생하였습니다. 다시 로그인하여 주십시오');
             }
@@ -701,4 +701,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default Login;
+export default LoginScreen;

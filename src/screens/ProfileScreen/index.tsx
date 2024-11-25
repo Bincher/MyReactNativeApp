@@ -13,13 +13,13 @@ import { User } from '../../types/interface';
 import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeRequestDto } from '../../apis/request/user';
 
 type RootStackParamList = {
-  Main: undefined;
-  MyProfile: undefined;
+  MainScreen: undefined;
+  ProfileScreen: undefined;
 };
 
-type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyProfile'>;
+type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
-const MyProfile: React.FC = () =>  {
+const ProfileScreen: React.FC = () =>  {
 
   /// 네비게이션
   const navigation = useNavigation<ProfileScreenNavigationProp>();
@@ -63,7 +63,7 @@ const MyProfile: React.FC = () =>  {
     const logoutButtonClickHandler = async () => {
       try {
         await logout();
-        navigation.navigate('Main');
+        navigation.navigate('MainScreen');
       } catch (error) {
         Alert.alert('로그아웃 실패', '로그아웃 중 오류가 발생했습니다.');
       }
@@ -82,7 +82,7 @@ const MyProfile: React.FC = () =>  {
     const withdrawalButtonClickHandler = async () => {
       try {
         console.log("회원 탈퇴");
-        navigation.navigate('Main');
+        navigation.navigate('MainScreen');
       } catch (error) {
         Alert.alert('에러', '예상치못한 에러가 발생하였습니다. 다시 시도해주세요');
       }
@@ -648,4 +648,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyProfile;
+export default ProfileScreen;

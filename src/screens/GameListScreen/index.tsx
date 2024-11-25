@@ -14,13 +14,13 @@ import GetGameListResponseDto from '../../apis/response/game/get-game-list.respo
 import { Picker } from '@react-native-picker/picker';
 
 type RootStackParamList = {
-    GameList: undefined;
-    ServerMaking: {game: Game};
+    GameListScreen: undefined;
+    ServerMakingScreen: {game: Game};
 };
 
-type GameListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'GameList'>;
+type GameListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'GameListScreen'>;
 
-const GameList: React.FC = () => {
+const GameListScreen: React.FC = () => {
 
     // state: 검색 쿼리 상태 //
     const [searchQuery, setSearchQuery] = useState('');
@@ -101,7 +101,7 @@ const GameList: React.FC = () => {
 
     // event handler: 게임 리스트 클릭 이벤트 처리 //
     const gameListCardButtonClickEventHandler = (game: Game) => {
-        navigation.navigate('ServerMaking', {game});
+        navigation.navigate('ServerMakingScreen', {game});
     };
 
     // event handler: 게임 리스트 카드 출력 이벤트 처리 //
@@ -386,4 +386,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default GameList;
+export default GameListScreen;

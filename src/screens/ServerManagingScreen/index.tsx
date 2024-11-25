@@ -12,18 +12,18 @@ import { SendNotificationResponseDto } from "../../apis/response/support";
 import { ResponseDto } from "../../apis/response";
 
 type RootStackParamList = {
-    ServerManaging: { server: AdminServerListItem };
+    ServerManagingScreen: { server: AdminServerListItem };
 };
 
-type ServerManagingRouteProp = RouteProp<RootStackParamList, 'ServerManaging'>;
+type ServerManagingScreenRouteProp = RouteProp<RootStackParamList, 'ServerManagingScreen'>;
 
-const ServerManaging: React.FC = () => {
+const ServerManagingScreen: React.FC = () => {
 
     /// 네비게이션 등록
     const navigation = useNavigation();
 
     /// 루트
-    const route = useRoute<ServerManagingRouteProp>();
+    const route = useRoute<ServerManagingScreenRouteProp>();
 
     /// params
     const { server } = route.params;
@@ -272,4 +272,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ServerManaging;
+export default ServerManagingScreen;

@@ -9,20 +9,20 @@ import { deleteGameServerRequest } from '../../apis';
 import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
-    ServerDetails: { server: ServerListItem };
-    ServerUpdating: { server: ServerListItem };
+    ServerDetailsScreen: { server: ServerListItem };
+    ServerUpdatingScreen: { server: ServerListItem };
 };
 
-type ServerDetailsRouteProp = RouteProp<RootStackParamList, 'ServerDetails'>;
-type ServerDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'ServerDetails'>;
+type ServerDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ServerDetailsScreen'>;
+type ServerDetailsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ServerDetailsScreen'>;
 
-const ServerDetails: React.FC = () => {
+const ServerDetailsScreen: React.FC = () => {
 
     /// 라우트
-    const route = useRoute<ServerDetailsRouteProp>();
+    const route = useRoute<ServerDetailsScreenRouteProp>();
 
     /// 네비게이션
-    const navigation = useNavigation<ServerDetailsNavigationProp>();
+    const navigation = useNavigation<ServerDetailsScreenNavigationProp>();
 
     /// 파라미터
     const { server } = route.params;
@@ -59,7 +59,7 @@ const ServerDetails: React.FC = () => {
 
     // event handler: 수정 버튼 클릭 이벤트 //
     const editButtonClickEventHandler = () => {
-        navigation.navigate('ServerUpdating', { server });
+        navigation.navigate('ServerUpdatingScreen', { server });
     };
 
     // event handler : 삭제 버튼 클릭 이벤트 //
@@ -251,4 +251,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ServerDetails;
+export default ServerDetailsScreen;

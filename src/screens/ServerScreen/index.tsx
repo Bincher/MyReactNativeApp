@@ -13,14 +13,14 @@ import { AdminServerListItem } from '../../types/interface';
 import { useAuth } from '../../context/Auth';
 
 type RootStackParamList = {
-    MyServer: undefined;
-    ServerDetails: { server: ServerListItem };
-    ServerManaging: { server: AdminServerListItem };
+    ServerScreen: undefined;
+    ServerDetailsScreen: { server: ServerListItem };
+    ServerManagingScreen: { server: AdminServerListItem };
 };
 
-type MyServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MyServer'>;
+type MyServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ServerScreen'>;
 
-const MyServer: React.FC = () => {
+const ServerScreen: React.FC = () => {
 
     /// 네비게이션
     const navigation = useNavigation<MyServerScreenNavigationProp>();
@@ -82,7 +82,7 @@ const MyServer: React.FC = () => {
 
         // event handler: 리스트 카드 클릭 이벤트 처리 //
         const serverListCardClickEventHandler = (server: ServerListItem) => {
-            navigation.navigate('ServerDetails', { server });
+            navigation.navigate('ServerDetailsScreen', { server });
             
         };
 
@@ -170,7 +170,7 @@ const MyServer: React.FC = () => {
 
         // event handler: 리스트 카드 클릭 이벤트 처리 //
         const serverListCardClickEventHandler = (server: AdminServerListItem) => {
-            navigation.navigate('ServerManaging', { server });
+            navigation.navigate('ServerManagingScreen', { server });
         };
 
         // event handler: 검색 버튼 클릭 이벤트 처리 //
@@ -305,4 +305,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MyServer;
+export default ServerScreen;

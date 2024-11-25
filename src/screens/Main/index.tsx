@@ -12,24 +12,24 @@ import { PatchFcmTokenResponseDto } from '../../apis/response/support';
 import { ResponseDto } from '../../apis/response';
 
 type RootStackParamList = {
-    Main: undefined;
-    MyServer: undefined;
-    MyProfile: undefined;
-    GameList: undefined;
-    Login: undefined;
-    CustomerService: undefined;
-    MyNotification: undefined;
+    MainScreen: undefined;
+    ServerScreen: undefined;
+    ProfileScreen: undefined;
+    GameListScreen: undefined;
+    LoginScreen: undefined;
+    CustomerServiceScreen: undefined;
+    SettingScreen: undefined;
 };
 
-type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
-type MainScreenRouteProp = RouteProp<RootStackParamList, 'Main'>;
+type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainScreen'>;
+type MainScreenRouteProp = RouteProp<RootStackParamList, 'MainScreen'>;
 
 type Props = {
     navigation: MainScreenNavigationProp;
     route: MainScreenRouteProp;
 };
 
-const Main: React.FC<Props> = ({ navigation }) => {
+const MainScreen: React.FC<Props> = ({ navigation }) => {
 
     /// 로그인 여부 
     const {getAccessToken, isLoggedIn} = useAuth();
@@ -51,26 +51,25 @@ const Main: React.FC<Props> = ({ navigation }) => {
 
     // event handler: 마이페이지(마이 프로필) 클릭 이벤트 처리 //
     const myPageButtonClickEventHandler = async () => {
-        if(!isLoggedIn) navigation.navigate('Login');
+        if(!isLoggedIn) navigation.navigate('LoginScreen');
         else {
             console.log(isLoggedIn);
-            navigation.navigate('MyProfile');
+            navigation.navigate('ProfileScreen');
         }
     };
 
     // event handler: 메인 화면 버튼 클릭 이벤트 처리 //
     const mainContentButtonClickEventHandler = (buttonName: string) => {
-        if(!isLoggedIn) navigation.navigate('Login');
+        if(!isLoggedIn) navigation.navigate('LoginScreen');
         else{
-            if (buttonName === 'MyServer') {
-                navigation.navigate('MyServer');
-            } else if(buttonName === 'MakingServer'){
-                if(!isLoggedIn) navigation.navigate('Login');
-                else navigation.navigate('GameList');
-            } else if(buttonName === 'CustomerService'){
-                navigation.navigate('CustomerService');
-            } else if(buttonName === 'MyNotification'){
-                navigation.navigate('MyNotification');
+            if (buttonName === 'ServerScreen') {
+                navigation.navigate('ServerScreen');
+            } else if(buttonName === 'ServerMakingScreen'){
+                navigation.navigate('GameListScreen');
+            } else if(buttonName === 'CustomerServiceScreen'){
+                navigation.navigate('CustomerServiceScreen');
+            } else if(buttonName === 'SettingScreen'){
+                navigation.navigate('SettingScreen');
             }
         }
     };
@@ -118,19 +117,19 @@ const Main: React.FC<Props> = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
             <View style={styles.content}>
-                <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('MyServer')} style={styles.contentButton}>
+                <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('ServerScreen')} style={styles.contentButton}>
                     <Image source={require('../../assets/images/game_server.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>나의 서버</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('MakingServer')} style={styles.contentButton}>
+                <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('ServerMakingScreen')} style={styles.contentButton}>
                     <Image source={require('../../assets/images/game.png')} style={styles.image} />
                     <Text style={styles.contentButtonText}>서버 생성</Text>
                 </TouchableOpacity>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('MyNotification')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('SettingScreen')} style={styles.rowButton}>
                         <Icon name="settings" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('CustomerService')} style={styles.rowButton}>
+                    <TouchableOpacity onPress={() => mainContentButtonClickEventHandler('CustomerServiceScreen')} style={styles.rowButton}>
                         <Icon name="headset-mic" style={styles.buttonIcon} size={70} />
                     </TouchableOpacity>
                 </View>
@@ -208,4 +207,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Main;
+export default MainScreen;

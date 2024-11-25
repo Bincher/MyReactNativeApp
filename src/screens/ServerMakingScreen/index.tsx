@@ -1,64 +1,68 @@
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import ServerListItem from "../../types/interface/server-list-item.interface";
-import { ScrollView } from "react-native-gesture-handler";
-import { Alert, Modal, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import { useAuth } from "../../context/Auth";
-import { useState } from "react";
-import { Picker } from "@react-native-picker/picker";
-import { ResponseDto } from "../../apis/response";
-import { StyleSheet } from "react-native";
-import { PatchGameServerResponseDto } from "../../apis/response/game";
-import { PatchGameServerRequestDto } from "../../apis/request/game";
-import { patchServerRequest } from "../../apis";
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Alert, Switch, Modal, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Game } from '../../types/game';
+import PostGameServerRequestDto from '../../apis/request/game/post-game-server.request.dto';
+import { postGameServerRequest } from '../../apis';
+import PostGameServerResponseDto from '../../apis/response/game/post-game-server.response.dto';
+import { ResponseDto } from '../../apis/response';
+import { useAuth } from '../../context/Auth';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 type RootStackParamList = {
-    ServerUpdating: { server: ServerListItem };
+    ServerMakingScreen: { game: Game };
 };
 
-type ServerUpdatingRouteProp = RouteProp<RootStackParamList, 'ServerUpdating'>;
+type ServerMakingScreenRouteProp = RouteProp<RootStackParamList, 'ServerMakingScreen'>;
 
-const ServerUpdating: React.FC = () => {
+const ServerMakingScreen: React.FC = () => {
+
     /// 네비게이션 등록
     const navigation = useNavigation();
 
     /// 루트
-    const route = useRoute<ServerUpdatingRouteProp>();
+    const route = useRoute<ServerMakingScreenRouteProp>();
 
     /// params
-    const { server } = route.params;
+    const { game } = route.params;
 
     /// AccessToken 접근
     const { getAccessToken } = useAuth();
 
     // state: 서버 이름 상태 //
-    const [serverName, setServerName] = useState(server.name);
+    const [serverName, setServerName] = useState('');
 
     // state: 서버 설명 상태 //
-    const [serverContent, setServerContent] = useState(server.content);
+    const [serverContent, setServerContent] = useState('');
 
     // state: 서버 위치 상태 //
-    const [serverLocation, setServerLocation] = useState(server.location);
+    const [serverLocation, setServerLocation] = useState('서울');
 
     // state: 서버 성능 상태 //
-    const [serverPerformance, setServerPerformance] = useState<'BASIC' | 'STANDARD' | 'PLUS' | 'PRO'>(server.performance as 'BASIC' | 'STANDARD' | 'PLUS' | 'PRO');
+    const [serverPerformance, setServerPerformance] = useState<'BASIC' | 'STANDARD' | 'PLUS' | 'PRO'>('BASIC');
 
-    // state: 서버 디스크 성능 상태 //
-    const [serverDisk, setServerDisk] = useState<'BASIC' | 'STANDARD' | 'PRO'>(server.disk as 'BASIC' | 'STANDARD' | 'PRO');
+    // state: 서버 저장소 상태 //
+    const [serverDisk, setServerDisk] = useState<'BASIC' | 'STANDARD' | 'PRO'>('BASIC');
 
     // state: 서버 백업 여부 상태 //
-    const [serverBackup, setServerBackup] = useState(server.backup);
+    const [serverBackup, setServerBackup] = useState(false);
 
     // state: 서버 모드 개수 상태 //
-    const [serverModeCount, setServerModeCount] = useState<number>(server.modeCount);
+    const [serverModeCount, setServerModeCount] = useState<number>(0);
+
+    // state: 서버 요청 사항 input box 데이터 상태 //
+    const [inputValue, setInputValue] = useState('');
 
     // state: 서버 요청 사항 상태 //
-    const [serverRequestDetails, setServerRequestDetails] = useState(server.requestDetails);
+    const [serverRequestDetails, setServerRequestDetails] = useState('');
 
-    // state: 서버 이름 에러 상태 //
+    // state: 서버 생성 에러 상태 //
     const [serverNameError, setServerNameError] = useState('');
 
-    // state: 서버 모드 개수 에러 상태 //
+    // state: 서버 모드 개수 입력 에러 상태 //
     const [serverModeCountError, setServerModeCountError] = useState('');
 
     // state: 자세한 정보 모달 상태 //
@@ -67,7 +71,7 @@ const ServerUpdating: React.FC = () => {
     // state: 자세한 정보 내용 상태 //
     const [infoContent, setInfoContent] = useState('');
 
-    // function: calcuateEstimatedCost 함수
+    // function: calcuateEstimatedCost 함수 //
     const calculateEstimatedCost = (
         gameGrade: string,
         serverPerformance: 'BASIC' | 'STANDARD' | 'PLUS' | 'PRO',
@@ -110,11 +114,9 @@ const ServerUpdating: React.FC = () => {
             baseCost += 20000;
         }
 
-        // 모드 개수에 따른 추가 비용 (모드 하나당 5000원 추가, 최대 10개까지)
         const additionalModeCost = Math.min(modeCount, 10) * 5000;
         baseCost += additionalModeCost;
 
-        // 최종 비용을 원화 형식으로 변환
         return `${baseCost.toLocaleString()}원`;
     };
 
@@ -125,15 +127,15 @@ const ServerUpdating: React.FC = () => {
     };
 
     // function: post game server response 처리 함수 //
-    const patchGameServerResponse = (responseBody: PatchGameServerResponseDto | ResponseDto | null) => {
-        if (!responseBody) return;
-        const { code } = responseBody;
-        if (code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
-        if (code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
-        if (code === 'NP') Alert.alert('인증 과정에서 문제가 발생하였습니다.');
-        if (code !== 'SU') return;
+    const postGameServerResponse =(responseBody : PostGameServerResponseDto | ResponseDto | null) => {
+        if(!responseBody) return;
+        const {code} = responseBody;
+        if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if(code === 'VF') Alert.alert('제목과 내용은 필수입니다.');
+        if(code === 'NP') Alert.alert('인증 과정에서 문제가 발생하였습니다.');
+        if(code !== 'SU') return;
 
-        Alert.alert('성공', '서버가 성공적으로 업데이트되었습니다.');
+        Alert.alert('성공', '서버가 성공적으로 저장되었습니다.');
         navigation.goBack();
     }
 
@@ -144,17 +146,19 @@ const ServerUpdating: React.FC = () => {
 
     // event handler: mode count input box 데이터 입력 이벤트 처리 //
     const inputChangeEventHandler = (text: string) => {
+        setInputValue(text);
         const parsedNumber = parseInt(text, 10);
-        if (!isNaN(parsedNumber) && parsedNumber >= 0) {
+        if (!isNaN(parsedNumber) && parsedNumber > 0) {
             setServerModeCount(parsedNumber);
             setServerModeCountError('');
         } else {
-            setServerModeCountError('유효한 숫자를 입력해주세요');
+            setServerModeCount(0);
+            setServerModeCountError('숫자만 입력 가능합니다');
         }
     };
 
     // event handler: 생성 버튼 클릭 이벤트 처리 //
-    const updateServerButtonClickEventHandler = async () => {
+    const createServerButtonClickEventHandler = async () => {
         let hasError = false;
     
         if (!serverName) {
@@ -163,8 +167,8 @@ const ServerUpdating: React.FC = () => {
         } else {
             setServerNameError('');
         }
-    
-        if (serverModeCount === 0) {
+
+        if (serverModeCount === null) {
             setServerModeCountError('모드 개수는 필수로 작성하셔야 합니다.');
             hasError = true;
         } else {
@@ -174,36 +178,36 @@ const ServerUpdating: React.FC = () => {
         if (hasError) return;
     
         try {
-            
-            const requestBody: PatchGameServerRequestDto = {
+            const gameTitle = game.title;
+            const requestBody: PostGameServerRequestDto = {
                 name: serverName,
                 content: serverContent,
                 location: serverLocation,
                 performance: serverPerformance,
                 disk: serverDisk,
                 backup: serverBackup,
-                billingAmount: calculateEstimatedCost(server.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount),
+                billingAmount: calculateEstimatedCost(game.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount),
                 requestDetails: serverRequestDetails,
-                modeCount: serverModeCount,
-                gameTitle: server.gameTitle
+                modeCount: serverModeCount!,
+                gameTitle
             };
-
+        
             const accessToken = await getAccessToken();
             if (accessToken) {
-                patchServerRequest(server.id, requestBody, accessToken).then(patchGameServerResponse);
+                postGameServerRequest(requestBody, accessToken).then(postGameServerResponse);
             } else {
-                Alert.alert('에러', '유저 인증 과정에서 문제가 발생하였습니다.');
+                Alert.alert('에러', '유저 인증 과정에 문제가 발생하였습니다.');
             }
         } catch (error) {
-            Alert.alert('에러', '서버 업데이트 과정에서 에러가 발생하였습니다.');
+            Alert.alert('에러', '게임 저장에 실패하였습니다.');
         }
     };
-    
-    // render: ServerUpdating 스크린 렌더링 //
+
+    // render: ServerMaking 스크린 렌더링 //
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.container}>
-                <Text style={styles.title}>게임: {server.gameTitle}</Text>      
+                <Text style={styles.title}>게임: {game.title}</Text>      
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>서버 이름</Text>
                     <View style={styles.inputWrapper}>
@@ -310,13 +314,13 @@ const ServerUpdating: React.FC = () => {
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>게임 모드 개수</Text>
                     <View style={styles.inputWrapper}>
-                    <TextInput
+                        <TextInput
                         style={styles.input}
-                        value={serverModeCount.toString()}
+                        value={inputValue}
                         onChangeText={inputChangeEventHandler}
                         placeholder="모드 개수를 입력하세요"
                         keyboardType="numeric"
-                    />
+                        />
                         <TouchableOpacity style={styles.infoButton} onPress={() => showInfo('게임 모드의 개수를 입력해주세요. \n\n요금 결정과 관련된 문제이므로 신중히 작성하여주십시오.\n\n작성을 완료하면 요청 사항에 모드 명을 모두 기입해주시기 바랍니다.\n\n모드에 대한 혼동을 방지하기 위해 모드의 제작자나 링크를 첨부하시면 감사하겠습니다.\n\n일부 게임이나 모드는 지원이 안될 수 있습니다.')}>
                             <Icon name="help-outline" size={24} color="#6200ea" />
                         </TouchableOpacity>
@@ -340,15 +344,15 @@ const ServerUpdating: React.FC = () => {
                     </View>
                 </View>
 
-                <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost(server.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount)}</Text>
+                <Text style={styles.estimatedCost}>예상 청구 금액: 월 {calculateEstimatedCost(game.amountLevel, serverPerformance, serverDisk, serverBackup, serverModeCount)}</Text>
         
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button} onPress={updateServerButtonClickEventHandler}>
-                        <Text style={styles.buttonText}>서버 수정</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={cancelButtonClickEventHandler}>
-                        <Text style={styles.buttonText}>취소</Text>
-                    </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={createServerButtonClickEventHandler}>
+                    <Text style={styles.buttonText}>서버 생성</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={cancelButtonClickEventHandler}>
+                    <Text style={styles.buttonText}>취소</Text>
+                </TouchableOpacity>
                 </View>
             </View>
     
@@ -369,7 +373,7 @@ const ServerUpdating: React.FC = () => {
             </Modal>
         </ScrollView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     scrollViewContent: {
@@ -508,4 +512,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ServerUpdating;
+export default ServerMakingScreen;
