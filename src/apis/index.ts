@@ -87,7 +87,6 @@ export const checkCertificationRequest = async (requestBody: CheckCertificationR
 }
 
 export const signInRequest = async (requestBody: SignInRequestDto)=>{
-    console.log(requestBody);
     const result = await axios.post(SIGN_IN_URL(), requestBody)
         .then(responseHandler<SignInResponseDto>)
         .catch(errorHandler);

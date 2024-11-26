@@ -40,12 +40,10 @@ const MainScreen: React.FC<Props> = ({ navigation }) => {
         const {code} = responseBody;
         if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
         if(code !== 'SU') return;
-        console.log(responseBody);
     }
 
     // event handler: 메뉴 버튼 클릭 이벤트 //
     const menuButtonClickEventHandler = () => {
-        // 미구현
         console.log('Menu button pressed');
     };
 
@@ -53,7 +51,6 @@ const MainScreen: React.FC<Props> = ({ navigation }) => {
     const myPageButtonClickEventHandler = async () => {
         if(!isLoggedIn) navigation.navigate('LoginScreen');
         else {
-            console.log(isLoggedIn);
             navigation.navigate('ProfileScreen');
         }
     };
