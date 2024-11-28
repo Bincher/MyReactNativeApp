@@ -18,12 +18,12 @@ type RootStackParamList = {
     ServerManagingScreen: { server: AdminServerListItem };
 };
 
-type MyServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ServerScreen'>;
+type ServerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ServerScreen'>;
 
 const ServerScreen: React.FC = () => {
 
     /// 네비게이션
-    const navigation = useNavigation<MyServerScreenNavigationProp>();
+    const navigation = useNavigation<ServerScreenNavigationProp>();
 
     /// 로그인 정보 저장소 접근
     const { loginUser } = useLoginUserStore();
