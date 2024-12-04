@@ -8,17 +8,16 @@ import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerR
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
 import PostGameServerRequestDto from "./request/game/post-game-server.request.dto";
 import PostGameServerResponseDto from "./response/game/post-game-server.response.dto";
-import GetUserServerListResponseDto from "./response/game/get-user-server-list.response.dto";
 import PatchGameServerRequestDto from "./request/game/patch-game-server.request.dto";
 import PatchServerRequestDto from "./request/game/patch-server.request.dto";
 import PatchServerResponseDto from "./response/game/patch-server.response.dto";
 import { PatchFcmTokenRequestDto, SendEmailRequestDto, SendNotificationRequestDto } from "./request/support";
 import { PatchFcmTokenResponseDto, SendEmailResponseDto, SendNotificationResponseDto } from "./response/support";
 import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeRequestDto, IsPasswordRightRequestDto, PatchEmailRequestDto, PatchPasswordRequestDto, PatchProfileImageRequestDto } from "./request/user";
+import { ServerAddress } from "../types/enum/server-address.enum";
 
 
-const DOMAIN = 'http://10.0.2.2:4000';
-// http://localhost:4000
+const DOMAIN = ServerAddress.CLOUD_SERVER_ADDRESS;
 
 const API_DOMAIN = `${DOMAIN}/api/v1`;
 

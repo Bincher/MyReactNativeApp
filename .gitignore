@@ -75,3 +75,4 @@ yarn-error.log
 
 # Firebase configuration file
 android/app/google-services.json
+src/types/enum/server-address.enum.ts
