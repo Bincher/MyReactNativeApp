@@ -23,6 +23,11 @@ import LoginScreen from './src/screens/LoginScreen';
 import CustomerServiceScreen from './src/screens/CustomerServiceScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import SettingScreen from './src/screens/SettingScreen';
+import PaymentTest from './src/screens/PaymentTest';
+
+import { NativeBaseProvider } from 'native-base';
+import Payment from './src/screens/Payment';
+import PaymentResult from './src/screens/PaymentResult.js';
 
 type RootStackParamList = {
     MainScreen: undefined;
@@ -36,6 +41,9 @@ type RootStackParamList = {
     CustomerServiceScreen: undefined;
     ProfileScreen: undefined;
     SettingScreen: undefined;
+    PaymentTest: undefined;
+    Payment: undefined;
+    PaymentResult: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -84,6 +92,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
+        <NativeBaseProvider>
         <AuthProvider> 
             <NavigationContainer>
                 <Stack.Navigator initialRouteName="MainScreen" >
@@ -278,9 +287,73 @@ const App: React.FC = () => {
                             },
                         })}
                     />
+                    <Stack.Screen 
+                        name="PaymentTest"
+                        component={PaymentTest} 
+                        options={({ navigation }) => ({
+                            title: 'PaymentTest',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                    <Icon name="arrow-back" size={25} color="#fff" />
+                                </TouchableOpacity>
+                            ),
+                            headerTitle: () => (
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>PaymentTest</Text>
+                            ),
+                            headerStyle: {
+                                backgroundColor: '#6200ea',
+                            },
+                            headerTitleStyle: {
+                                color: '#ffffff',
+                            },
+                        })}
+                    />
+                    <Stack.Screen 
+                        name="Payment"
+                        component={Payment} 
+                        options={({ navigation }) => ({
+                            title: 'PaymentTest',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                    <Icon name="arrow-back" size={25} color="#fff" />
+                                </TouchableOpacity>
+                            ),
+                            headerTitle: () => (
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>Payment</Text>
+                            ),
+                            headerStyle: {
+                                backgroundColor: '#6200ea',
+                            },
+                            headerTitleStyle: {
+                                color: '#ffffff',
+                            },
+                        })}
+                    />
+                    <Stack.Screen 
+                        name="PaymentResult"
+                        component={PaymentResult} 
+                        options={({ navigation }) => ({
+                            title: 'PaymentResult',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
+                                    <Icon name="arrow-back" size={25} color="#fff" />
+                                </TouchableOpacity>
+                            ),
+                            headerTitle: () => (
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>PaymentResult</Text>
+                            ),
+                            headerStyle: {
+                                backgroundColor: '#6200ea',
+                            },
+                            headerTitleStyle: {
+                                color: '#ffffff',
+                            },
+                        })}
+                    />
                 </Stack.Navigator>
             </NavigationContainer>
         </AuthProvider>
+        </NativeBaseProvider>
     );
 };
 
