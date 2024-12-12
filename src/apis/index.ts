@@ -17,7 +17,7 @@ import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeReque
 import { ServerAddress } from "../types/enum/server-address.enum";
 
 
-const DOMAIN = ServerAddress.LOCAL_MOBILE_SERVER_ADDRESS;
+const DOMAIN = ServerAddress.CLOUD_SERVER_ADDRESS;
 // CLOUD_SERVER_ADDRESS
 
 const API_DOMAIN = `${DOMAIN}/api/v1`;

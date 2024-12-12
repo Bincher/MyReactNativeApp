@@ -19,7 +19,6 @@ type RootStackParamList = {
     LoginScreen: undefined;
     CustomerServiceScreen: undefined;
     SettingScreen: undefined;
-    PaymentTest: undefined;
 };
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainScreen'>;
@@ -67,7 +66,7 @@ const MainScreen: React.FC<Props> = ({ navigation }) => {
             } else if(buttonName === 'CustomerServiceScreen'){
                 navigation.navigate('CustomerServiceScreen');
             } else if(buttonName === 'SettingScreen'){
-                navigation.navigate('PaymentTest');
+                navigation.navigate('SettingScreen');
             }
         }
     };

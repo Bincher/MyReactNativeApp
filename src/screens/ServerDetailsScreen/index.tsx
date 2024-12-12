@@ -7,10 +7,12 @@ import { DeleteGameServerResponseDto } from '../../apis/response/game';
 import { ResponseDto } from '../../apis/response';
 import { deleteGameServerRequest } from '../../apis';
 import { useAuth } from '../../context/Auth';
+import { PaymentData } from '../../types/interface';
 
 type RootStackParamList = {
-    ServerDetailsScreen: { server: ServerListItem };
+    ServerDetailsScreen: { server: ServerListItem,  response: any };
     ServerUpdatingScreen: { server: ServerListItem };
+    PaymentScreen: { paymentData: PaymentData};
 };
 
 type ServerDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ServerDetailsScreen'>;
@@ -29,6 +31,8 @@ const ServerDetailsScreen: React.FC = () => {
 
     /// 토큰 가져오기
     const { getAccessToken } = useAuth();
+
+    const { response } = route.params;
 
     // function: delete Server 함수 //
     const deleteServer = async () => {
@@ -81,6 +85,27 @@ const ServerDetailsScreen: React.FC = () => {
         );
     };
 
+    // event handler: 결제 버튼 클릭 이벤트 처리 //
+    const paymentButtonClickEventHandler = () => {
+
+        const itemName = server.name;
+        const finalBilling = server.billingAmount;
+        if(finalBilling === "논의 후 결정"){
+            Alert.alert("금액 논의가 완료된 후에 결제해주시기 바랍니다.","자세한 사항은 이메일을 통해 전달해드리겠습니다.");
+            return;
+        }
+
+        let numericString: string = finalBilling.replace(/[^\d]/g, '');
+        let priceNumber: number = parseInt(numericString, 10);
+
+        const paymentData : PaymentData = {
+            name: itemName,
+            amount: priceNumber,
+        }
+        
+        navigation.navigate('PaymentScreen', { paymentData });
+    };
+
     // render: server Details 스크린 렌더링 //
     return (
         <ScrollView style={styles.container}>
@@ -123,6 +148,9 @@ const ServerDetailsScreen: React.FC = () => {
             </View>
 
             <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.editButton} onPress={paymentButtonClickEventHandler}>
+                    <Text style={styles.buttonText}>결제</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.editButton} onPress={editButtonClickEventHandler}>
                     <Text style={styles.buttonText}>수정</Text>
                 </TouchableOpacity>

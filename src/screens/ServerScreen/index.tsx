@@ -99,6 +99,7 @@ const ServerScreen: React.FC = () => {
                 setFilteredServers(filtered);
             }
         };
+        
 
         // effect : 첫 마운트 시 실행될 함수 - 서버 리스트 불려오기 //
         useEffect(() => {

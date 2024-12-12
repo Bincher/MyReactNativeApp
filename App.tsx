@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Text, TouchableOpacity } from 'react-native';
@@ -23,11 +23,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import CustomerServiceScreen from './src/screens/CustomerServiceScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import SettingScreen from './src/screens/SettingScreen';
-import PaymentTest from './src/screens/PaymentTest';
-
-import { NativeBaseProvider } from 'native-base';
-import Payment from './src/screens/Payment';
-import PaymentResult from './src/screens/PaymentResult.js';
+import PaymentScreen from './src/screens/PaymentScreen';
 
 type RootStackParamList = {
     MainScreen: undefined;
@@ -41,9 +37,7 @@ type RootStackParamList = {
     CustomerServiceScreen: undefined;
     ProfileScreen: undefined;
     SettingScreen: undefined;
-    PaymentTest: undefined;
-    Payment: undefined;
-    PaymentResult: undefined;
+    PaymentScreen: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -92,7 +86,6 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <NativeBaseProvider>
         <AuthProvider> 
             <NavigationContainer>
                 <Stack.Navigator initialRouteName="MainScreen" >
@@ -288,8 +281,8 @@ const App: React.FC = () => {
                         })}
                     />
                     <Stack.Screen 
-                        name="PaymentTest"
-                        component={PaymentTest} 
+                        name="PaymentScreen"
+                        component={PaymentScreen} 
                         options={({ navigation }) => ({
                             title: 'PaymentTest',
                             headerLeft: () => (
@@ -298,49 +291,7 @@ const App: React.FC = () => {
                                 </TouchableOpacity>
                             ),
                             headerTitle: () => (
-                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>PaymentTest</Text>
-                            ),
-                            headerStyle: {
-                                backgroundColor: '#6200ea',
-                            },
-                            headerTitleStyle: {
-                                color: '#ffffff',
-                            },
-                        })}
-                    />
-                    <Stack.Screen 
-                        name="Payment"
-                        component={Payment} 
-                        options={({ navigation }) => ({
-                            title: 'PaymentTest',
-                            headerLeft: () => (
-                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
-                                    <Icon name="arrow-back" size={25} color="#fff" />
-                                </TouchableOpacity>
-                            ),
-                            headerTitle: () => (
-                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>Payment</Text>
-                            ),
-                            headerStyle: {
-                                backgroundColor: '#6200ea',
-                            },
-                            headerTitleStyle: {
-                                color: '#ffffff',
-                            },
-                        })}
-                    />
-                    <Stack.Screen 
-                        name="PaymentResult"
-                        component={PaymentResult} 
-                        options={({ navigation }) => ({
-                            title: 'PaymentResult',
-                            headerLeft: () => (
-                                <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingLeft: 10 }}>
-                                    <Icon name="arrow-back" size={25} color="#fff" />
-                                </TouchableOpacity>
-                            ),
-                            headerTitle: () => (
-                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>PaymentResult</Text>
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color:"#fff"}}>PaymentScreen</Text>
                             ),
                             headerStyle: {
                                 backgroundColor: '#6200ea',
@@ -353,7 +304,6 @@ const App: React.FC = () => {
                 </Stack.Navigator>
             </NavigationContainer>
         </AuthProvider>
-        </NativeBaseProvider>
     );
 };
 
