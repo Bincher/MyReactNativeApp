@@ -5,6 +5,10 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { PaymentData } from '../../types/interface';
 import { Alert } from 'react-native';
+import { PatchServerPaymentStatus, PostPaymentRequest } from '../../apis';
+import { PostPaymentResponseDto } from '../../apis/response/payment';
+import { ResponseDto } from '../../apis/response';
+import { PatchServerPaymentResponseDto } from '../../apis/response/game';
 
 // RootStackParamList 타입 정의
 type RootStackParamList = {
@@ -24,19 +28,43 @@ const PaymentScreen: React.FC = () => {
     const {paymentData} = route.params;
     const itemName = paymentData?.name;
     const amount = paymentData?.amount;
-    if(itemName == null || amount == null) {
+    const serverId = paymentData?.serverId;
+    if(itemName == null || amount == null || serverId == null) {
         navigation.goBack;
         return;
     }
 
+    // function: post game response 처리 함수 //
+    const PostPaymentResponse =(responseBody : PostPaymentResponseDto | ResponseDto | null) => {
+        if(!responseBody) return;
+        const {code} = responseBody;
+        if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if(code !== 'SU') return;
+
+        PatchServerPaymentStatus(serverId).then(PatchServerPaymentStatusResponse);
+    }
+
+    // function: post game response 처리 함수 //
+    const PatchServerPaymentStatusResponse =(responseBody : PatchServerPaymentResponseDto | ResponseDto | null) => {
+        if(!responseBody) return;
+        const {code} = responseBody;
+        if(code === 'DBE') Alert.alert('데이터베이스 오류입니다.');
+        if(code !== 'SU') return;
+        
+        navigation.goBack();
+    }
+
+
     function callback(response : any) {
         console.log(response);
         if (response.imp_success === "true") {
-            Alert.alert(
-                "결제가 완료되었습니다.",
-                "서버 제작까지 최대 24시간이 소요될 수 있습니다."
-            );
-            navigation.goBack();
+            const amountString = amount.toString();
+            const requestBody = {
+                serverId : serverId,
+                amount : amountString
+            }
+            PostPaymentRequest(requestBody).then(PostPaymentResponse);
+            
         } else {
             Alert.alert(
                 "결제에 실패했습니다.",

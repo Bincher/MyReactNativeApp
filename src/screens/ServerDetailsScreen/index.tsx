@@ -101,9 +101,14 @@ const ServerDetailsScreen: React.FC = () => {
         const paymentData : PaymentData = {
             name: itemName,
             amount: priceNumber,
+            serverId: server.id
         }
         
-        navigation.navigate('PaymentScreen', { paymentData });
+        const serverId = server.id;
+
+        navigation.navigate('PaymentScreen', { paymentData});
+
+
     };
 
     // render: server Details 스크린 렌더링 //
@@ -135,6 +140,7 @@ const ServerDetailsScreen: React.FC = () => {
                     <Text style={styles.sectionTitleRun}>서버 상태 : {server.status}</Text>
                 )}
                 <Text style={styles.serverDetail}>IP 주소: {server.serverAddress}</Text>
+                <Text style={styles.serverDetail}>결제 상태: {server.paymentStatus ? "결제완료" : "결제안됨"}</Text>
             </View>
             <View style={styles.infoSection}>
                 <Text style={styles.sectionTitle}>서버 상세 정보</Text>
@@ -148,9 +154,11 @@ const ServerDetailsScreen: React.FC = () => {
             </View>
 
             <View style={styles.buttonContainer}>
+                {server.paymentStatus === false && (
                 <TouchableOpacity style={styles.editButton} onPress={paymentButtonClickEventHandler}>
                     <Text style={styles.buttonText}>결제</Text>
                 </TouchableOpacity>
+                )}
                 <TouchableOpacity style={styles.editButton} onPress={editButtonClickEventHandler}>
                     <Text style={styles.buttonText}>수정</Text>
                 </TouchableOpacity>

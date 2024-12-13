@@ -5,6 +5,7 @@ import GetServerListResponseDto from "./get-server-list.response.dto";
 import PatchGameServerResponseDto from "./patch-game-server.response.dto";
 import PostGameServerResponseDto from "./post-game-server.response.dto";
 import PostGameResponseDto from "./post-game.response.dto";
+import PatchServerPaymentResponseDto from "./patch-server-payment-status.response.dto";
 
 export type{
     PostGameResponseDto,
@@ -13,5 +14,6 @@ export type{
     GetUserServerListResponseDto,
     GetServerListResponseDto,
     PatchGameServerResponseDto,
-    DeleteGameServerResponseDto
+    DeleteGameServerResponseDto,
+    PatchServerPaymentResponseDto
 }

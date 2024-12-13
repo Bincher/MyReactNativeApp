@@ -4,7 +4,7 @@ import { ResponseDto } from "./response";
 import { SignUpResponseDto, SignInResponseDto, IdCheckResponseDto, EmailCertificationResponseDto, CheckCertificationResponseDto, DeleteUserResponseDto } from "./response/auth";
 import { CheckCertificationForChangeResponseDto, EmailCertificationForChangeResponseDto, GetSignInUserResponseDto, GetUserResponseDto, IsPasswordRightResponseDto, PatchEmailResponseDto, PatchPasswordResponseDto, PatchProfileImageResponseDto } from "./response/user";
 import { PostGameRequestDto } from "./request/game";
-import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerResponseDto, PostGameResponseDto } from "./response/game";
+import { DeleteGameServerResponseDto, GetServerListResponseDto, PatchGameServerResponseDto, PatchServerPaymentResponseDto, PostGameResponseDto } from "./response/game";
 import GetGameListResponseDto from "./response/game/get-game-list.response.dto";
 import PostGameServerRequestDto from "./request/game/post-game-server.request.dto";
 import PostGameServerResponseDto from "./response/game/post-game-server.response.dto";
@@ -15,6 +15,8 @@ import { PatchFcmTokenRequestDto, SendEmailRequestDto, SendNotificationRequestDt
 import { PatchFcmTokenResponseDto, SendEmailResponseDto, SendNotificationResponseDto } from "./response/support";
 import { CheckCertificationForChangeRequestDto, EmailCertificationForChangeRequestDto, IsPasswordRightRequestDto, PatchEmailRequestDto, PatchPasswordRequestDto, PatchProfileImageRequestDto } from "./request/user";
 import { ServerAddress } from "../types/enum/server-address.enum";
+import { GetPaymentResponseDto, PostPaymentResponseDto } from "./response/payment";
+import { PostPaymentRequestDto } from "./request/payment";
 
 
 const DOMAIN = ServerAddress.CLOUD_SERVER_ADDRESS;
@@ -52,6 +54,9 @@ const IS_PASSWORD_RIGHT_URL =()=>`${API_DOMAIN}/user/password/is-right`;
 const EMAIL_CERTIFICATION_FOR_CHANGE_URL =()=> `${API_DOMAIN}/user/email-certification`;
 const CHECK_CERTIFICATION_FOR_CHANGE_URL =()=> `${API_DOMAIN}/user/check-certification`;
 const DELETE_USER_URL =()=> `${API_DOMAIN}/auth/delete`;
+const GET_PAYMENT_URL =(serverId: number)=> `${API_DOMAIN}/payment/${serverId}`;
+const POST_PAYMENT_URL =()=> `${API_DOMAIN}/payment`;
+const PATCH_SERVER_PAYMENT_STATUS_URL =(serverId: number)=> `${API_DOMAIN}/game/server/payment/${serverId}`;
 
 const responseHandler = <T>(response: AxiosResponse<any, any>)=>{
     const responseBody: T = response.data;
@@ -364,6 +369,27 @@ export const checkCertificationForChangeRequest = async (requestBody: CheckCerti
 export const deleteUserRequqest = async(accessToken: string) =>{
     const result = await axios.delete(DELETE_USER_URL(), authorization(accessToken))
         .then(responseHandler<DeleteUserResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const GetPaymentRequest = async(serverId: number) => {
+    const result = await axios.get(GET_PAYMENT_URL(serverId))
+        .then(responseHandler<GetPaymentResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const PostPaymentRequest = async(requestBody: PostPaymentRequestDto) => {
+    const result = await axios.post(POST_PAYMENT_URL(), requestBody)
+        .then(responseHandler<PostPaymentResponseDto>)
+        .catch(errorHandler)
+    return result;
+}
+
+export const PatchServerPaymentStatus = async(serverId: number) => {
+    const result = await axios.patch(PATCH_SERVER_PAYMENT_STATUS_URL(serverId))
+        .then(responseHandler<PatchServerPaymentResponseDto>)
         .catch(errorHandler)
     return result;
 }

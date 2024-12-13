@@ -62,6 +62,7 @@ const ServerScreen: React.FC = () => {
                         <Text style={styles.billingAmount}>월 {item.billingAmount}</Text>
                         <Text style={styles.billingAmount}>상태 : {item.status}</Text>
                         <Text style={styles.billingAmount}>IP주소 : {item.serverAddress}</Text>
+                        <Text style={styles.billingAmount}>결제 여부 : {item.paymentStatus ? "결제 완료" : "결제 필요"}</Text>
                     </View>
                 </TouchableOpacity>
             );

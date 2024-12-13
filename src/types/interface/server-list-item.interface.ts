@@ -16,4 +16,5 @@ export default interface ServerListItem{
     status: string;
     serverAddress: string;
     userId: string;
+    paymentStatus: boolean;
 }

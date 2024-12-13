@@ -1,5 +1,5 @@
 export interface Server {
-    id: string;
+    id: number;
     name: string;
     content: string;
     location: string;
@@ -13,4 +13,5 @@ export interface Server {
     status: string;
     serverAddress: string;
     userId: string;
+    paymentStatus: boolean;
 }
