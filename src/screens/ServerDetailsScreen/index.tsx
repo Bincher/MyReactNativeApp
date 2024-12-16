@@ -103,8 +103,6 @@ const ServerDetailsScreen: React.FC = () => {
             amount: priceNumber,
             serverId: server.id
         }
-        
-        const serverId = server.id;
 
         navigation.navigate('PaymentScreen', { paymentData});
 
