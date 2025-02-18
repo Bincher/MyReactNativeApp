@@ -1,3 +1,4 @@
+![Image](https://github.com/user-attachments/assets/3f8af7ee-d588-472e-9fda-dfcabe3733da)
 # 게임 호스팅 서비스
 
 - 참고 : https://www.notion.so/bincher/485d7480dc5d4df581d346f9f769d5c6
